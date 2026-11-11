@@ -32,6 +32,7 @@ import {
   resolveMediaId,
   getCachedIdFromSlug,
 } from '@/utils/slug';
+import { MurflixLogo } from '@/components/layout/MurflixLogo';
 
 interface WatchPageProps {
   mediaType: 'movie' | 'tv';
@@ -98,17 +99,6 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!rawSlugId) return;
-    let isMounted = true;
-    resolveMediaId(rawSlugId, mediaType).then((resId) => {
-      if (isMounted && resId) setResolvedId(resId);
-    });
-    return () => {
-      isMounted = false;
-    };
-  }, [rawSlugId, mediaType]);
-
   const currentSeason = Number(searchParams.get('s')) || 1;
   const currentEpisode = Number(searchParams.get('e')) || 1;
 
@@ -123,6 +113,24 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
   const [playerKey, setPlayerKey] = useState<number>(0);
   const [isLightsOff, setIsLightsOff] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+
+  // Episode Sidebar Batch state for TV shows with many episodes (e.g. 120 episodes)
+  const [currentBatchPage, setCurrentBatchPage] = useState<number>(() => Math.ceil(currentEpisode / 20) || 1);
+
+  useEffect(() => {
+    setCurrentBatchPage(Math.ceil(currentEpisode / 20) || 1);
+  }, [currentEpisode]);
+
+  useEffect(() => {
+    if (!rawSlugId) return;
+    let isMounted = true;
+    resolveMediaId(rawSlugId, mediaType).then((resId) => {
+      if (isMounted && resId) setResolvedId(resId);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, [rawSlugId, mediaType]);
 
   // Fetch servers list
   useEffect(() => {
@@ -198,6 +206,12 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
   );
 
   const episodesList: EpisodeItem[] = seasonData?.episodes || [];
+  const BATCH_SIZE = 20;
+  const totalBatchPages = Math.ceil(episodesList.length / BATCH_SIZE);
+  const visibleEpisodes = episodesList.slice(
+    (currentBatchPage - 1) * BATCH_SIZE,
+    currentBatchPage * BATCH_SIZE
+  );
 
   const handleSelectEpisode = (epNum: number) => {
     setSearchParams({ s: String(currentSeason), e: String(epNum) });
@@ -262,42 +276,54 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
         isLightsOff ? 'bg-black text-white' : 'bg-[#0f0f12] text-white'
       }`}
     >
-      {/* Top Breadcrumb & Action Bar */}
-      <div className="bg-[#141418] border-b border-white/10 px-4 sm:px-6 lg:px-8 py-3 sticky top-0 z-30 shadow-md">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <div className="flex items-center space-x-3 min-w-0">
+      {/* Dedicated Cinema Header (Clean 1:1, Zero Navbar Collision) */}
+      <div className="bg-[#141418] border-b border-white/10 px-3 sm:px-6 lg:px-8 py-3 sticky top-0 z-40 shadow-md">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+          
+          {/* Left: Brand + Back Button + Media Title */}
+          <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
+            <Link
+              to="/"
+              className="flex-shrink-0 transition-transform hover:scale-105 active:scale-95"
+              title="Kembali ke Beranda Murflix"
+            >
+              <MurflixLogo size="sm" />
+            </Link>
+
             <Link
               to={detailPath}
-              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs sm:text-sm font-semibold text-gray-200 transition-colors flex-shrink-0"
+              className="flex items-center space-x-1 px-2.5 sm:px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-gray-200 transition-colors flex-shrink-0 border border-zinc-700"
+              title="Kembali ke halaman informasi"
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Kembali</span>
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Kembali</span>
             </Link>
 
             <div className="min-w-0 truncate">
-              <h1 className="text-sm sm:text-base font-bold text-white truncate flex items-center gap-2">
-                <span>{title || 'Sedang Memutar'}</span>
-                {releaseYear && <span className="text-zinc-500 text-xs font-normal">({releaseYear})</span>}
+              <h1 className="text-xs sm:text-base font-bold text-white truncate flex items-center gap-2">
+                <span className="truncate">{title || 'Sedang Memutar'}</span>
+                {releaseYear && <span className="text-zinc-500 text-xs font-normal hidden md:inline">({releaseYear})</span>}
                 {mediaType === 'tv' && (
-                  <span className="px-2 py-0.5 rounded text-[#e50914] text-xs font-bold font-mono border border-red-500/40">
+                  <span className="px-2 py-0.5 rounded text-[#e50914] text-[11px] sm:text-xs font-bold font-mono border border-red-500/40 flex-shrink-0">
                     S{currentSeason}:E{currentEpisode}
                   </span>
                 )}
               </h1>
               {mediaType === 'tv' && currentEpisodeData?.name && (
-                <p className="text-xs text-zinc-400 truncate">
+                <p className="text-[11px] text-zinc-400 truncate hidden md:block">
                   Episode {currentEpisode}: "{currentEpisodeData.name}"
                 </p>
               )}
             </div>
           </div>
 
+          {/* Right: Actions */}
           <div className="flex items-center space-x-2 flex-shrink-0">
             {/* Lights off toggle */}
             <button
               onClick={() => setIsLightsOff(!isLightsOff)}
-              className={`p-2 rounded-lg text-xs font-medium transition-colors flex items-center space-x-1.5 ${
-                isLightsOff ? 'bg-amber-500/20 text-amber-400' : 'bg-zinc-800 text-gray-300 hover:text-white'
+              className={`p-2 rounded-xl text-xs font-medium transition-colors flex items-center space-x-1.5 border border-zinc-700 ${
+                isLightsOff ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-zinc-800 text-gray-300 hover:text-white'
               }`}
               title={isLightsOff ? 'Nyalakan Lampu' : 'Matikan Lampu (Cinema Mode)'}
             >
@@ -308,7 +334,7 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
             {/* Share */}
             <button
               onClick={handleShare}
-              className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-gray-300 hover:text-white transition-colors text-xs flex items-center space-x-1"
+              className="p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-gray-300 hover:text-white transition-colors text-xs flex items-center space-x-1 border border-zinc-700"
               title="Salin Tautan"
             >
               {copySuccess ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4" />}
@@ -344,11 +370,47 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
               )}
             </div>
 
-            {/* Sub-Player Bar: Server Switcher (LK21 Style) */}
+            {/* Sub-Player Bar: Server Switcher (Adaptive Dropdown on Mobile, Pills on Desktop) */}
             <div className="p-3 sm:p-4 rounded-2xl bg-[#151518] border border-white/10 space-y-3 shadow-lg">
-              <div className="flex flex-wrap items-center justify-between gap-2.5">
-                
-                {/* Server Selector Pills */}
+              
+              {/* MOBILE VIEW (md:hidden): Clean Dropdown (Sesuai Permintaan User) */}
+              <div className="md:hidden flex items-center justify-between gap-2.5">
+                <div className="relative flex-1 min-w-0">
+                  <label htmlFor="mobile-server-select" className="sr-only">Pilih Server Pemutar</label>
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-red-500">
+                    <Server className="w-4 h-4" />
+                  </div>
+                  <select
+                    id="mobile-server-select"
+                    value={activeServer}
+                    onChange={(e) => setActiveServer(e.target.value)}
+                    className="w-full pl-9 pr-8 py-2.5 rounded-xl bg-zinc-800 border border-zinc-700 text-white text-xs font-bold focus:outline-none focus:border-red-500 appearance-none shadow-sm cursor-pointer"
+                  >
+                    {servers.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        Server {s.name} ({s.description})
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-zinc-400">
+                    <ChevronDown className="w-4 h-4" />
+                  </div>
+                </div>
+
+                {/* Mobile Refresh Button */}
+                <button
+                  type="button"
+                  onClick={() => setPlayerKey((k) => k + 1)}
+                  className="px-3.5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-gray-200 text-xs font-semibold flex items-center space-x-1.5 transition-colors border border-zinc-700 flex-shrink-0"
+                  title="Muat Ulang Video"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span className="text-xs">Refresh</span>
+                </button>
+              </div>
+
+              {/* DESKTOP VIEW (hidden md:flex): Sleek Pills Row */}
+              <div className="hidden md:flex items-center justify-between gap-2.5">
                 <div className="flex items-center space-x-2 flex-wrap gap-y-2">
                   <span className="text-xs font-black uppercase tracking-wider text-red-500 flex items-center gap-1.5 mr-1">
                     <Server className="w-3.5 h-3.5" />
@@ -369,10 +431,10 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
                   ))}
                 </div>
 
-                {/* Reload Player Button */}
+                {/* Desktop Reload Player Button */}
                 <button
                   onClick={() => setPlayerKey((k) => k + 1)}
-                  className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-gray-300 text-xs font-semibold flex items-center space-x-1.5 transition-colors border border-white/5"
+                  className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-gray-300 text-xs font-semibold flex items-center space-x-1.5 transition-colors border border-white/5 flex-shrink-0"
                   title="Muat Ulang Video"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
@@ -389,10 +451,11 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
                     className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-gray-200 disabled:opacity-30 disabled:hover:bg-zinc-800 transition-colors font-semibold flex items-center space-x-1"
                   >
                     <ChevronLeft className="w-3.5 h-3.5" />
-                    <span>Episode Sebelumnya</span>
+                    <span className="hidden sm:inline">Episode Sebelumnya</span>
+                    <span className="sm:hidden">Prev Ep</span>
                   </button>
 
-                  <span className="font-mono text-zinc-400">
+                  <span className="font-mono text-zinc-400 text-[11px] sm:text-xs">
                     S{currentSeason} : Episode {currentEpisode} dari {episodesList.length}
                   </span>
 
@@ -400,7 +463,8 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
                     onClick={handleNextEpisode}
                     className="px-3 py-1.5 rounded-xl bg-[#e50914] hover:bg-red-700 text-white font-semibold transition-colors shadow-md shadow-red-600/30 flex items-center space-x-1"
                   >
-                    <span>Episode Berikutnya</span>
+                    <span className="hidden sm:inline">Episode Berikutnya</span>
+                    <span className="sm:hidden">Next Ep</span>
                     <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -459,7 +523,7 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
             
             {/* IF TV SHOW: EPISODE LIST SIDEBAR */}
             {mediaType === 'tv' ? (
-              <div className="rounded-2xl bg-[#151518] border border-white/10 p-4 space-y-4 shadow-xl">
+              <div className="rounded-2xl bg-[#151518] border border-white/10 p-4 space-y-3.5 shadow-xl">
                 <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
                   <div className="flex items-center space-x-2">
                     <Tv className="w-4 h-4 text-[#e50914]" />
@@ -484,10 +548,33 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
                   )}
                 </div>
 
-                {/* Scrollable Episodes */}
-                <div className="space-y-2 max-h-[700px] overflow-y-auto pr-1">
-                  {episodesList.length > 0 ? (
-                    episodesList.map((ep) => {
+                {/* Batch Selector for Long Series (e.g. 120 episodes) */}
+                {totalBatchPages > 1 && (
+                  <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-zinc-900 border border-zinc-800">
+                    <span className="text-[11px] font-semibold text-zinc-400 flex-shrink-0">Batch:</span>
+                    <select
+                      value={currentBatchPage}
+                      onChange={(e) => setCurrentBatchPage(Number(e.target.value))}
+                      className="w-full bg-zinc-800 border border-zinc-700 text-white text-xs font-bold rounded-lg px-2 py-1 focus:outline-none focus:border-red-500 cursor-pointer"
+                    >
+                      {Array.from({ length: totalBatchPages }).map((_, idx) => {
+                        const p = idx + 1;
+                        const start = (p - 1) * BATCH_SIZE + 1;
+                        const end = Math.min(p * BATCH_SIZE, episodesList.length);
+                        return (
+                          <option key={p} value={p}>
+                            Episode {start} - {end}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                )}
+
+                {/* Scrollable Episodes in Active Batch */}
+                <div className="space-y-2 max-h-[620px] overflow-y-auto pr-1">
+                  {visibleEpisodes.length > 0 ? (
+                    visibleEpisodes.map((ep) => {
                       const isPlaying = ep.episode_number === currentEpisode;
                       return (
                         <div
@@ -499,9 +586,9 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
                               : 'bg-zinc-900/60 border-zinc-800/80 hover:bg-zinc-800/80 hover:border-zinc-700'
                           }`}
                         >
-                          {/* 16:9 Still Thumbnail */}
-                          <div className="relative aspect-video w-24 flex-shrink-0 rounded-lg overflow-hidden bg-zinc-800">
-                            {ep.still_path ? (
+                          {/* 16:9 Still Thumbnail or Compact Episode Number Box */}
+                          {ep.still_path ? (
+                            <div className="relative aspect-video w-24 flex-shrink-0 rounded-lg overflow-hidden bg-zinc-800">
                               <img
                                 src={getTMDBImageUrl(ep.still_path, 'w300')}
                                 alt={ep.name}
@@ -511,18 +598,27 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                                 loading="lazy"
                               />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-xs font-bold text-zinc-500">
-                                E{ep.episode_number}
-                              </div>
-                            )}
-
-                            {isPlaying && (
-                              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                                <Play className="w-4 h-4 fill-[#e50914] text-[#e50914]" />
-                              </div>
-                            )}
-                          </div>
+                              {isPlaying && (
+                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                  <Play className="w-4 h-4 fill-[#e50914] text-[#e50914]" />
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div
+                              className={`w-14 h-11 flex-shrink-0 rounded-lg flex items-center justify-center font-bold text-xs border ${
+                                isPlaying
+                                  ? 'bg-red-600/20 text-[#e50914] border-red-500/50'
+                                  : 'bg-zinc-800/80 text-zinc-300 border-zinc-700 group-hover:border-zinc-500'
+                              }`}
+                            >
+                              {isPlaying ? (
+                                <Play className="w-4 h-4 fill-current" />
+                              ) : (
+                                <span>E{ep.episode_number}</span>
+                              )}
+                            </div>
+                          )}
 
                           {/* Info */}
                           <div className="flex-1 min-w-0">
@@ -608,4 +704,3 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
     </div>
   );
 };
-
