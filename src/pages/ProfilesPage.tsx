@@ -164,7 +164,15 @@ export const ProfilesPage: React.FC = () => {
 
         {/* Profiles Grid */}
         <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
-          {profiles.map((p) => {
+          {profiles.length === 0 ? (
+            Array.from({ length: 4 }).map((_, idx) => (
+              <div key={idx} className="flex flex-col items-center space-y-3 animate-pulse">
+                <div className="w-24 h-24 sm:w-36 sm:h-36 rounded-2xl bg-zinc-800 border-2 border-white/10 shadow-2xl" />
+                <div className="w-20 h-4 bg-zinc-800 rounded-md" />
+              </div>
+            ))
+          ) : (
+            profiles.map((p) => {
             const isActive = activeProfile?.id === p.id;
 
             return (
@@ -209,7 +217,7 @@ export const ProfilesPage: React.FC = () => {
                 </span>
               </div>
             );
-          })}
+          }))}
 
           {/* Add Profile Card */}
           <div

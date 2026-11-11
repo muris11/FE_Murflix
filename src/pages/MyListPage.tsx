@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { watchlistApi, WatchlistRecord } from '@/api/watchlist';
 import { MovieCard } from '@/components/media/MovieCard';
+import { MovieCardSkeleton } from '@/components/media/MovieCardSkeleton';
 import { Heart } from 'lucide-react';
 
 export const MyListPage: React.FC = () => {
@@ -28,8 +29,10 @@ export const MyListPage: React.FC = () => {
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="w-12 h-12 rounded-full border-4 border-pink-500 border-t-transparent animate-spin" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
+          {Array.from({ length: 14 }).map((_, i) => (
+            <MovieCardSkeleton key={i} />
+          ))}
         </div>
       ) : items.length === 0 ? (
         <div className="text-center py-20 text-gray-400 space-y-2">

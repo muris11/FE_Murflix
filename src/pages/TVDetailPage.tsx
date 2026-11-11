@@ -116,8 +116,78 @@ export const TVDetailPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#141414] flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full border-4 border-red-600 border-t-transparent animate-spin" />
+      <div className="min-h-screen bg-[#141414] pb-24">
+        {/* 1:1 Hero Backdrop Skeleton */}
+        <div className="relative w-full h-[50vh] sm:h-[65vh] bg-zinc-900 animate-pulse overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/60 to-black/40" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#141414]/90 via-[#141414]/40 to-transparent w-full md:w-3/4" />
+          <div className="absolute top-20 left-4 sm:left-8 z-30 w-28 h-9 rounded-full bg-zinc-800/90 border border-white/5" />
+        </div>
+
+        {/* 1:1 Main Info Skeleton */}
+        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 relative z-20 -mt-28 sm:-mt-44 flex flex-col md:flex-row gap-8 animate-pulse">
+          {/* 1:1 Poster Skeleton */}
+          <div className="flex-shrink-0 w-44 sm:w-60 md:w-68 mx-auto md:mx-0 self-start">
+            <div className="aspect-[2/3] w-full rounded-2xl bg-zinc-800 border border-white/10 shadow-2xl" />
+          </div>
+
+          {/* 1:1 Details Content Skeleton */}
+          <div className="flex-1 space-y-4 text-white">
+            {/* Metadata Badges */}
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="w-14 h-5 rounded bg-amber-500/20 border border-amber-500/30" />
+              <div className="w-14 h-5 rounded bg-zinc-800" />
+              <div className="w-20 h-5 rounded bg-zinc-800" />
+              <div className="w-16 h-5 rounded bg-blue-900/40 border border-blue-500/30" />
+            </div>
+
+            {/* Title */}
+            <div className="h-9 sm:h-12 bg-zinc-800 rounded-xl w-3/4 max-w-lg" />
+            <div className="h-4 bg-zinc-800/60 rounded w-1/2 max-w-sm" />
+
+            {/* Genres */}
+            <div className="flex flex-wrap gap-2 pt-1">
+              <div className="w-20 h-7 rounded-full bg-zinc-800" />
+              <div className="w-24 h-7 rounded-full bg-zinc-800" />
+              <div className="w-16 h-7 rounded-full bg-zinc-800" />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-wrap items-center gap-4 pt-4">
+              <div className="w-44 h-12 rounded-full bg-[#e50914]/80 shadow-lg" />
+              <div className="w-40 h-12 rounded-full bg-zinc-800 border border-white/10" />
+            </div>
+
+            {/* Synopsis */}
+            <div className="pt-4 space-y-2.5 max-w-3xl">
+              <div className="h-5 bg-zinc-800 rounded w-24" />
+              <div className="h-4 bg-zinc-800/80 rounded w-full" />
+              <div className="h-4 bg-zinc-800/80 rounded w-5/6" />
+              <div className="h-4 bg-zinc-800/70 rounded w-4/6" />
+            </div>
+
+            {/* Season Selector Skeleton */}
+            <div className="pt-8 space-y-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-32 h-6 bg-zinc-800 rounded" />
+                <div className="w-28 h-8 bg-zinc-800 rounded-lg" />
+              </div>
+
+              {/* Episodes Grid Skeleton */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="rounded-xl overflow-hidden bg-zinc-900 border border-white/5 space-y-2 pb-3">
+                    <div className="aspect-video w-full bg-zinc-800" />
+                    <div className="px-3 space-y-1.5">
+                      <div className="h-4 bg-zinc-800 rounded w-3/4" />
+                      <div className="h-3 bg-zinc-800/60 rounded w-1/2" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

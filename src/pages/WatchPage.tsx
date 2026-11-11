@@ -259,10 +259,92 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0e0e10] flex items-center justify-center">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="w-12 h-12 rounded-full border-4 border-red-600 border-t-transparent animate-spin" />
-          <p className="text-sm text-gray-400 font-medium">Menyiapkan Pemutar Cinema Murflix...</p>
+      <div className="min-h-screen bg-[#0f0f12] text-white pb-20 animate-pulse">
+        {/* 1:1 Dedicated Cinema Header Skeleton */}
+        <div className="bg-[#141418] border-b border-white/10 px-3 sm:px-6 lg:px-8 py-3 sticky top-0 z-40 shadow-md">
+          <div className="w-full flex items-center justify-between gap-3">
+            <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
+              <div className="w-20 h-6 bg-red-600/40 rounded flex-shrink-0" />
+              <div className="w-20 h-8 rounded-xl bg-zinc-800 border border-zinc-700 flex-shrink-0" />
+              <div className="h-5 bg-zinc-800 rounded w-48 sm:w-64" />
+            </div>
+            <div className="flex items-center space-x-2 flex-shrink-0">
+              <div className="w-24 sm:w-28 h-8 rounded-xl bg-zinc-800 border border-zinc-700" />
+              <div className="w-10 sm:w-20 h-8 rounded-xl bg-zinc-800 border border-zinc-700" />
+            </div>
+          </div>
+        </div>
+
+        {/* 1:1 Main 2-Column Cinema Layout Skeleton */}
+        <div className="w-full px-2 sm:px-4 md:px-8 lg:px-12 pt-4 sm:pt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Left Column: Player & Controls & Metadata */}
+            <div className="lg:col-span-8 xl:col-span-9 space-y-4">
+              {/* Cinema Player Container */}
+              <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full border-4 border-red-600 border-t-transparent animate-spin" />
+              </div>
+
+              {/* Sub-Player Server Bar Skeleton */}
+              <div className="p-3 sm:p-4 rounded-2xl bg-[#151518] border border-white/10 space-y-3">
+                {/* Mobile Dropdown Skeleton */}
+                <div className="md:hidden flex items-center justify-between gap-2.5">
+                  <div className="h-10 bg-zinc-800 rounded-xl flex-1 border border-zinc-700" />
+                  <div className="w-20 h-10 bg-zinc-800 rounded-xl border border-zinc-700" />
+                </div>
+
+                {/* Desktop Pills Skeleton */}
+                <div className="hidden md:flex items-center justify-between gap-2.5">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-24 h-5 bg-zinc-800 rounded" />
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div key={i} className="w-16 h-7 rounded-xl bg-zinc-800 border border-white/5" />
+                    ))}
+                  </div>
+                  <div className="w-28 h-7 rounded-xl bg-zinc-800 border border-white/5" />
+                </div>
+              </div>
+
+              {/* Information Card Skeleton */}
+              <div className="p-5 sm:p-6 rounded-2xl bg-[#151518] border border-white/10 space-y-4">
+                <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                  <div className="h-7 bg-zinc-800 rounded w-64" />
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-5 rounded bg-zinc-800" />
+                    <div className="w-12 h-5 rounded bg-zinc-800" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-4 bg-zinc-800 rounded w-20" />
+                  <div className="h-3.5 bg-zinc-800/80 rounded w-full" />
+                  <div className="h-3.5 bg-zinc-800/70 rounded w-4/5" />
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Episode / Movie Sidebar Skeleton */}
+            <div className="lg:col-span-4 xl:col-span-3 space-y-4">
+              <div className="rounded-2xl bg-[#151518] border border-white/10 p-4 space-y-3.5">
+                <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                  <div className="w-32 h-5 bg-zinc-800 rounded" />
+                  <div className="w-20 h-6 bg-zinc-800 rounded-lg" />
+                </div>
+
+                {/* Episode Items Skeleton */}
+                <div className="space-y-2.5">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800/80 flex gap-3 items-center">
+                      <div className="aspect-video w-24 rounded-lg bg-zinc-800 flex-shrink-0" />
+                      <div className="flex-1 space-y-1.5">
+                        <div className="h-3.5 bg-zinc-800 rounded w-3/4" />
+                        <div className="h-2.5 bg-zinc-800/60 rounded w-1/2" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
