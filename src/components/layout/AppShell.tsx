@@ -14,8 +14,9 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
   const isAuthRoute = path === '/login' || path === '/subscription-expired';
   const isWatchRoute = path.startsWith('/watch');
   const isLandingRoute = (!isAuthenticated && path === '/') || path === '/welcome' || path === '/about';
+  const isProfilesRoute = path === '/profiles';
 
-  const hideNavAndFooter = isAdminRoute || isAuthRoute || isWatchRoute || isLandingRoute;
+  const hideNavAndFooter = isAdminRoute || isAuthRoute || isWatchRoute || isLandingRoute || isProfilesRoute;
 
   return (
     <div className="min-h-screen bg-[#141414] text-white flex flex-col justify-between">

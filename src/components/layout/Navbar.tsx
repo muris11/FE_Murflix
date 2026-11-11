@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Bell, Film, Tv, Heart, Shield, LogOut, User as UserIcon, Menu, X } from 'lucide-react';
+import { Search, Bell, Film, Tv, Heart, Shield, LogOut, User as UserIcon, Menu, X, Settings, Users, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { MurflixLogo } from './MurflixLogo';
 
@@ -12,7 +12,7 @@ export const Navbar: React.FC = () => {
   
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, isAuthenticated, isAdmin, logout } = useAuth();
+  const { user, activeProfile, profiles, selectProfile, isAuthenticated, isAdmin, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -106,49 +106,116 @@ export const Navbar: React.FC = () => {
               <div className="relative">
                 <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center space-x-2 p-1 rounded-full hover:ring-2 hover:ring-[#e50914] transition-all"
+                  className="flex items-center space-x-2 p-1 rounded-xl hover:ring-2 hover:ring-[#e50914] transition-all group"
+                  title="Menu Profil"
                 >
-                  <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs uppercase shadow-md">
-                    {user?.full_name ? user.full_name[0] : user?.email[0] || 'U'}
+                  <div className="w-8 h-8 rounded-lg overflow-hidden bg-zinc-800 shadow-md flex items-center justify-center border border-white/20">
+                    <img
+                      src={activeProfile?.avatar_url || user?.avatar_url || '/avatars/avatar-red.svg'}
+                      alt={activeProfile?.name || 'Profile'}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
+                  <ChevronDown className="w-3.5 h-3.5 text-gray-400 group-hover:text-white transition-transform" />
                 </button>
 
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-[#18181b] border border-gray-800 rounded-2xl shadow-2xl py-2 z-50 animate-fadeIn">
-                    <div className="px-4 py-2 border-b border-gray-800">
-                      <p className="text-xs font-bold text-white truncate">{user?.full_name || 'Member'}</p>
-                      <p className="text-[11px] text-gray-400 truncate">{user?.email}</p>
-                      <span className="inline-block mt-1 px-2 py-0.5 rounded text-red-500 border border-red-500/40 text-[10px] font-bold uppercase">
-                        {user?.role === 'admin' ? 'Super Admin' : user?.plan_name || 'Member Aktif'}
-                      </span>
+                  <div className="absolute right-0 mt-2 w-64 bg-[#18181b] border border-gray-800 rounded-2xl shadow-2xl py-2 z-50 animate-fadeIn">
+                    {/* Active Profile Info */}
+                    <div className="px-4 py-2.5 border-b border-gray-800 flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-xl overflow-hidden bg-black border border-red-500/50 flex-shrink-0">
+                        <img
+                          src={activeProfile?.avatar_url || user?.avatar_url || '/avatars/avatar-red.svg'}
+                          alt={activeProfile?.name || 'Profile'}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-bold text-white truncate">{activeProfile?.name || user?.full_name || 'Member'}</p>
+                        <p className="text-[11px] text-gray-400 truncate">{user?.email}</p>
+                        <span className="inline-block mt-0.5 px-2 py-0.5 rounded text-red-500 border border-red-500/40 text-[10px] font-bold uppercase">
+                          {user?.role === 'admin' ? 'Super Admin' : user?.plan_name || 'Member Aktif'}
+                        </span>
+                      </div>
                     </div>
 
-                    {isAdmin && (
-                      <Link
-                        to="/admin"
-                        onClick={() => setIsProfileOpen(false)}
-                        className="flex items-center space-x-2 px-4 py-2.5 text-xs text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
-                      >
-                        <Shield className="w-4 h-4 text-amber-500" />
-                        <span>Portal Admin</span>
-                      </Link>
+                    {/* Quick Switch Profiles (Netflix Style) */}
+                    {profiles.length > 1 && (
+                      <div className="py-2 border-b border-gray-800">
+                        <p className="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">
+                          Ganti Profil
+                        </p>
+                        {profiles
+                          .filter((p) => p.id !== activeProfile?.id)
+                          .map((p) => (
+                            <button
+                              key={p.id}
+                              onClick={() => {
+                                selectProfile(p);
+                                setIsProfileOpen(false);
+                              }}
+                              className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-800 transition-colors text-left"
+                            >
+                              <img
+                                src={p.avatar_url || '/avatars/avatar-red.svg'}
+                                alt={p.name}
+                                className="w-6 h-6 rounded-md object-cover flex-shrink-0"
+                              />
+                              <span className="text-xs text-gray-300 hover:text-white truncate font-medium">
+                                {p.name}
+                              </span>
+                            </button>
+                          ))}
+                      </div>
                     )}
 
-                    <Link
-                      to="/my-list"
-                      onClick={() => setIsProfileOpen(false)}
-                      className="flex items-center space-x-2 px-4 py-2.5 text-xs text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
-                    >
-                      <Heart className="w-4 h-4 text-red-500" />
-                      <span>Daftar Tontonan</span>
-                    </Link>
+                    {/* Manage Profiles & Account Settings */}
+                    <div className="py-1">
+                      <Link
+                        to="/profiles?manage=true"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center space-x-2.5 px-4 py-2 text-xs text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
+                      >
+                        <Users className="w-4 h-4 text-red-500" />
+                        <span>Kelola Profil</span>
+                      </Link>
+
+                      <Link
+                        to="/settings"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center space-x-2.5 px-4 py-2 text-xs text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
+                      >
+                        <Settings className="w-4 h-4 text-blue-400" />
+                        <span>Pengaturan Akun &amp; Avatar</span>
+                      </Link>
+
+                      <Link
+                        to="/my-list"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center space-x-2.5 px-4 py-2 text-xs text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
+                      >
+                        <Heart className="w-4 h-4 text-pink-500" />
+                        <span>Daftar Tontonan</span>
+                      </Link>
+
+                      {isAdmin && (
+                        <Link
+                          to="/admin"
+                          onClick={() => setIsProfileOpen(false)}
+                          className="flex items-center space-x-2.5 px-4 py-2 text-xs text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
+                        >
+                          <Shield className="w-4 h-4 text-amber-500" />
+                          <span>Portal Admin</span>
+                        </Link>
+                      )}
+                    </div>
 
                     <button
                       onClick={() => {
                         setIsProfileOpen(false);
                         logout();
                       }}
-                      className="w-full flex items-center space-x-2 px-4 py-2.5 text-xs text-red-400 hover:bg-red-500/10 transition-colors border-t border-gray-800 mt-1"
+                      className="w-full flex items-center space-x-2.5 px-4 py-2.5 text-xs text-red-400 hover:bg-red-500/10 transition-colors border-t border-gray-800 mt-1"
                     >
                       <LogOut className="w-4 h-4" />
                       <span>Keluar</span>

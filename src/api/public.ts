@@ -34,3 +34,4 @@ export const publicApi = {
     return res.data.plans;
   },
 };
+

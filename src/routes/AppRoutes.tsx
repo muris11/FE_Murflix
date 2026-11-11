@@ -13,6 +13,8 @@ import { WatchPage } from '@/pages/WatchPage';
 import { BrowsePage } from '@/pages/BrowsePage';
 import { SearchPage } from '@/pages/SearchPage';
 import { MyListPage } from '@/pages/MyListPage';
+import { ProfilesPage } from '@/pages/ProfilesPage';
+import { SettingsPage } from '@/pages/SettingsPage';
 
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage';
@@ -174,6 +176,22 @@ export const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute>
               <MyListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profiles"
+          element={
+            <ProtectedRoute>
+              <ProfilesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <SettingsPage />
             </ProtectedRoute>
           }
         />

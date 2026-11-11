@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { User, AuthContextType } from '@/types/auth';
+import { UserProfile } from '@/types/profile';
 import { authApi } from '@/api/auth';
+import { profilesApi } from '@/api/profiles';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -9,7 +11,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const saved = localStorage.getItem('murflix_user');
     return saved ? JSON.parse(saved) : null;
   });
+
+  const [profiles, setProfiles] = useState<UserProfile[]>([]);
+  const [activeProfile, setActiveProfile] = useState<UserProfile | null>(() => {
+    const saved = localStorage.getItem('murflix_active_profile');
+    return saved ? JSON.parse(saved) : null;
+  });
+
   const [isLoading, setIsLoading] = useState(true);
+
+  const refreshProfiles = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('murflix_token');
+      if (!token) {
+        setProfiles([]);
+        setActiveProfile(null);
+        return;
+      }
+      const data = await profilesApi.getProfiles();
+      setProfiles(data || []);
+
+      // If active profile is not set or not in list, set to first profile
+      const savedActive = localStorage.getItem('murflix_active_profile');
+      let foundActive: UserProfile | null = null;
+      if (savedActive) {
+        try {
+          const parsed = JSON.parse(savedActive);
+          foundActive = data.find((p) => p.id === parsed.id) || null;
+        } catch {
+          foundActive = null;
+        }
+      }
+      if (!foundActive && data.length > 0) {
+        foundActive = data[0];
+      }
+      setActiveProfile(foundActive);
+      if (foundActive) {
+        localStorage.setItem('murflix_active_profile', JSON.stringify(foundActive));
+      } else {
+        localStorage.removeItem('murflix_active_profile');
+      }
+    } catch (err) {
+      console.error('Failed to load profiles:', err);
+    }
+  }, []);
 
   const refreshUser = useCallback(async () => {
     try {
@@ -22,19 +67,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const userData = await authApi.me();
       setUser(userData);
       localStorage.setItem('murflix_user', JSON.stringify(userData));
+      await refreshProfiles();
     } catch (err) {
       console.error('Failed to refresh user:', err);
       setUser(null);
       localStorage.removeItem('murflix_token');
       localStorage.removeItem('murflix_user');
+      localStorage.removeItem('murflix_active_profile');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [refreshProfiles]);
 
   useEffect(() => {
     refreshUser();
   }, [refreshUser]);
+
+  const selectProfile = (profile: UserProfile) => {
+    setActiveProfile(profile);
+    localStorage.setItem('murflix_active_profile', JSON.stringify(profile));
+  };
 
   const login = async (email: string, password: string) => {
     try {
@@ -42,6 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('murflix_token', res.token);
       localStorage.setItem('murflix_user', JSON.stringify(res.user));
       setUser(res.user);
+      await refreshProfiles();
       return { success: true };
     } catch (err: any) {
       const message = err.response?.data?.error || err.message || 'Login gagal';
@@ -55,6 +108,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('murflix_token', res.token);
       localStorage.setItem('murflix_user', JSON.stringify(res.user));
       setUser(res.user);
+      await refreshProfiles();
       return { success: true };
     } catch (err: any) {
       const message = err.response?.data?.error || err.message || 'Login demo gagal';
@@ -70,7 +124,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       localStorage.removeItem('murflix_token');
       localStorage.removeItem('murflix_user');
+      localStorage.removeItem('murflix_active_profile');
       setUser(null);
+      setProfiles([]);
+      setActiveProfile(null);
       window.location.href = '/login';
     }
   };
@@ -86,6 +143,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider
       value={{
         user,
+        activeProfile,
+        profiles,
         isLoading,
         isAuthenticated,
         isAdmin,
@@ -94,6 +153,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loginDemo,
         logout,
         refreshUser,
+        selectProfile,
+        refreshProfiles,
       }}
     >
       {children}

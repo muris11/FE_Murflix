@@ -1,3 +1,5 @@
+import { UserProfile } from './profile';
+
 export type UserRole = 'admin' | 'user';
 
 export type SubscriptionDurationUnit = 'hours' | 'days' | 'months' | 'years' | 'forever';
@@ -31,6 +33,8 @@ export interface User {
 
 export interface AuthContextType {
   user: User | null;
+  activeProfile: UserProfile | null;
+  profiles: UserProfile[];
   isLoading: boolean;
   isAuthenticated: boolean;
   isAdmin: boolean;
@@ -39,5 +43,7 @@ export interface AuthContextType {
   loginDemo: () => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  selectProfile: (profile: UserProfile) => void;
+  refreshProfiles: () => Promise<void>;
 }
 
