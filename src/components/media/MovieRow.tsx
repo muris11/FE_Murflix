@@ -1,0 +1,63 @@
+import React, { useRef } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { MediaItem } from '@/types/tmdb';
+import { MovieCard } from './MovieCard';
+import { MovieCardSkeleton } from './MovieCardSkeleton';
+
+interface MovieRowProps {
+  title: string;
+  items?: MediaItem[];
+  isLoading?: boolean;
+}
+
+export const MovieRow: React.FC<MovieRowProps> = ({ title, items = [], isLoading = false }) => {
+  const rowRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (rowRef.current) {
+      const { scrollLeft, clientWidth } = rowRef.current;
+      const scrollAmount = clientWidth * 0.75;
+      rowRef.current.scrollTo({
+        left: direction === 'left' ? scrollLeft - scrollAmount : scrollLeft + scrollAmount,
+        behavior: 'smooth',
+      });
+    }
+  };
+
+  return (
+    <div className="space-y-3 px-4 sm:px-6 lg:px-8 py-4 relative group">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white tracking-wide">{title}</h2>
+      </div>
+
+      <div className="relative">
+        {/* Left Arrow Button */}
+        <button
+          onClick={() => scroll('left')}
+          className="absolute -left-3 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-black/70 hover:bg-[#e50914] text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-xl border border-gray-700 hover:border-[#e50914] hover:scale-110"
+        >
+          <ChevronLeft className="w-6 h-6" />
+        </button>
+
+        {/* Scrollable Container */}
+        <div
+          ref={rowRef}
+          className="flex space-x-3 sm:space-x-4 overflow-x-auto no-scrollbar scroll-smooth py-2 px-1"
+        >
+          {isLoading
+            ? Array.from({ length: 6 }).map((_, i) => <MovieCardSkeleton key={i} />)
+            : items.map((item) => <MovieCard key={item.id} item={item} />)}
+        </div>
+
+        {/* Right Arrow Button */}
+        <button
+          onClick={() => scroll('right')}
+          className="absolute -right-3 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-black/70 hover:bg-[#e50914] text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-xl border border-gray-700 hover:border-[#e50914] hover:scale-110"
+        >
+          <ChevronRight className="w-6 h-6" />
+        </button>
+      </div>
+    </div>
+  );
+};
+

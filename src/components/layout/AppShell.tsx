@@ -1,0 +1,23 @@
+import React from 'react';
+import { useLocation } from 'react-router-dom';
+import { Navbar } from './Navbar';
+import { Footer } from './Footer';
+
+export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const location = useLocation();
+  const path = location.pathname;
+
+  const isAdminRoute = path.startsWith('/admin');
+  const isAuthRoute = path === '/login' || path === '/subscription-expired';
+
+  const hideNavAndFooter = isAdminRoute || isAuthRoute;
+
+  return (
+    <div className="min-h-screen bg-[#141414] text-white flex flex-col justify-between">
+      {!hideNavAndFooter && <Navbar />}
+      <main className="flex-grow">{children}</main>
+      {!hideNavAndFooter && <Footer />}
+    </div>
+  );
+};
+
