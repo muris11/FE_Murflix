@@ -1,24 +1,43 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, UserCheck, UserX, Shield, Tag, Settings, Plus, ArrowRight } from 'lucide-react';
+import {
+  Users,
+  UserCheck,
+  UserX,
+  Shield,
+  Tag,
+  Settings,
+  Plus,
+  ArrowRight,
+  Activity,
+  Globe2,
+  Navigation,
+  Eye,
+  Radio,
+} from 'lucide-react';
 import { adminApi } from '@/api/admin';
 import { DashboardStats } from '@/types/admin';
+import { AnalyticsOverview } from '@/types/analytics';
 import { User } from '@/types/auth';
 
 export const AdminDashboardPage: React.FC = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [analytics, setAnalytics] = useState<AnalyticsOverview | null>(null);
   const [recentUsers, setRecentUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [statsData, usersData] = await Promise.all([
+        const [statsData, usersData, analyticsData] = await Promise.allSettled([
           adminApi.getStats(),
           adminApi.listUsers('', ''),
+          adminApi.getAnalyticsOverview(),
         ]);
-        setStats(statsData);
-        setRecentUsers(usersData.slice(0, 6));
+
+        if (statsData.status === 'fulfilled') setStats(statsData.value);
+        if (usersData.status === 'fulfilled') setRecentUsers(usersData.value.slice(0, 6));
+        if (analyticsData.status === 'fulfilled') setAnalytics(analyticsData.value);
       } catch (err) {
         console.error('Failed to load dashboard data:', err);
       } finally {
@@ -89,6 +108,80 @@ export const AdminDashboardPage: React.FC = () => {
             </div>
           );
         })}
+      </div>
+
+      {/* Live Visitor Intelligence Banner */}
+      <div className="bg-gradient-to-r from-red-950/40 via-[#18181b] to-zinc-900 border border-red-900/30 rounded-3xl p-6 sm:p-7 shadow-2xl relative overflow-hidden">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-3">
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-red-600/20 border border-red-500/30 text-red-400 text-xs font-bold uppercase tracking-wider">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <span>Intelijen Pengunjung &amp; Radar Geolokasi Live</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+              Lacak Pengunjung &amp; Titik Koordinat GPS Real-Time
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-400 max-w-2xl leading-relaxed">
+              Pantau siapa saja yang membuka tautan Murflix secara real-time: alamat IP asli, negara, kota, provider internet (ISP), sistem operasi, peramban, serta titik koordinat latitude dan longitude interaktif di peta dunia.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-shrink-0">
+            <Link
+              to="/admin/analytics"
+              className="inline-flex items-center justify-center space-x-2 px-5 py-3 rounded-2xl bg-[#e50914] hover:bg-red-700 text-white font-bold text-xs tracking-wide shadow-lg shadow-red-600/30 transition-all hover:scale-105"
+            >
+              <Navigation className="w-4 h-4" />
+              <span>Buka Peta Radar Geolokasi</span>
+            </Link>
+            <Link
+              to="/admin/analytics/logs"
+              className="inline-flex items-center justify-center space-x-2 px-4 py-3 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-gray-300 hover:text-white font-bold text-xs border border-zinc-700 transition-all"
+            >
+              <Eye className="w-4 h-4" />
+              <span>Log Lengkap</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* Live Visitor Metrics Row */}
+        <div className="mt-6 pt-6 border-t border-zinc-800/80 grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="p-3.5 rounded-2xl bg-black/40 border border-white/5 space-y-1">
+            <div className="flex items-center space-x-1.5 text-xs text-emerald-400 font-bold uppercase tracking-wider">
+              <Radio className="w-3.5 h-3.5 animate-pulse" />
+              <span>Online Sekarang</span>
+            </div>
+            <p className="text-2xl font-black text-white">{analytics?.active_visitors ?? 0}</p>
+            <span className="text-[10px] text-gray-500 block">5 menit terakhir</span>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-black/40 border border-white/5 space-y-1">
+            <div className="flex items-center space-x-1.5 text-xs text-blue-400 font-bold uppercase tracking-wider">
+              <Activity className="w-3.5 h-3.5" />
+              <span>Total Kunjungan</span>
+            </div>
+            <p className="text-2xl font-black text-white">{analytics?.total_visits ?? 0}</p>
+            <span className="text-[10px] text-gray-500 block">Akumulasi pageview</span>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-black/40 border border-white/5 space-y-1">
+            <div className="flex items-center space-x-1.5 text-xs text-purple-400 font-bold uppercase tracking-wider">
+              <Globe2 className="w-3.5 h-3.5" />
+              <span>Unique IP</span>
+            </div>
+            <p className="text-2xl font-black text-white">{analytics?.unique_ips ?? 0}</p>
+            <span className="text-[10px] text-gray-500 block">Alamat IP unik</span>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-black/40 border border-white/5 space-y-1">
+            <div className="flex items-center space-x-1.5 text-xs text-amber-400 font-bold uppercase tracking-wider">
+              <Navigation className="w-3.5 h-3.5" />
+              <span>Kunjungan Hari Ini</span>
+            </div>
+            <p className="text-2xl font-black text-white">{analytics?.visits_today ?? 0}</p>
+            <span className="text-[10px] text-gray-500 block">Unique IP: {analytics?.unique_ips_today ?? 0}</span>
+          </div>
+        </div>
       </div>
 
       {/* Recent Users Table */}
@@ -165,4 +258,3 @@ export const AdminDashboardPage: React.FC = () => {
     </div>
   );
 };
-

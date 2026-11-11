@@ -3,16 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import {
   User as UserIcon,
   Upload,
-  Lock,
   Save,
   AlertCircle,
   CheckCircle,
-  Eye,
-  EyeOff,
-  Shield,
   CreditCard,
   Users,
   ArrowLeft,
+  Loader2,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { profilesApi } from '@/api/profiles';
@@ -24,13 +21,8 @@ export const SettingsPage: React.FC = () => {
   const { user, activeProfile, refreshUser, refreshProfiles } = useAuth();
 
   const [fullName, setFullName] = useState(user?.full_name || '');
-  const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || activeProfile?.avatar_url || '/avatars/avatar-red.svg');
+  const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || activeProfile?.avatar_url || '/avatars/avatar-red.svg?v=2');
   const [isUploading, setIsUploading] = useState(false);
-
-  // Password fields
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
 
   // Status message
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -46,16 +38,66 @@ export const SettingsPage: React.FC = () => {
     setErrorMessage(null);
     setSuccessMessage(null);
     setIsUploading(true);
+
+    // Instant local preview so user sees their new avatar with zero delay
+    const localPreview = URL.createObjectURL(file);
+    const previousAvatar = avatarUrl;
+    setAvatarUrl(localPreview);
+
     try {
       // Auto converts to WebP with random filename and returns FE static path
       const uploadedUrl = await uploadAvatarImage(file);
       setAvatarUrl(uploadedUrl);
-      setSuccessMessage('Gambar berhasil dikonversi ke WebP dan diunggah.');
+
+      // Auto-save the new avatar to account and active profile immediately
+      await profilesApi.updateAccount({
+        full_name: fullName.trim() || undefined,
+        avatar_url: uploadedUrl,
+      });
+
+      if (activeProfile) {
+        await profilesApi.updateProfile(activeProfile.id, {
+          name: fullName.trim() || activeProfile.name,
+          avatar_url: uploadedUrl,
+        });
+      }
+
+      await refreshUser();
+      await refreshProfiles();
+      setSuccessMessage('Avatar berhasil dikonversi ke WebP dan disimpan.');
     } catch (err: any) {
+      setAvatarUrl(previousAvatar);
       setErrorMessage(err.response?.data?.error || err.message || 'Gagal mengunggah avatar');
     } finally {
+      URL.revokeObjectURL(localPreview);
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleSelectPreset = async (presetUrl: string) => {
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    setAvatarUrl(presetUrl);
+
+    try {
+      await profilesApi.updateAccount({
+        full_name: fullName.trim() || undefined,
+        avatar_url: presetUrl,
+      });
+
+      if (activeProfile) {
+        await profilesApi.updateProfile(activeProfile.id, {
+          name: fullName.trim() || activeProfile.name,
+          avatar_url: presetUrl,
+        });
+      }
+
+      await refreshUser();
+      await refreshProfiles();
+      setSuccessMessage('Preset avatar berhasil dipilih dan disimpan.');
+    } catch (err: any) {
+      setErrorMessage(err.response?.data?.error || err.message || 'Gagal menerapkan preset avatar');
     }
   };
 
@@ -144,15 +186,23 @@ export const SettingsPage: React.FC = () => {
           <form onSubmit={handleSaveProfile} className="space-y-6">
             {/* Avatar Preview & Upload */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-6">
-              <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-black border-2 border-red-600 shadow-xl flex-shrink-0">
+              <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-black border-2 border-red-600 shadow-xl flex-shrink-0 group">
                 <img
                   src={getAvatarUrl(avatarUrl)}
                   alt="Avatar Pengguna"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/avatars/avatar-red.svg';
+                    const target = e.target as HTMLImageElement;
+                    if (target.src.includes('/avatars/avatar-red.svg')) return;
+                    target.src = '/avatars/avatar-red.svg?v=2';
                   }}
                   className="w-full h-full object-cover"
                 />
+                {isUploading && (
+                  <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center space-y-1">
+                    <Loader2 className="w-6 h-6 text-red-500 animate-spin" />
+                    <span className="text-[10px] text-gray-300 font-medium">Mengunggah...</span>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2.5 flex-1">
@@ -170,13 +220,13 @@ export const SettingsPage: React.FC = () => {
                   type="button"
                   disabled={isUploading}
                   onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold border border-zinc-700 shadow-md transition-all disabled:opacity-50"
+                  className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold border border-zinc-700 shadow-md transition-all disabled:opacity-50 cursor-pointer"
                 >
                   <Upload className="w-4 h-4" />
                   <span>{isUploading ? 'Mengonversi ke WebP...' : 'Unggah Avatar Baru (.webp)'}</span>
                 </button>
                 <p className="text-xs text-gray-400">
-                  Gambar yang diunggah akan otomatis dikonversi ke format <strong>.webp</strong> beresolusi optimal dan disimpan dengan nama acak pada domain frontend.
+                  Foto otomatis dikonversi ke format WebP beresolusi optimal. Avatar lama akan otomatis dibersihkan dari server.
                 </p>
               </div>
             </div>
@@ -190,16 +240,26 @@ export const SettingsPage: React.FC = () => {
                 {NETFLIX_AVATAR_PRESETS.map((preset) => {
                   const isSelected = avatarUrl === preset.url;
                   return (
-                    <div
+                    <button
+                      type="button"
                       key={preset.id}
-                      onClick={() => setAvatarUrl(preset.url)}
-                      className={`aspect-square rounded-xl overflow-hidden cursor-pointer border-2 transition-transform hover:scale-110 ${
+                      onClick={() => handleSelectPreset(preset.url)}
+                      className={`aspect-square rounded-xl overflow-hidden cursor-pointer border-2 transition-transform hover:scale-110 relative p-0 bg-zinc-900 ${
                         isSelected ? 'border-red-600 ring-2 ring-red-600 scale-105' : 'border-transparent'
                       }`}
                       title={preset.name}
                     >
-                      <img src={preset.url} alt={preset.name} className="w-full h-full object-cover" />
-                    </div>
+                      <img
+                        src={preset.url}
+                        alt={preset.name}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          if (target.src.includes('/avatars/avatar-red.svg')) return;
+                          target.src = '/avatars/avatar-red.svg?v=2';
+                        }}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
                   );
                 })}
               </div>
@@ -236,7 +296,7 @@ export const SettingsPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={isSaving || isUploading}
-                className="inline-flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-[#e50914] hover:bg-red-700 text-white font-bold text-xs tracking-wide shadow-lg shadow-red-600/30 transition-all hover:scale-105 disabled:opacity-50"
+                className="inline-flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-[#e50914] hover:bg-red-700 text-white font-bold text-xs tracking-wide shadow-lg shadow-red-600/30 transition-all hover:scale-105 disabled:opacity-50 cursor-pointer"
               >
                 <Save className="w-4 h-4" />
                 <span>{isSaving ? 'Menyimpan...' : 'Simpan Profil'}</span>
@@ -288,4 +348,3 @@ export const SettingsPage: React.FC = () => {
     </div>
   );
 };
-

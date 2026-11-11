@@ -69,13 +69,19 @@ export const ProfilesPage: React.FC = () => {
 
     setError(null);
     setIsUploading(true);
+    const localPreview = URL.createObjectURL(file);
+    const previous = selectedAvatar;
+    setSelectedAvatar(localPreview);
+
     try {
       // Auto converts to WebP and uploads to frontend static directory with random filename
       const uploadedUrl = await uploadAvatarImage(file);
       setSelectedAvatar(uploadedUrl);
     } catch (err: any) {
+      setSelectedAvatar(previous);
       setError(err.response?.data?.error || err.message || 'Gagal mengunggah avatar');
     } finally {
+      URL.revokeObjectURL(localPreview);
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
@@ -292,7 +298,9 @@ export const ProfilesPage: React.FC = () => {
                     src={getAvatarUrl(selectedAvatar)}
                     alt="Selected Avatar"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/avatars/avatar-red.svg';
+                      const target = e.target as HTMLImageElement;
+                      if (target.src.includes('/avatars/avatar-red.svg')) return;
+                      target.src = '/avatars/avatar-red.svg?v=2';
                     }}
                     className="w-full h-full object-cover"
                   />
@@ -341,7 +349,16 @@ export const ProfilesPage: React.FC = () => {
                         }`}
                         title={preset.name}
                       >
-                        <img src={preset.url} alt={preset.name} className="w-full h-full object-cover" />
+                        <img
+                          src={preset.url}
+                          alt={preset.name}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            if (target.src.includes('/avatars/avatar-red.svg')) return;
+                            target.src = '/avatars/avatar-red.svg?v=2';
+                          }}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                     );
                   })}

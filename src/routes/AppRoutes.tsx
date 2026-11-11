@@ -23,6 +23,12 @@ import { AdminUserCreatePage } from '@/pages/admin/AdminUserCreatePage';
 import { AdminUserEditPage } from '@/pages/admin/AdminUserEditPage';
 import { AdminPricingPage } from '@/pages/admin/AdminPricingPage';
 import { AdminSettingsPage } from '@/pages/admin/AdminSettingsPage';
+import { AdminAnalyticsPage } from '@/pages/admin/analytics/AdminAnalyticsPage';
+import { AdminVisitorLogsPage } from '@/pages/admin/analytics/AdminVisitorLogsPage';
+import { AdminServersSettingsPage } from '@/pages/admin/settings/AdminServersSettingsPage';
+import { AdminTmdbSettingsPage } from '@/pages/admin/settings/AdminTmdbSettingsPage';
+import { AdminDemoSettingsPage } from '@/pages/admin/settings/AdminDemoSettingsPage';
+import { AdminGeneralSettingsPage } from '@/pages/admin/settings/AdminGeneralSettingsPage';
 
 // Route Guards
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -206,6 +212,22 @@ export const AppRoutes: React.FC = () => {
           }
         />
         <Route
+          path="/admin/analytics"
+          element={
+            <AdminRoute>
+              <AdminAnalyticsPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/analytics/logs"
+          element={
+            <AdminRoute>
+              <AdminVisitorLogsPage />
+            </AdminRoute>
+          }
+        />
+        <Route
           path="/admin/users"
           element={
             <AdminRoute>
@@ -242,6 +264,38 @@ export const AppRoutes: React.FC = () => {
           element={
             <AdminRoute>
               <AdminSettingsPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/settings/servers"
+          element={
+            <AdminRoute>
+              <AdminServersSettingsPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/settings/tmdb"
+          element={
+            <AdminRoute>
+              <AdminTmdbSettingsPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/settings/demo"
+          element={
+            <AdminRoute>
+              <AdminDemoSettingsPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/settings/general"
+          element={
+            <AdminRoute>
+              <AdminGeneralSettingsPage />
             </AdminRoute>
           }
         />

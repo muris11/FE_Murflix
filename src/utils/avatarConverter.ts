@@ -85,7 +85,7 @@ export function getAvatarUrl(url?: string | null): string {
     return '/avatars/avatar-red.svg?v=2';
   }
   const clean = url.trim();
-  if (clean.startsWith('http://') || clean.startsWith('https://') || clean.startsWith('data:')) {
+  if (clean.startsWith('http://') || clean.startsWith('https://') || clean.startsWith('data:') || clean.startsWith('blob:')) {
     return clean;
   }
   if (clean.startsWith('/avatars/')) {

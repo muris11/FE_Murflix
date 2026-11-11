@@ -1,6 +1,7 @@
 import { apiClient } from './client';
 import { DashboardStats, SystemSetting } from '@/types/admin';
 import { User, SubscriptionPlan } from '@/types/auth';
+import { AnalyticsOverview, VisitorLog, TrackVisitorRequest } from '@/types/analytics';
 
 export const adminApi = {
   getStats: async () => {
@@ -66,5 +67,34 @@ export const adminApi = {
     const res = await apiClient.put<{ message: string }>('/admin/settings', data);
     return res.data;
   },
+
+  // Analytics & Geolocation Intelligence
+  getAnalyticsOverview: async () => {
+    const res = await apiClient.get<AnalyticsOverview>('/admin/analytics/overview');
+    return res.data;
+  },
+
+  getVisitorLogs: async (params?: { page?: number; limit?: number; search?: string; country?: string; device?: string }) => {
+    const res = await apiClient.get<{ logs: VisitorLog[]; total: number; page: number; limit: number }>('/admin/analytics/logs', {
+      params,
+    });
+    return res.data;
+  },
+
+  deleteVisitorLogs: async (days = 30) => {
+    const res = await apiClient.delete<{ message: string }>('/admin/analytics/logs', {
+      params: { days },
+    });
+    return res.data;
+  },
+
+  trackVisit: async (data: TrackVisitorRequest) => {
+    try {
+      await apiClient.post('/analytics/track', data);
+    } catch {
+      // Non-blocking tracking
+    }
+  },
 };
+
 
