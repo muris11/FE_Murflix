@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { AppShell } from '@/components/layout/AppShell';
 
 import { HomePage } from '@/pages/HomePage';
+import { LandingPage } from '@/pages/LandingPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { SubscriptionExpiredPage } from '@/pages/SubscriptionExpiredPage';
 import { MovieDetailPage } from '@/pages/MovieDetailPage';
@@ -67,23 +68,40 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <AdminLayout>{children}</AdminLayout>;
 };
 
+const RootRoute: React.FC = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#141414] flex items-center justify-center">
+        <div className="w-12 h-12 rounded-full border-4 border-red-600 border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    return (
+      <ProtectedRoute>
+        <HomePage />
+      </ProtectedRoute>
+    );
+  }
+
+  return <LandingPage />;
+};
+
 export const AppRoutes: React.FC = () => {
   return (
     <AppShell>
       <Routes>
         {/* Public Routes */}
+        <Route path="/" element={<RootRoute />} />
+        <Route path="/welcome" element={<LandingPage />} />
+        <Route path="/about" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/subscription-expired" element={<SubscriptionExpiredPage />} />
 
         {/* Member Content Routes */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <HomePage />
-            </ProtectedRoute>
-          }
-        />
         <Route
           path="/movie/:id"
           element={
