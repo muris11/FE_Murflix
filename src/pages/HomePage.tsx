@@ -58,8 +58,8 @@ export const HomePage: React.FC = () => {
       {/* Big Hero Banner */}
       <Hero item={featured} />
 
-      {/* Row Sections with negative margin over Hero */}
-      <div className="relative z-20 -mt-16 sm:-mt-24 md:-mt-32 space-y-4">
+      {/* Row Sections */}
+      <div className="relative z-20 mt-4 sm:mt-6 space-y-6 sm:space-y-8">
         <MovieRow title="Sedang Trending Minggu Ini" items={trending} isLoading={isLoading} />
         <MovieRow title="Film Terpopuler" items={popularMovies} isLoading={isLoading} />
         <MovieRow title="Serial TV Paling Banyak Ditonton" items={popularTV} isLoading={isLoading} />

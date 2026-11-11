@@ -1,8 +1,10 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
+export type TMDBImageSize = 'w92' | 'w154' | 'w185' | 'w300' | 'w342' | 'w500' | 'w780' | 'original';
+
 export function getTMDBImageUrl(
   path: string | null | undefined,
-  size: 'w92' | 'w154' | 'w185' | 'w342' | 'w500' | 'w780' | 'original' = 'w500'
+  size: TMDBImageSize = 'w500'
 ): string {
   if (!path) return '/placeholder.svg';
 
@@ -12,8 +14,9 @@ export function getTMDBImageUrl(
 
 export function getDirectTMDBUrl(
   path: string | null | undefined,
-  size: 'w92' | 'w154' | 'w185' | 'w342' | 'w500' | 'w780' | 'original' = 'w500'
+  size: TMDBImageSize = 'w500'
 ): string {
   if (!path) return '/placeholder.svg';
   return `https://image.tmdb.org/t/p/${size}${path}`;
 }
+

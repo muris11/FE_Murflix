@@ -164,19 +164,19 @@ export const TVDetailPage: React.FC = () => {
             ))}
           </div>
 
-          {/* Action Buttons */}
+          {/* Action Buttons (1:1 Netflix Style) */}
           <div className="flex flex-wrap items-center gap-4 pt-4">
             <button
               onClick={() => setIsPlayerOpen(true)}
-              className="flex items-center space-x-2 px-8 py-3.5 rounded-xl bg-[#e50914] hover:bg-red-700 text-white font-bold text-base shadow-xl shadow-red-600/30 transition-transform hover:scale-105 active:scale-95"
+              className="flex items-center space-x-2 px-8 py-3.5 rounded-full bg-white hover:bg-zinc-200 text-black font-extrabold text-sm sm:text-base shadow-2xl transition-transform hover:scale-105 active:scale-95"
             >
-              <Play className="w-5 h-5 fill-current" />
+              <Play className="w-5 h-5 fill-black" />
               <span>Putar S{selectedSeason} E{selectedEpisode}</span>
             </button>
 
             <button
               onClick={toggleWatchlist}
-              className="flex items-center space-x-2 px-6 py-3.5 rounded-xl bg-gray-800/90 hover:bg-gray-700 text-white font-semibold text-sm border border-gray-700 transition-colors"
+              className="flex items-center space-x-2 px-6 py-3.5 rounded-full bg-zinc-700/60 hover:bg-zinc-700/80 backdrop-blur-md text-white font-semibold text-sm border border-white/10 transition-colors"
             >
               {isInList ? <Check className="w-4 h-4 text-emerald-400" /> : <Plus className="w-4 h-4" />}
               <span>{isInList ? 'Di Daftar Saya' : 'Tambah ke Daftar'}</span>
@@ -189,57 +189,127 @@ export const TVDetailPage: React.FC = () => {
             <p className="text-gray-300 text-sm sm:text-base leading-relaxed">{tv.overview}</p>
           </div>
 
-          {/* Episodes Selection */}
-          <div className="pt-6 space-y-4 border-t border-gray-800">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-gray-200">Daftar Episode</h3>
+          {/* Netflix 1:1 Episode Section */}
+          <div className="pt-8 space-y-5 border-t border-zinc-800">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">Episode</h3>
+                <p className="text-xs text-zinc-400 mt-0.5">
+                  Musim {selectedSeason}: {seasonData?.episodes?.length || 0} Episode Tersedia
+                </p>
+              </div>
+
               {(tv.seasons?.length ?? 0) > 1 && (
-                <select
-                  value={selectedSeason}
-                  onChange={(e) => {
-                    setSelectedSeason(Number(e.target.value));
-                    setSelectedEpisode(1);
-                  }}
-                  className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-red-500"
-                >
-                  {(tv.seasons || [])
-                    .filter((s: any) => s.season_number > 0)
-                    .map((s: any) => (
-                      <option key={s.id} value={s.season_number}>
-                        {s.name} ({s.episode_count} Episode)
-                      </option>
-                    ))}
-                </select>
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs text-zinc-400 font-semibold hidden sm:inline">Pilih Musim:</span>
+                  <select
+                    value={selectedSeason}
+                    onChange={(e) => {
+                      setSelectedSeason(Number(e.target.value));
+                      setSelectedEpisode(1);
+                    }}
+                    className="bg-[#1e1e24] border border-zinc-700 rounded-xl px-4 py-2 text-xs sm:text-sm font-bold text-white focus:outline-none focus:border-red-500 shadow-md cursor-pointer hover:border-zinc-500 transition-colors"
+                  >
+                    {(tv.seasons || [])
+                      .filter((s: any) => s.season_number > 0)
+                      .map((s: any) => (
+                        <option key={s.id} value={s.season_number}>
+                          {s.name} ({s.episode_count} Episode)
+                        </option>
+                      ))}
+                  </select>
+                </div>
               )}
             </div>
 
+            {/* Netflix Horizontal Episode Rows */}
             {seasonData?.episodes?.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {seasonData.episodes.map((ep: any) => (
-                  <button
-                    key={ep.id}
-                    onClick={() => {
-                      setSelectedEpisode(ep.episode_number);
-                      setIsPlayerOpen(true);
-                    }}
-                    className={`p-3 rounded-xl border text-left transition-all flex space-x-3 items-center ${
-                      selectedEpisode === ep.episode_number
-                        ? 'bg-red-950/40 border-red-600/80 shadow-lg'
-                        : 'bg-gray-900/60 border-gray-800 hover:border-gray-700'
-                    }`}
-                  >
-                    <div className="w-10 h-10 rounded-lg bg-black/60 flex items-center justify-center font-bold text-sm text-red-500 flex-shrink-0">
-                      {ep.episode_number}
+              <div className="divide-y divide-zinc-800/80 rounded-2xl bg-[#141416] border border-white/5 overflow-hidden shadow-xl">
+                {seasonData.episodes.map((ep: any) => {
+                  const isSelected = selectedEpisode === ep.episode_number;
+                  return (
+                    <div
+                      key={ep.id}
+                      onClick={() => {
+                        setSelectedEpisode(ep.episode_number);
+                        setIsPlayerOpen(true);
+                      }}
+                      className={`p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 transition-all cursor-pointer group ${
+                        isSelected
+                          ? 'bg-red-950/20 border-l-4 border-l-[#e50914]'
+                          : 'hover:bg-zinc-800/40 border-l-4 border-l-transparent'
+                      }`}
+                    >
+                      {/* Big Episode Number */}
+                      <span className={`text-xl sm:text-2xl font-black w-8 text-center flex-shrink-0 transition-colors ${
+                        isSelected ? 'text-[#e50914]' : 'text-zinc-500 group-hover:text-white'
+                      }`}>
+                        {ep.episode_number}
+                      </span>
+
+                      {/* Episode 16:9 Thumbnail */}
+                      <div className="relative aspect-video w-full sm:w-44 md:w-52 flex-shrink-0 rounded-xl overflow-hidden bg-zinc-900 border border-white/10 shadow-md">
+                        {ep.still_path ? (
+                          <img
+                            src={getTMDBImageUrl(ep.still_path, 'w300')}
+                            alt={ep.name}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = getDirectTMDBUrl(ep.still_path, 'w300');
+                            }}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex flex-col items-center justify-center text-zinc-500 font-bold bg-zinc-900">
+                            <span className="text-xs uppercase tracking-wider">Episode</span>
+                            <span className="text-xl text-zinc-400">{ep.episode_number}</span>
+                          </div>
+                        )}
+
+                        {/* Hover / Playing Play Overlay */}
+                        <div className={`absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity ${
+                          isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                        }`}>
+                          <div className="w-10 h-10 rounded-full bg-[#e50914] text-white flex items-center justify-center shadow-xl shadow-red-600/50 transform group-hover:scale-110 transition-transform">
+                            <Play className="w-5 h-5 fill-current ml-0.5" />
+                          </div>
+                        </div>
+
+                        {/* Duration Badge */}
+                        {ep.runtime && (
+                          <span className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/85 text-[10px] font-mono font-medium text-gray-300 border border-white/10">
+                            {ep.runtime} mnt
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Episode Details */}
+                      <div className="flex-1 min-w-0 space-y-1.5">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <h4 className={`text-sm sm:text-base font-bold transition-colors ${
+                            isSelected ? 'text-[#e50914]' : 'text-white group-hover:text-red-400'
+                          }`}>
+                            {ep.episode_number}. {ep.name}
+                          </h4>
+                          {isSelected && (
+                            <span className="px-2 py-0.5 rounded bg-red-600/20 text-[#e50914] border border-red-500/30 text-[10px] font-bold uppercase tracking-wider">
+                              Diputar Sekarang
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed line-clamp-2 sm:line-clamp-3">
+                          {ep.overview || 'Tidak ada deskripsi rinci untuk episode ini.'}
+                        </p>
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-bold text-white truncate">{ep.name}</p>
-                      <p className="text-[10px] text-gray-400 mt-0.5 line-clamp-1">{ep.overview || 'Episode ' + ep.episode_number}</p>
-                    </div>
-                  </button>
-                ))}
+                  );
+                })}
               </div>
             ) : (
-              <p className="text-xs text-gray-500">Memuat episode...</p>
+              <div className="p-8 text-center text-xs text-zinc-500 rounded-xl bg-zinc-900/40 border border-zinc-800">
+                Memuat daftar episode...
+              </div>
             )}
           </div>
         </div>
@@ -253,6 +323,11 @@ export const TVDetailPage: React.FC = () => {
         mediaType="tv"
         season={selectedSeason}
         episode={selectedEpisode}
+        seasonsList={tv.seasons}
+        onEpisodeChange={(s, e) => {
+          setSelectedSeason(s);
+          setSelectedEpisode(e);
+        }}
         title={tv.name}
         subTitle={`Season ${selectedSeason} • Episode ${selectedEpisode}`}
       />

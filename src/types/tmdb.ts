@@ -73,6 +73,28 @@ export interface SeasonItem {
   air_date?: string;
 }
 
+export interface EpisodeItem {
+  id: number;
+  name: string;
+  overview: string;
+  episode_number: number;
+  season_number: number;
+  still_path?: string | null;
+  runtime?: number | null;
+  vote_average?: number;
+  air_date?: string;
+}
+
+export interface SeasonDetails {
+  id: number;
+  name: string;
+  overview: string;
+  season_number: number;
+  poster_path?: string | null;
+  air_date?: string;
+  episodes: EpisodeItem[];
+}
+
 export interface StreamingServer {
   id: string;
   name: string;

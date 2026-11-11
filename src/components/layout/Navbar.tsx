@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Film, Tv, Heart, Shield, LogOut, User as UserIcon, Menu, X } from 'lucide-react';
+import { Search, Bell, Film, Tv, Heart, Shield, LogOut, User as UserIcon, Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 export const Navbar: React.FC = () => {
@@ -30,9 +30,9 @@ export const Navbar: React.FC = () => {
   };
 
   const navLinks = [
-    { label: 'Home', path: '/' },
-    { label: 'Movies', path: '/browse/movies', icon: Film },
-    { label: 'Series TV', path: '/browse/tv', icon: Tv },
+    { label: 'Beranda', path: '/' },
+    { label: 'Serial', path: '/browse/tv', icon: Tv },
+    { label: 'Film', path: '/browse/movies', icon: Film },
     { label: 'Daftar Saya', path: '/my-list', icon: Heart },
   ];
 
@@ -51,30 +51,35 @@ export const Navbar: React.FC = () => {
         <div className="flex items-center justify-between h-16 sm:h-20">
           
           {/* Logo & Navigation */}
-          <div className="flex items-center space-x-8">
+          <div className="flex items-center space-x-6 sm:space-x-8">
             <Link to="/" className="flex items-center space-x-2">
               <span className="text-2xl sm:text-3xl font-black tracking-wider text-[#e50914] drop-shadow-[0_2px_10px_rgba(229,9,20,0.6)]">
                 MURFLIX
               </span>
             </Link>
 
-            {/* Desktop Links */}
-            <div className="hidden lg:flex items-center space-x-6">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`text-sm font-semibold transition-colors hover:text-white ${
-                    isActive(link.path) ? 'text-white font-bold text-red-500' : 'text-gray-300'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
+            {/* Desktop Links (1:1 Netflix Style Pill Navigation) */}
+            <div className="hidden lg:flex items-center space-x-2">
+              {navLinks.map((link) => {
+                const active = isActive(link.path);
+                return (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className={`text-xs sm:text-sm transition-all duration-200 ${
+                      active
+                        ? 'bg-zinc-800/90 text-white font-bold px-3.5 py-1.5 rounded-full shadow-sm'
+                        : 'text-zinc-300 hover:text-white font-medium px-3 py-1.5'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
             </div>
           </div>
 
-          {/* Right Actions: Search & Profile */}
+          {/* Right Actions: Search, Notifications & Profile */}
           <div className="flex items-center space-x-3 sm:space-x-4">
             
             {/* Search Bar */}
@@ -88,6 +93,14 @@ export const Navbar: React.FC = () => {
               />
               <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
             </form>
+
+            {/* Notification Bell (Netflix 1:1 Badge) */}
+            <div className="relative cursor-pointer p-1.5 text-zinc-300 hover:text-white transition-colors">
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-0 right-0 w-4 h-4 rounded-full bg-[#e50914] text-white text-[9px] font-black flex items-center justify-center shadow-md">
+                3
+              </span>
+            </div>
 
             {/* Profile Dropdown */}
             {isAuthenticated ? (
