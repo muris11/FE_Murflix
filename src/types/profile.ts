@@ -22,3 +22,4 @@ export const NETFLIX_AVATAR_PRESETS = [
   { id: 'dark', name: 'Shadow Hitam', url: '/avatars/avatar-dark.svg' },
   { id: 'crimson', name: 'Crimson Gelap', url: '/avatars/avatar-crimson.svg' },
 ];
+

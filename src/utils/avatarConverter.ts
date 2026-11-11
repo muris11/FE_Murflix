@@ -73,3 +73,4 @@ export async function uploadAvatarImage(file: File): Promise<string> {
 
   return res.data.url;
 }
+

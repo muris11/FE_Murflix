@@ -21,7 +21,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
   return (
     <div className="min-h-screen bg-[#141414] text-white flex flex-col justify-between">
       {!hideNavAndFooter && <Navbar />}
-      <main className={`flex-grow ${!hideNavAndFooter ? 'pb-24 md:pb-0' : ''}`}>{children}</main>
+      <main className="flex-grow">{children}</main>
       {!hideNavAndFooter && <Footer />}
       {!hideNavAndFooter && <MobileBottomNav />}
     </div>

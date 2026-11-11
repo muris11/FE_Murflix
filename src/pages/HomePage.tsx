@@ -54,7 +54,7 @@ export const HomePage: React.FC = () => {
   }, []);
 
   return (
-    <div className="pb-16 overflow-x-hidden w-full">
+    <div className="pb-4 sm:pb-8 overflow-x-hidden w-full">
       {/* Full Bleed Hero Banner */}
       <Hero item={featured} />
 

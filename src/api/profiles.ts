@@ -29,3 +29,4 @@ export const profilesApi = {
     return res.data.user;
   },
 };
+

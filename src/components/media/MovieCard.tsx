@@ -134,7 +134,6 @@ export const MovieCard: React.FC<MovieCardProps> = ({ item, className = '' }) =>
             {/* Subtitle / Year */}
             <div className="flex items-center space-x-2 text-[10px] sm:text-[11px] text-gray-300 mt-0.5">
               {releaseYear && <span>{releaseYear}</span>}
-              <span className="text-gray-500">•</span>
               <span className="capitalize">{mediaType === 'tv' ? 'Serial TV' : 'Film'}</span>
             </div>
           </div>
