@@ -3,6 +3,7 @@ import { useLocation, useSearchParams } from 'react-router-dom';
 import { moviesApi } from '@/api/movies';
 import { MovieCard } from '@/components/media/MovieCard';
 import { MovieCardSkeleton } from '@/components/media/MovieCardSkeleton';
+import { CustomDropdown } from '@/components/ui/CustomDropdown';
 import { Film, Tv, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
 import { MediaItem } from '@/types/tmdb';
 
@@ -31,24 +32,50 @@ export const BrowsePage: React.FC = () => {
       .catch(() => {});
   }, [mediaType]);
 
-  // Fetch paginated discover data
+  const PAGE_SIZE = 24;
+
+  // Fetch paginated discover data (24 items to perfectly fill 8-col grid with 3 full rows)
   useEffect(() => {
     setIsLoading(true);
-    const params: Record<string, string | number> = {
-      page: currentPage,
+    const baseParams: Record<string, string | number> = {
       sort_by: currentSort,
     };
     if (currentGenre) {
-      params.with_genres = currentGenre;
+      baseParams.with_genres = currentGenre;
     }
 
-    moviesApi
-      .discover(mediaType, params)
-      .then((res) => {
-        setItems(res.results || []);
-        // TMDB max page is 500
-        setTotalPages(Math.min(res.total_pages || 1, 500));
-        setTotalResults(res.total_results || 0);
+    const startIndex = (currentPage - 1) * PAGE_SIZE;
+    const tmdbPageStart = Math.floor(startIndex / 20) + 1;
+    const tmdbPageEnd = Math.floor((currentPage * PAGE_SIZE - 1) / 20) + 1;
+
+    const pagesToFetch =
+      tmdbPageStart === tmdbPageEnd
+        ? [tmdbPageStart]
+        : [tmdbPageStart, tmdbPageEnd];
+
+    Promise.all(
+      pagesToFetch.map((p) =>
+        moviesApi.discover(mediaType, { ...baseParams, page: p })
+      )
+    )
+      .then((responses) => {
+        const combinedResults: MediaItem[] = [];
+        responses.forEach((res) => {
+          if (res?.results) {
+            combinedResults.push(...res.results);
+          }
+        });
+
+        const offset = startIndex - (tmdbPageStart - 1) * 20;
+        const pageItems = combinedResults.slice(offset, offset + PAGE_SIZE);
+
+        setItems(pageItems);
+
+        const totalResultsCount = responses[0]?.total_results || 0;
+        setTotalResults(totalResultsCount);
+        // TMDB max results is 10,000 (500 TMDB pages) -> 10,000 / 24 = ~416 pages
+        const maxPages = Math.min(Math.ceil(totalResultsCount / PAGE_SIZE), 416);
+        setTotalPages(Math.max(1, maxPages));
       })
       .catch((err) => console.error(err))
       .finally(() => {
@@ -104,51 +131,45 @@ export const BrowsePage: React.FC = () => {
               {isTV ? 'Katalog Serial TV' : 'Katalog Film'}
             </h1>
             <p className="text-xs sm:text-sm text-zinc-400 mt-0.5">
-              Halaman {currentPage} dari {totalPages.toLocaleString()} - Menampilkan 20 judul per halaman
+              Halaman {currentPage} dari {totalPages.toLocaleString()} - Menampilkan 24 judul per halaman
             </p>
           </div>
         </div>
 
-        {/* Filters Bar: Genre & Sorting */}
+        {/* Filters Bar: Custom Netflix-Style Dropdowns */}
         <div className="flex flex-wrap items-center gap-3">
-          
-          {/* Genre Dropdown */}
-          <div className="relative">
-            <select
-              value={currentGenre}
-              onChange={(e) => updateFilters(1, e.target.value)}
-              className="bg-[#18181b] border border-zinc-700 text-white text-xs sm:text-sm font-semibold rounded-xl px-4 py-2.5 focus:outline-none focus:border-red-500 cursor-pointer shadow-md"
-            >
-              <option value="">Semua Genre</option>
-              {genres.map((g) => (
-                <option key={g.id} value={g.id}>
-                  {g.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Custom Genre Dropdown */}
+          <CustomDropdown
+            value={currentGenre}
+            onChange={(val) => updateFilters(1, val)}
+            options={[
+              { value: '', label: 'Semua Genre' },
+              ...genres.map((g) => ({ value: String(g.id), label: g.name })),
+            ]}
+            className="w-44"
+          />
 
-          {/* Sort Dropdown */}
-          <div className="relative">
-            <select
-              value={currentSort}
-              onChange={(e) => updateFilters(1, undefined, e.target.value)}
-              className="bg-[#18181b] border border-zinc-700 text-white text-xs sm:text-sm font-semibold rounded-xl px-4 py-2.5 focus:outline-none focus:border-red-500 cursor-pointer shadow-md"
-            >
-              <option value="popularity.desc">Terpopuler</option>
-              <option value="vote_average.desc">Rating Tertinggi</option>
-              <option value={isTV ? 'first_air_date.desc' : 'primary_release_date.desc'}>
-                Rilis Terbaru
-              </option>
-            </select>
-          </div>
+          {/* Custom Sort Dropdown */}
+          <CustomDropdown
+            value={currentSort}
+            onChange={(val) => updateFilters(1, undefined, val)}
+            options={[
+              { value: 'popularity.desc', label: 'Terpopuler' },
+              { value: 'vote_average.desc', label: 'Rating Tertinggi' },
+              {
+                value: isTV ? 'first_air_date.desc' : 'primary_release_date.desc',
+                label: 'Rilis Terbaru',
+              },
+            ]}
+            className="w-48"
+          />
         </div>
       </div>
 
       {/* Grid Content */}
       {isLoading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
-          {Array.from({ length: 21 }).map((_, i) => (
+          {Array.from({ length: 24 }).map((_, i) => (
             <MovieCardSkeleton key={i} />
           ))}
         </div>

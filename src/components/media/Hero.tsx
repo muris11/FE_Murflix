@@ -64,8 +64,8 @@ export const Hero: React.FC<HeroProps> = ({ item }) => {
 
   const backdropUrl = targetPath
     ? imageError
-      ? getDirectTMDBUrl(targetPath, 'original')
-      : getTMDBImageUrl(targetPath, 'original')
+      ? getDirectTMDBUrl(targetPath, 'w1280')
+      : getTMDBImageUrl(targetPath, 'w1280')
     : '';
 
   const detailPath = mediaType === 'tv' ? getTVUrl(item.id, title) : getMovieUrl(item.id, title);
@@ -75,12 +75,13 @@ export const Hero: React.FC<HeroProps> = ({ item }) => {
 
   return (
     <div className="relative w-full h-[68vh] sm:h-[80vh] md:h-[88vh] overflow-hidden bg-[#141414]">
-      {/* Full Bleed Backdrop Image */}
+      {/* Full Bleed Backdrop Image (Optimized w1280 + async decode) */}
       {backdropUrl && (
         <img
           src={backdropUrl}
           alt={title}
           onError={() => setImageError(true)}
+          decoding="async"
           className="w-full h-full object-cover object-center transform scale-105 animate-subtleZoom"
         />
       )}

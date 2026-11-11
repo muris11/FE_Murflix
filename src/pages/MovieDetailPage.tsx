@@ -157,14 +157,14 @@ export const MovieDetailPage: React.FC = () => {
 
   const backdropUrl = movie.backdrop_path
     ? backdropError
-      ? getDirectTMDBUrl(movie.backdrop_path, 'original')
-      : getTMDBImageUrl(movie.backdrop_path, 'original')
+      ? getDirectTMDBUrl(movie.backdrop_path, 'w1280')
+      : getTMDBImageUrl(movie.backdrop_path, 'w1280')
     : '';
 
   const posterUrl = movie.poster_path
     ? posterError
-      ? getDirectTMDBUrl(movie.poster_path, 'w500')
-      : getTMDBImageUrl(movie.poster_path, 'w500')
+      ? getDirectTMDBUrl(movie.poster_path, 'w342')
+      : getTMDBImageUrl(movie.poster_path, 'w342')
     : '/placeholder.svg';
 
   const releaseYear = (movie.release_date || '').split('-')[0];
@@ -315,20 +315,22 @@ export const MovieDetailPage: React.FC = () => {
               </div>
             </div>
           )}
-
-          {/* Franchise / Collection Section */}
-          {movie.belongs_to_collection && (
-            <CollectionSection
-              collectionId={movie.belongs_to_collection.id}
-              currentMovieId={movie.id}
-            />
-          )}
         </div>
       </div>
 
+      {/* Franchise / Collection Section (Full Width, Aligned with Page) */}
+      {movie.belongs_to_collection && (
+        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 mt-12">
+          <CollectionSection
+            collectionId={movie.belongs_to_collection.id}
+            currentMovieId={movie.id}
+          />
+        </div>
+      )}
+
       {/* Similar & Recommendations */}
       {((movie.recommendations?.results?.length ?? 0) > 0 || (movie.similar?.results?.length ?? 0) > 0) && (
-        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 mt-16 space-y-10">
+        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 mt-12 space-y-10">
           {(movie.recommendations?.results?.length ?? 0) > 0 && (
             <MovieRow title="Rekomendasi Serupa" items={movie.recommendations?.results || []} />
           )}

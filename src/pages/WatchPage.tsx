@@ -33,61 +33,12 @@ import {
   getCachedIdFromSlug,
 } from '@/utils/slug';
 import { MurflixLogo } from '@/components/layout/MurflixLogo';
+import { CustomDropdown } from '@/components/ui/CustomDropdown';
+import { DEFAULT_STREAMING_SERVERS, formatEmbedUrl } from '@/constants/streamingServers';
 
 interface WatchPageProps {
   mediaType: 'movie' | 'tv';
 }
-
-const DEFAULT_SERVERS: StreamingServer[] = [
-  {
-    id: 'vidlink',
-    name: 'VidLink',
-    description: 'Multi-Sub, HD',
-    type: 'iframe',
-    movieUrl: 'https://vidlink.pro/movie/{id}',
-    tvUrl: 'https://vidlink.pro/tv/{id}/{s}/{e}',
-  },
-  {
-    id: 'vidsrccc',
-    name: 'VidSrc CC',
-    description: 'Multi-Sub, 1080p',
-    type: 'iframe',
-    movieUrl: 'https://vidsrc.cc/v2/embed/movie/{id}',
-    tvUrl: 'https://vidsrc.cc/v2/embed/tv/{id}/{s}/{e}',
-  },
-  {
-    id: 'embedsu',
-    name: 'Embed.su',
-    description: 'Fast, HD',
-    type: 'iframe',
-    movieUrl: 'https://embed.su/embed/movie/{id}',
-    tvUrl: 'https://embed.su/embed/tv/{id}/{s}/{e}',
-  },
-  {
-    id: '2embed',
-    name: '2Embed',
-    description: 'Multi-Sub, Anime',
-    type: 'iframe',
-    movieUrl: 'https://www.2embed.cc/embed/{id}',
-    tvUrl: 'https://www.2embed.cc/embedtv/{id}&s={s}&e={e}',
-  },
-  {
-    id: 'moviesapi',
-    name: 'MoviesAPI',
-    description: 'Multi-Sub, 1080p',
-    type: 'iframe',
-    movieUrl: 'https://moviesapi.club/movie/{id}',
-    tvUrl: 'https://moviesapi.club/tv/{id}/{s}/{e}',
-  },
-  {
-    id: 'vidsrcto',
-    name: 'VidSrc.to',
-    description: 'HD, Fast',
-    type: 'iframe',
-    movieUrl: 'https://vidsrc.to/embed/movie/{id}',
-    tvUrl: 'https://vidsrc.to/embed/tv/{id}/{s}/{e}',
-  },
-];
 
 export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
   const { id: rawSlugId } = useParams<{ id: string }>();
@@ -108,8 +59,8 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
   const [relatedItems, setRelatedItems] = useState<MediaItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [servers, setServers] = useState<StreamingServer[]>(DEFAULT_SERVERS);
-  const [activeServer, setActiveServer] = useState<string>('vidlink');
+  const [servers, setServers] = useState<StreamingServer[]>(DEFAULT_STREAMING_SERVERS);
+  const [activeServer, setActiveServer] = useState<string>(DEFAULT_STREAMING_SERVERS[0]?.id || 'embedwave');
   const [playerKey, setPlayerKey] = useState<number>(0);
   const [isLightsOff, setIsLightsOff] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
@@ -187,12 +138,9 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
   const currentServer = servers.find((s) => s.id === activeServer) || servers[0];
 
   const getEmbedUrl = () => {
-    if (!id) return '';
+    if (!id || !currentServer) return '';
     const urlTemplate = mediaType === 'movie' ? currentServer.movieUrl : currentServer.tvUrl;
-    return urlTemplate
-      .replace('{id}', id)
-      .replace('{s}', String(currentSeason))
-      .replace('{e}', String(currentEpisode));
+    return formatEmbedUrl(urlTemplate, id, currentSeason, currentEpisode);
   };
 
   const embedUrl = getEmbedUrl();
@@ -455,29 +403,19 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
             {/* Sub-Player Bar: Server Switcher (Adaptive Dropdown on Mobile, Pills on Desktop) */}
             <div className="p-3 sm:p-4 rounded-2xl bg-[#151518] border border-white/10 space-y-3 shadow-lg">
               
-              {/* MOBILE VIEW (md:hidden): Clean Dropdown (Sesuai Permintaan User) */}
+              {/* MOBILE VIEW (md:hidden): Clean Custom Netflix-Style Dropdown */}
               <div className="md:hidden flex items-center justify-between gap-2.5">
-                <div className="relative flex-1 min-w-0">
-                  <label htmlFor="mobile-server-select" className="sr-only">Pilih Server Pemutar</label>
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-red-500">
-                    <Server className="w-4 h-4" />
-                  </div>
-                  <select
-                    id="mobile-server-select"
-                    value={activeServer}
-                    onChange={(e) => setActiveServer(e.target.value)}
-                    className="w-full pl-9 pr-8 py-2.5 rounded-xl bg-zinc-800 border border-zinc-700 text-white text-xs font-bold focus:outline-none focus:border-red-500 appearance-none shadow-sm cursor-pointer"
-                  >
-                    {servers.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        Server {s.name} ({s.description})
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-zinc-400">
-                    <ChevronDown className="w-4 h-4" />
-                  </div>
-                </div>
+                <CustomDropdown
+                  value={activeServer}
+                  onChange={(val) => setActiveServer(val)}
+                  icon={<Server className="w-4 h-4" />}
+                  options={servers.map((s) => ({
+                    value: s.id,
+                    label: `Server ${s.name}`,
+                    description: s.description,
+                  }))}
+                  className="flex-1 min-w-0"
+                />
 
                 {/* Mobile Refresh Button */}
                 <button
@@ -614,19 +552,20 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
 
                   {/* Season Selector */}
                   {(tv?.seasons?.length ?? 0) > 1 && (
-                    <select
+                    <CustomDropdown
+                      size="sm"
+                      align="right"
                       value={currentSeason}
-                      onChange={(e) => handleSelectSeason(Number(e.target.value))}
-                      className="bg-zinc-800 border border-zinc-700 text-white rounded-lg px-2.5 py-1 text-xs font-semibold focus:outline-none focus:border-red-500 cursor-pointer"
-                    >
-                      {(tv?.seasons || [])
+                      onChange={(val) => handleSelectSeason(Number(val))}
+                      options={(tv?.seasons || [])
                         .filter((s: SeasonItem) => s.season_number > 0)
-                        .map((s: SeasonItem) => (
-                          <option key={s.id} value={s.season_number}>
-                            {s.name} ({s.episode_count} Ep)
-                          </option>
-                        ))}
-                    </select>
+                        .map((s: SeasonItem) => ({
+                          value: s.season_number,
+                          label: s.name,
+                          badge: `${s.episode_count} Ep`,
+                        }))}
+                      className="w-36"
+                    />
                   )}
                 </div>
 
@@ -634,22 +573,21 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
                 {totalBatchPages > 1 && (
                   <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-zinc-900 border border-zinc-800">
                     <span className="text-[11px] font-semibold text-zinc-400 flex-shrink-0">Batch:</span>
-                    <select
+                    <CustomDropdown
+                      size="sm"
                       value={currentBatchPage}
-                      onChange={(e) => setCurrentBatchPage(Number(e.target.value))}
-                      className="w-full bg-zinc-800 border border-zinc-700 text-white text-xs font-bold rounded-lg px-2 py-1 focus:outline-none focus:border-red-500 cursor-pointer"
-                    >
-                      {Array.from({ length: totalBatchPages }).map((_, idx) => {
+                      onChange={(val) => setCurrentBatchPage(Number(val))}
+                      options={Array.from({ length: totalBatchPages }).map((_, idx) => {
                         const p = idx + 1;
                         const start = (p - 1) * BATCH_SIZE + 1;
                         const end = Math.min(p * BATCH_SIZE, episodesList.length);
-                        return (
-                          <option key={p} value={p}>
-                            Episode {start} - {end}
-                          </option>
-                        );
+                        return {
+                          value: p,
+                          label: `Episode ${start} - ${end}`,
+                        };
                       })}
-                    </select>
+                      className="w-full"
+                    />
                   </div>
                 )}
 
@@ -677,6 +615,7 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).src = getDirectTMDBUrl(ep.still_path, 'w300');
                                 }}
+                                decoding="async"
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                                 loading="lazy"
                               />
@@ -752,6 +691,7 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = getDirectTMDBUrl(item.poster_path, 'w185');
                             }}
+                            decoding="async"
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                             loading="lazy"
                           />

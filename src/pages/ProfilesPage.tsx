@@ -4,7 +4,7 @@ import { Plus, Edit2, Check, Trash2, Upload, X, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { profilesApi } from '@/api/profiles';
 import { UserProfile, NETFLIX_AVATAR_PRESETS } from '@/types/profile';
-import { uploadAvatarImage } from '@/utils/avatarConverter';
+import { uploadAvatarImage, getAvatarUrl } from '@/utils/avatarConverter';
 import { MurflixLogo } from '@/components/layout/MurflixLogo';
 
 export const ProfilesPage: React.FC = () => {
@@ -184,8 +184,11 @@ export const ProfilesPage: React.FC = () => {
                 {/* Avatar Wrapper */}
                 <div className="relative w-24 h-24 sm:w-36 sm:h-36 rounded-2xl overflow-hidden bg-zinc-900 border-2 border-transparent group-hover:border-white shadow-2xl transition-all duration-300">
                   <img
-                    src={p.avatar_url || '/avatars/avatar-red.svg'}
+                    src={getAvatarUrl(p.avatar_url)}
                     alt={p.name}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/avatars/avatar-red.svg';
+                    }}
                     className="w-full h-full object-cover"
                   />
 
@@ -285,7 +288,14 @@ export const ProfilesPage: React.FC = () => {
               {/* Selected Avatar Preview & Custom Upload */}
               <div className="flex items-center space-x-5">
                 <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-black border-2 border-red-600 shadow-xl flex-shrink-0">
-                  <img src={selectedAvatar} alt="Selected Avatar" className="w-full h-full object-cover" />
+                  <img
+                    src={getAvatarUrl(selectedAvatar)}
+                    alt="Selected Avatar"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/avatars/avatar-red.svg';
+                    }}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
 
                 <div className="space-y-2">

@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { profilesApi } from '@/api/profiles';
-import { uploadAvatarImage } from '@/utils/avatarConverter';
+import { uploadAvatarImage, getAvatarUrl } from '@/utils/avatarConverter';
 import { NETFLIX_AVATAR_PRESETS } from '@/types/profile';
 
 export const SettingsPage: React.FC = () => {
@@ -145,7 +145,14 @@ export const SettingsPage: React.FC = () => {
             {/* Avatar Preview & Upload */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-6">
               <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-black border-2 border-red-600 shadow-xl flex-shrink-0">
-                <img src={avatarUrl} alt="Avatar Pengguna" className="w-full h-full object-cover" />
+                <img
+                  src={getAvatarUrl(avatarUrl)}
+                  alt="Avatar Pengguna"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/avatars/avatar-red.svg';
+                  }}
+                  className="w-full h-full object-cover"
+                />
               </div>
 
               <div className="space-y-2.5 flex-1">

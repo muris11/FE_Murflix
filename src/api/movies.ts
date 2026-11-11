@@ -31,6 +31,17 @@ async function cachedFetch<T>(key: string, fetcher: () => Promise<T>): Promise<T
 
 export const moviesApi = {
   // ---------------------------------------------------------------------------
+  // Cache Controls
+  // ---------------------------------------------------------------------------
+  clearCache: (key?: string) => {
+    if (key) {
+      apiCache.delete(key);
+    } else {
+      apiCache.clear();
+    }
+  },
+
+  // ---------------------------------------------------------------------------
   // Trending
   // ---------------------------------------------------------------------------
   getTrending: async (mediaType = 'all', timeWindow = 'week') => {

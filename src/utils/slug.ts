@@ -40,43 +40,52 @@ export function getCachedIdFromSlug(type: 'movie' | 'tv', slug: string): string 
 }
 
 /**
- * Generates clean title URLs:
- * /movie/the-dark-knight (pure title slug)
- * Falls back to /movie/155 if title is missing
+ * Generates SEO-friendly URLs with unique TMDB ID prefix:
+ * /movie/11174-my-sassy-girl
+ * Falls back to /movie/11174 if title is missing
  */
 export function getMovieUrl(id: number | string, title?: string): string {
+  if (!id) return '/';
   if (title) {
     const slug = toSlug(title);
     if (slug) {
+      const combined = `${id}-${slug}`;
+      cacheSlugId('movie', combined, id);
       cacheSlugId('movie', slug, id);
-      return `/movie/${slug}`;
+      return `/movie/${combined}`;
     }
   }
   return `/movie/${id}`;
 }
 
 /**
- * Generates clean title URLs:
- * /tv/who-is-who (pure title slug)
+ * Generates SEO-friendly URLs with unique TMDB ID prefix:
+ * /tv/78292-title
  * Falls back to /tv/78292 if name is missing
  */
 export function getTVUrl(id: number | string, name?: string): string {
+  if (!id) return '/';
   if (name) {
     const slug = toSlug(name);
     if (slug) {
+      const combined = `${id}-${slug}`;
+      cacheSlugId('tv', combined, id);
       cacheSlugId('tv', slug, id);
-      return `/tv/${slug}`;
+      return `/tv/${combined}`;
     }
   }
   return `/tv/${id}`;
 }
 
 export function getWatchMovieUrl(id: number | string, title?: string): string {
+  if (!id) return '/';
   if (title) {
     const slug = toSlug(title);
     if (slug) {
+      const combined = `${id}-${slug}`;
+      cacheSlugId('movie', combined, id);
       cacheSlugId('movie', slug, id);
-      return `/watch/movie/${slug}`;
+      return `/watch/movie/${combined}`;
     }
   }
   return `/watch/movie/${id}`;
@@ -84,11 +93,14 @@ export function getWatchMovieUrl(id: number | string, title?: string): string {
 
 export function getWatchTVUrl(id: number | string, name?: string, season = 1, episode = 1): string {
   const query = `?s=${season}&e=${episode}`;
+  if (!id) return '/';
   if (name) {
     const slug = toSlug(name);
     if (slug) {
+      const combined = `${id}-${slug}`;
+      cacheSlugId('tv', combined, id);
       cacheSlugId('tv', slug, id);
-      return `/watch/tv/${slug}${query}`;
+      return `/watch/tv/${combined}${query}`;
     }
   }
   return `/watch/tv/${id}${query}`;

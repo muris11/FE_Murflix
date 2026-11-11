@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Search, Bell, Film, Tv, Heart, Shield, LogOut, User as UserIcon, Menu, X, Settings, Users, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { getAvatarUrl } from '@/utils/avatarConverter';
 import { MurflixLogo } from './MurflixLogo';
 
 export const Navbar: React.FC = () => {
@@ -111,8 +112,11 @@ export const Navbar: React.FC = () => {
                 >
                   <div className="w-8 h-8 rounded-lg overflow-hidden bg-zinc-800 shadow-md flex items-center justify-center border border-white/20">
                     <img
-                      src={activeProfile?.avatar_url || user?.avatar_url || '/avatars/avatar-red.svg'}
+                      src={getAvatarUrl(activeProfile?.avatar_url || user?.avatar_url)}
                       alt={activeProfile?.name || 'Profile'}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/avatars/avatar-red.svg';
+                      }}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -125,8 +129,11 @@ export const Navbar: React.FC = () => {
                     <div className="px-4 py-2.5 border-b border-gray-800 flex items-center space-x-3">
                       <div className="w-10 h-10 rounded-xl overflow-hidden bg-black border border-red-500/50 flex-shrink-0">
                         <img
-                          src={activeProfile?.avatar_url || user?.avatar_url || '/avatars/avatar-red.svg'}
+                          src={getAvatarUrl(activeProfile?.avatar_url || user?.avatar_url)}
                           alt={activeProfile?.name || 'Profile'}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/avatars/avatar-red.svg';
+                          }}
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -157,8 +164,11 @@ export const Navbar: React.FC = () => {
                               className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-800 transition-colors text-left"
                             >
                               <img
-                                src={p.avatar_url || '/avatars/avatar-red.svg'}
+                                src={getAvatarUrl(p.avatar_url)}
                                 alt={p.name}
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = '/avatars/avatar-red.svg';
+                                }}
                                 className="w-6 h-6 rounded-md object-cover flex-shrink-0"
                               />
                               <span className="text-xs text-gray-300 hover:text-white truncate font-medium">

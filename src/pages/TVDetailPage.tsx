@@ -7,6 +7,7 @@ import { MovieRow } from '@/components/media/MovieRow';
 import { PersonModal } from '@/components/media/PersonModal';
 import { WatchProvidersBadge } from '@/components/media/WatchProvidersBadge';
 import { watchlistApi } from '@/api/watchlist';
+import { CustomDropdown } from '@/components/ui/CustomDropdown';
 import { getTMDBImageUrl, getDirectTMDBUrl } from '@/utils/image';
 import { extractIdFromSlug, getWatchTVUrl, resolveMediaId, getCachedIdFromSlug } from '@/utils/slug';
 
@@ -205,14 +206,14 @@ export const TVDetailPage: React.FC = () => {
 
   const backdropUrl = tv.backdrop_path
     ? backdropError
-      ? getDirectTMDBUrl(tv.backdrop_path, 'original')
-      : getTMDBImageUrl(tv.backdrop_path, 'original')
+      ? getDirectTMDBUrl(tv.backdrop_path, 'w1280')
+      : getTMDBImageUrl(tv.backdrop_path, 'w1280')
     : '';
 
   const posterUrl = tv.poster_path
     ? posterError
-      ? getDirectTMDBUrl(tv.poster_path, 'w500')
-      : getTMDBImageUrl(tv.poster_path, 'w500')
+      ? getDirectTMDBUrl(tv.poster_path, 'w342')
+      : getTMDBImageUrl(tv.poster_path, 'w342')
     : '/placeholder.svg';
 
   const releaseYear = (tv.first_air_date || '').split('-')[0];
@@ -389,24 +390,23 @@ export const TVDetailPage: React.FC = () => {
               {(tv.seasons?.length ?? 0) > 1 && (
                 <div className="flex items-center space-x-2">
                   <span className="text-xs text-zinc-400 font-semibold hidden sm:inline">Pilih Musim:</span>
-                  <select
-                    value={selectedSeason}
-                    onChange={(e) => {
-                      const s = Number(e.target.value);
+                  <CustomDropdown
+                    value={String(selectedSeason)}
+                    onChange={(val) => {
+                      const s = Number(val);
                       setSelectedSeason(s);
                       setSelectedEpisode(1);
                       setCurrentEpisodePage(1);
                     }}
-                    className="px-3.5 py-2 rounded-xl bg-zinc-800 border border-zinc-700 text-white text-xs sm:text-sm font-semibold focus:outline-none focus:border-red-500 transition-colors cursor-pointer"
-                  >
-                    {tv.seasons
-                      ?.filter((s) => s.season_number > 0)
-                      .map((season) => (
-                        <option key={season.id} value={season.season_number}>
-                          {season.name || `Season ${season.season_number}`} ({season.episode_count} Ep)
-                        </option>
-                      ))}
-                  </select>
+                    options={(tv.seasons || [])
+                      .filter((s) => s.season_number > 0)
+                      .map((season) => ({
+                        value: String(season.season_number),
+                        label: season.name || `Season ${season.season_number}`,
+                        badge: `${season.episode_count} Ep`,
+                      }))}
+                    className="w-48"
+                  />
                 </div>
               )}
             </div>

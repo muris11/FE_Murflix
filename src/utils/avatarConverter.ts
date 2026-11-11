@@ -74,3 +74,33 @@ export async function uploadAvatarImage(file: File): Promise<string> {
   return res.data.url;
 }
 
+/**
+ * Resolves avatar URL with fallback to standard default avatar.
+ * Handles relative /uploads/, external URLs, and default SVGs.
+ * If URL points to uploaded avatar (/uploads/avatars/...),
+ * it resolves against backend API origin so it loads reliably across domains.
+ */
+export function getAvatarUrl(url?: string | null): string {
+  if (!url || typeof url !== 'string' || !url.trim()) {
+    return '/avatars/avatar-red.svg';
+  }
+  const clean = url.trim();
+  if (clean.startsWith('http://') || clean.startsWith('https://') || clean.startsWith('data:')) {
+    return clean;
+  }
+  if (clean.startsWith('/avatars/')) {
+    return clean;
+  }
+  if (clean.startsWith('/uploads/')) {
+    const apiUrl = import.meta.env.VITE_API_URL;
+    if (apiUrl && (apiUrl.startsWith('http://') || apiUrl.startsWith('https://'))) {
+      try {
+        const origin = new URL(apiUrl).origin;
+        return `${origin}${clean}`;
+      } catch {}
+    }
+    return clean;
+  }
+  return clean;
+}
+

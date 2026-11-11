@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { X, Server, AlertCircle, Play, List, SkipForward, SkipBack, ChevronRight, Check, Info } from 'lucide-react';
 import { moviesApi } from '@/api/movies';
 import { StreamingServer, SeasonItem, EpisodeItem } from '@/types/tmdb';
+import { CustomDropdown } from '@/components/ui/CustomDropdown';
 import { getTMDBImageUrl, getDirectTMDBUrl } from '@/utils/image';
+import { DEFAULT_STREAMING_SERVERS, formatEmbedUrl } from '@/constants/streamingServers';
 
 interface VideoPlayerModalProps {
   isOpen: boolean;
@@ -18,57 +20,6 @@ interface VideoPlayerModalProps {
   onEpisodeChange?: (season: number, episode: number) => void;
 }
 
-const DEFAULT_SERVERS: StreamingServer[] = [
-  {
-    id: 'vidlink',
-    name: 'VidLink',
-    description: 'Multi-Sub, HD',
-    type: 'iframe',
-    movieUrl: 'https://vidlink.pro/movie/{id}',
-    tvUrl: 'https://vidlink.pro/tv/{id}/{s}/{e}',
-  },
-  {
-    id: 'vidsrccc',
-    name: 'VidSrc CC',
-    description: 'Multi-Sub, 1080p',
-    type: 'iframe',
-    movieUrl: 'https://vidsrc.cc/v2/embed/movie/{id}',
-    tvUrl: 'https://vidsrc.cc/v2/embed/tv/{id}/{s}/{e}',
-  },
-  {
-    id: 'embedsu',
-    name: 'Embed.su',
-    description: 'Fast, HD',
-    type: 'iframe',
-    movieUrl: 'https://embed.su/embed/movie/{id}',
-    tvUrl: 'https://embed.su/embed/tv/{id}/{s}/{e}',
-  },
-  {
-    id: '2embed',
-    name: '2Embed',
-    description: 'Multi-Sub, Anime',
-    type: 'iframe',
-    movieUrl: 'https://www.2embed.cc/embed/{id}',
-    tvUrl: 'https://www.2embed.cc/embedtv/{id}&s={s}&e={e}',
-  },
-  {
-    id: 'moviesapi',
-    name: 'MoviesAPI',
-    description: 'Multi-Sub, 1080p',
-    type: 'iframe',
-    movieUrl: 'https://moviesapi.club/movie/{id}',
-    tvUrl: 'https://moviesapi.club/tv/{id}/{s}/{e}',
-  },
-  {
-    id: 'vidsrcto',
-    name: 'VidSrc.to',
-    description: 'HD, Fast',
-    type: 'iframe',
-    movieUrl: 'https://vidsrc.to/embed/movie/{id}',
-    tvUrl: 'https://vidsrc.to/embed/tv/{id}/{s}/{e}',
-  },
-];
-
 export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
   isOpen,
   onClose,
@@ -82,8 +33,8 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
   directVideoUrl,
   onEpisodeChange,
 }) => {
-  const [servers, setServers] = useState<StreamingServer[]>(DEFAULT_SERVERS);
-  const [activeServer, setActiveServer] = useState<string>('vidlink');
+  const [servers, setServers] = useState<StreamingServer[]>(DEFAULT_STREAMING_SERVERS);
+  const [activeServer, setActiveServer] = useState<string>(DEFAULT_STREAMING_SERVERS[0]?.id || 'embedwave');
 
   // TV Episode & Season State
   const [currentSeason, setCurrentSeason] = useState<number>(season);
@@ -165,13 +116,9 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
 
   const getEmbedUrl = () => {
     if (directVideoUrl) return directVideoUrl;
-    if (!tmdbId) return '';
-
+    if (!tmdbId || !currentServer) return '';
     const urlTemplate = mediaType === 'movie' ? currentServer.movieUrl : currentServer.tvUrl;
-    return urlTemplate
-      .replace('{id}', String(tmdbId))
-      .replace('{s}', String(currentSeason))
-      .replace('{e}', String(currentEpisode));
+    return formatEmbedUrl(urlTemplate, tmdbId, currentSeason, currentEpisode);
   };
 
   const embedUrl = getEmbedUrl();
@@ -347,22 +294,21 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
 
                 {/* Season Dropdown */}
                 {availableSeasons.length > 1 && (
-                  <select
-                    value={currentSeason}
-                    onChange={(e) => {
-                      const sVal = Number(e.target.value);
+                  <CustomDropdown
+                    value={String(currentSeason)}
+                    onChange={(val) => {
+                      const sVal = Number(val);
                       setCurrentSeason(sVal);
                       setCurrentEpisode(1);
                       if (onEpisodeChange) onEpisodeChange(sVal, 1);
                     }}
-                    className="bg-zinc-800 border border-zinc-700 text-white rounded-lg px-2.5 py-1 text-xs font-semibold focus:outline-none focus:border-red-500"
-                  >
-                    {availableSeasons.map((s) => (
-                      <option key={s.id} value={s.season_number}>
-                        {s.name} ({s.episode_count} Ep)
-                      </option>
-                    ))}
-                  </select>
+                    options={availableSeasons.map((s) => ({
+                      value: String(s.season_number),
+                      label: s.name,
+                      badge: `${s.episode_count} Ep`,
+                    }))}
+                    className="w-40"
+                  />
                 )}
 
                 <button

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#0e7490" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.3" />
+    </filter>
+  </defs>
+  <rect width="160" height="160" rx="32" fill="url(#bgCyan)" />
+  <rect x="4" y="4" width="152" height="152" rx="28" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.25" />
+  <!-- Headphones on Sides -->
+  <g filter="url(#shadow)">
+    <!-- Headphone Band -->
+    <path d="M 28 64 C 28 28, 132 28, 132 64" fill="none" stroke="#0f172a" stroke-width="8" stroke-linecap="round" />
+    <!-- Ear Cups -->
+    <rect x="18" y="52" width="16" height="34" rx="8" fill="#0f172a" />
+    <rect x="126" y="52" width="16" height="34" rx="8" fill="#0f172a" />
+    <!-- Happy Face -->
+    <rect x="52" y="66" width="12" height="16" rx="6" fill="#ffffff" />
+    <rect x="96" y="66" width="12" height="16" rx="6" fill="#ffffff" />
+    <path d="M 54 104 C 68 120, 92 120, 106 104" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" />
+  </g>
+</svg>
+

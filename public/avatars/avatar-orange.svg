@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgOrange" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f97316" />
+      <stop offset="100%" stop-color="#9a3412" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.3" />
+    </filter>
+  </defs>
+  <rect width="160" height="160" rx="32" fill="url(#bgOrange)" />
+  <rect x="4" y="4" width="152" height="152" rx="28" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.25" />
+  <!-- Enthusiastic Grinning Face -->
+  <g filter="url(#shadow)" fill="#ffffff">
+    <rect x="46" y="52" width="15" height="22" rx="7.5" />
+    <rect x="99" y="52" width="15" height="22" rx="7.5" />
+    <!-- Broad Smile with teeth line -->
+    <path d="M 40 92 C 48 128, 112 128, 120 92 Z" fill="#ffffff" />
+    <path d="M 40 98 Q 80 102 120 98" fill="none" stroke="#f97316" stroke-width="3" stroke-linecap="round" />
+  </g>
+</svg>
+

@@ -25,7 +25,7 @@ export const CollectionSection: React.FC<CollectionSectionProps> = ({ collection
   if (!collection || !collection.parts || collection.parts.length <= 1) return null;
 
   const backdropUrl = collection.backdrop_path
-    ? getDirectTMDBUrl(collection.backdrop_path, 'original')
+    ? getDirectTMDBUrl(collection.backdrop_path, 'w1280')
     : '';
 
   // Sort movies in chronological release date order
@@ -36,11 +36,11 @@ export const CollectionSection: React.FC<CollectionSectionProps> = ({ collection
   });
 
   return (
-    <div className="pt-8 space-y-4">
+    <div className="space-y-4">
       <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-zinc-950 p-6 sm:p-8 shadow-2xl">
         {backdropUrl && (
           <div className="absolute inset-0 pointer-events-none opacity-20">
-            <img src={backdropUrl} alt="" className="w-full h-full object-cover" />
+            <img src={backdropUrl} alt="" decoding="async" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
           </div>
         )}

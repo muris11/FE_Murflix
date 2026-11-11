@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgAmber" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d97706" />
+      <stop offset="100%" stop-color="#78350f" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.3" />
+    </filter>
+  </defs>
+  <rect width="160" height="160" rx="32" fill="url(#bgAmber)" />
+  <rect x="4" y="4" width="152" height="152" rx="28" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.25" />
+  <!-- Curious / Cute Face -->
+  <g filter="url(#shadow)" fill="#ffffff">
+    <circle cx="52" cy="62" r="13" />
+    <circle cx="108" cy="62" r="13" />
+    <!-- Cute Small Smile -->
+    <path d="M 60 102 C 70 114, 90 114, 100 102" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" />
+  </g>
+</svg>
+

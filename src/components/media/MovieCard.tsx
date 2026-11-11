@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Play, Star, Plus, Check, Film, Tv } from 'lucide-react';
 import { MediaItem } from '@/types/tmdb';
 import { watchlistApi } from '@/api/watchlist';
-import { getTMDBImageUrl, getDirectTMDBUrl } from '@/utils/image';
+import { getTMDBImageUrl, getDirectTMDBUrl, getProxyTMDBUrl } from '@/utils/image';
 import { getMovieUrl, getTVUrl, getWatchMovieUrl, getWatchTVUrl } from '@/utils/slug';
 
 interface MovieCardProps {
@@ -21,11 +21,11 @@ export const MovieCard: React.FC<MovieCardProps> = ({ item, className = '' }) =>
   const releaseYear = (item.release_date || item.first_air_date || '').split('-')[0];
   const rating = item.vote_average ? item.vote_average.toFixed(1) : null;
 
-  // Multi-tier image fallback: Backend Proxy -> Direct TMDB -> Placeholder SVG
+  // Multi-tier fast image loading: Direct TMDB CDN (w342) -> Backend Proxy -> Placeholder
   const getPosterSrc = () => {
     if (!item.poster_path) return '/placeholder.svg';
-    if (retryStage === 0) return getTMDBImageUrl(item.poster_path, 'w500');
-    if (retryStage === 1) return getDirectTMDBUrl(item.poster_path, 'w500');
+    if (retryStage === 0) return getTMDBImageUrl(item.poster_path, 'w342');
+    if (retryStage === 1) return getProxyTMDBUrl(item.poster_path, 'w342');
     return '/placeholder.svg';
   };
 
@@ -73,8 +73,9 @@ export const MovieCard: React.FC<MovieCardProps> = ({ item, className = '' }) =>
             alt=""
             aria-hidden="true"
             onError={handleImageError}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            decoding="async"
             loading="lazy"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
 
           {/* Top-Left: Rating Badge */}
