@@ -106,3 +106,4 @@ export const CollectionSection: React.FC<CollectionSectionProps> = ({ collection
     </div>
   );
 };
+

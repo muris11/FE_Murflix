@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Search, Bell, Film, Tv, Heart, Shield, LogOut, User as UserIcon, Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { MurflixLogo } from './MurflixLogo';
 
 export const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -52,10 +53,8 @@ export const Navbar: React.FC = () => {
           
           {/* Logo & Navigation */}
           <div className="flex items-center space-x-6 sm:space-x-8">
-            <Link to="/" className="flex items-center space-x-2">
-              <span className="text-2xl sm:text-3xl font-black tracking-wider text-[#e50914] drop-shadow-[0_2px_10px_rgba(229,9,20,0.6)]">
-                MURFLIX
-              </span>
+            <Link to="/" className="flex items-center transition-transform hover:scale-105 active:scale-95" title="Beranda Murflix">
+              <MurflixLogo size="md" />
             </Link>
 
             {/* Desktop Links (1:1 Netflix Style Pill Navigation) */}

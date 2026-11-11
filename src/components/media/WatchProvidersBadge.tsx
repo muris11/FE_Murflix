@@ -48,3 +48,4 @@ export const WatchProvidersBadge: React.FC<WatchProvidersBadgeProps> = ({ provid
     </div>
   );
 };
+

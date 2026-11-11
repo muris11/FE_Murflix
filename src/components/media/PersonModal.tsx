@@ -172,3 +172,4 @@ export const PersonModal: React.FC<PersonModalProps> = ({ personId, onClose }) =
     </div>
   );
 };
+

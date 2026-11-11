@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Users, Tag, Settings, Film, LogOut, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { MurflixLogo } from '@/components/layout/MurflixLogo';
 
 export const AdminSidebar: React.FC = () => {
   const location = useLocation();
@@ -25,7 +26,7 @@ export const AdminSidebar: React.FC = () => {
         {/* Brand */}
         <div className="p-6 border-b border-gray-800">
           <Link to="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-black text-[#e50914] tracking-wider">MURFLIX</span>
+            <MurflixLogo size="sm" />
             <span className="text-[10px] font-bold uppercase tracking-widest bg-red-600/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30">
               Admin
             </span>

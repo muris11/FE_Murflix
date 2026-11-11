@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Lock, Mail, AlertCircle, ArrowRight, Sparkles, ShieldCheck } from 'lucide-react';
 import { apiClient } from '@/api/client';
+import { MurflixLogo } from '@/components/layout/MurflixLogo';
 
 interface DemoConfig {
   enabled: boolean;
@@ -104,11 +105,9 @@ export const LoginPage: React.FC = () => {
       <div className="relative z-10 w-full max-w-md bg-[#121215]/95 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 sm:p-10 shadow-2xl shadow-black ring-1 ring-white/5">
         
         {/* Brand Header */}
-        <div className="text-center mb-7">
-          <Link to="/" className="inline-block">
-            <span className="text-3xl sm:text-4xl font-black text-[#e50914] tracking-wider drop-shadow-[0_2px_12px_rgba(229,9,20,0.6)]">
-              MURFLIX
-            </span>
+        <div className="text-center mb-7 flex flex-col items-center">
+          <Link to="/" className="inline-block transition-transform hover:scale-105">
+            <MurflixLogo size="xl" />
           </Link>
           <h2 className="text-xl sm:text-2xl font-black text-white mt-3 tracking-tight">Masuk ke Akun Anda</h2>
           <p className="text-xs text-zinc-400 mt-1">Layanan streaming film & serial TV berkualitas tinggi</p>
