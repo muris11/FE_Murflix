@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { adminApi } from '@/api/admin';
 import { SubscriptionPlan, User } from '@/types/auth';
-import { ArrowLeft, Save, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Save, AlertCircle, Eye, EyeOff, Lock } from 'lucide-react';
 
 export const AdminUserEditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -15,6 +15,8 @@ export const AdminUserEditPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const [fullName, setFullName] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<'admin' | 'user'>('user');
   const [isActive, setIsActive] = useState(true);
   const [extendOption, setExtendOption] = useState<'keep' | 'new'>('keep');
@@ -41,6 +43,12 @@ export const AdminUserEditPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id) return;
+
+    if (newPassword.trim() && newPassword.trim().length < 6) {
+      setError('Password baru minimal 6 karakter');
+      return;
+    }
+
     setError(null);
     setIsSubmitting(true);
 
@@ -53,6 +61,7 @@ export const AdminUserEditPage: React.FC = () => {
         plan_id: selectedPlanId,
         duration_unit: durationUnit,
         duration_value: durationValue,
+        password: newPassword.trim() ? newPassword.trim() : undefined,
       });
 
       navigate('/admin/users');
@@ -118,6 +127,36 @@ export const AdminUserEditPage: React.FC = () => {
             onChange={(e) => setFullName(e.target.value)}
             className="w-full bg-gray-900 border border-gray-700 text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-red-500"
           />
+        </div>
+
+        {/* Password Reset Field */}
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">
+            Ganti Password Baru (Opsional)
+          </label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+              <Lock className="w-4 h-4" />
+            </div>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Kosongkan jika tidak ingin mengubah password..."
+              minLength={6}
+              className="w-full bg-gray-900 border border-gray-700 text-white rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:border-red-500 placeholder-gray-500"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-white transition-colors"
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+          <p className="text-xs text-gray-400 mt-1.5">
+            Minimal 6 karakter. Kosongkan bidang ini jika ingin mempertahankan password yang sedang digunakan.
+          </p>
         </div>
 
         {/* Role & Status Toggle */}
