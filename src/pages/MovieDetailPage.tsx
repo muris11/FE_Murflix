@@ -45,6 +45,8 @@ export const MovieDetailPage: React.FC = () => {
       .getMovieDetails(resolvedId)
       .then((data) => {
         setMovie(data);
+        const year = data.release_date ? ` (${data.release_date.slice(0, 4)})` : '';
+        document.title = `${data.title || 'Film'}${year} - Nonton Streaming di Murflix`;
         watchlistApi.check('movie', Number(resolvedId)).then(setIsInList).catch(() => {});
       })
       .catch((err) => console.error(err))

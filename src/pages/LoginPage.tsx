@@ -95,7 +95,7 @@ export const LoginPage: React.FC = () => {
         className="absolute inset-0 bg-cover bg-center opacity-30 filter scale-105"
         style={{
           backgroundImage:
-            'url("https://assets.nflxext.com/ffe/siteui/vlv3/ab4b0b22-2ddf-4d48-ae88-c201ae02a9e3/c545bf86-53d9-482d-8869-ecb52a781b22/ID-en-20231030-popsignuptwoweeks-perspective_alpha_website_large.jpg")',
+            'url("https://assets.nflxext.com/ffe/siteui/vlv3/d8132cba-0024-4b01-86f4-2bac9792e1dd/web/ID-en-20261102-TRIFECTA-perspective_ee5f8c9c-18bf-4e73-904a-5a39f3c2c007_large.jpg")',
         }}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/85 to-black/75" />

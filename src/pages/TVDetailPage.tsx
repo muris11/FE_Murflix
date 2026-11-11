@@ -59,6 +59,8 @@ export const TVDetailPage: React.FC = () => {
       .getTVDetails(resolvedId)
       .then((data) => {
         setTv(data);
+        const year = data.first_air_date ? ` (${data.first_air_date.slice(0, 4)})` : '';
+        document.title = `${data.name || 'Serial TV'}${year} - Nonton Streaming di Murflix`;
         watchlistApi.check('tv', Number(resolvedId)).then(setIsInList).catch(() => {});
       })
       .catch((err) => console.error('Failed to load TV details:', err))
