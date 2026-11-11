@@ -82,14 +82,14 @@ export async function uploadAvatarImage(file: File): Promise<string> {
  */
 export function getAvatarUrl(url?: string | null): string {
   if (!url || typeof url !== 'string' || !url.trim()) {
-    return '/avatars/avatar-red.svg';
+    return '/avatars/avatar-red.svg?v=2';
   }
   const clean = url.trim();
   if (clean.startsWith('http://') || clean.startsWith('https://') || clean.startsWith('data:')) {
     return clean;
   }
   if (clean.startsWith('/avatars/')) {
-    return clean;
+    return clean.includes('?v=') ? clean : `${clean}?v=2`;
   }
   if (clean.startsWith('/uploads/')) {
     const apiUrl = import.meta.env.VITE_API_URL;
