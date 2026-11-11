@@ -7,7 +7,6 @@ import {
   Settings,
   Film,
   LogOut,
-  ChevronRight,
   ChevronDown,
   Activity,
   MapPin,
@@ -15,7 +14,6 @@ import {
   Key,
   UserCheck,
   Sliders,
-  Radio,
   UserPlus,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -25,13 +23,10 @@ interface MenuItem {
   label: string;
   path: string;
   icon: React.ComponentType<{ className?: string }>;
-  badge?: string;
-  badgeColor?: string;
   subItems?: {
     label: string;
     path: string;
     icon: React.ComponentType<{ className?: string }>;
-    badge?: string;
   }[];
 }
 
@@ -69,13 +64,11 @@ export const AdminSidebar: React.FC<{ onItemClick?: () => void }> = ({ onItemCli
           label: 'Pelacakan Pengunjung',
           path: '/admin/analytics',
           icon: Activity,
-          badge: 'LIVE',
-          badgeColor: 'bg-red-500/20 text-red-400 border-red-500/40',
           subItems: [
             {
-              label: 'Peta Koordinat & KPI',
+              label: 'Peta Koordinat & Radar',
               path: '/admin/analytics',
-              icon: Radio,
+              icon: Activity,
             },
             {
               label: 'Log Pengunjung & IP',
@@ -114,10 +107,10 @@ export const AdminSidebar: React.FC<{ onItemClick?: () => void }> = ({ onItemCli
       ],
     },
     {
-      title: 'Kontrol Sistem',
+      title: 'Pengaturan Sistem',
       items: [
         {
-          label: 'Pengaturan Sistem',
+          label: 'Konfigurasi Layanan',
           path: '/admin/settings/servers',
           icon: Settings,
           subItems: [
@@ -125,7 +118,6 @@ export const AdminSidebar: React.FC<{ onItemClick?: () => void }> = ({ onItemCli
               label: 'Server Streaming',
               path: '/admin/settings/servers',
               icon: Tv,
-              badge: 'Ad-Free',
             },
             {
               label: 'API TMDB & Media',
@@ -161,17 +153,17 @@ export const AdminSidebar: React.FC<{ onItemClick?: () => void }> = ({ onItemCli
   };
 
   return (
-    <aside className="w-64 bg-[#111114] border-r border-zinc-800 flex flex-col justify-between h-screen sticky top-0 overflow-hidden">
+    <aside className="w-64 bg-[#0e0e11] border-r border-zinc-800/80 flex flex-col justify-between h-screen sticky top-0 overflow-hidden select-none">
       <div className="flex-1 overflow-y-auto scrollbar-none">
+        
         {/* Brand Header */}
-        <div className="p-5 border-b border-zinc-800">
-          <Link to="/" className="flex items-center space-x-2" onClick={onItemClick}>
+        <div className="px-5 py-4 border-b border-zinc-800/70 flex items-center justify-between">
+          <Link to="/" className="flex items-center space-x-2.5" onClick={onItemClick}>
             <MurflixLogo size="sm" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-red-500 border border-red-500/40 px-1.5 py-0.5 rounded">
-              Admin
+            <span className="text-[11px] font-semibold text-zinc-400 tracking-wider uppercase">
+              Konsol
             </span>
           </Link>
-          <p className="text-[11px] text-zinc-500 mt-1 font-medium">Pusat Kendali & Intelijen</p>
         </div>
 
         {/* Navigation Sections */}
@@ -179,9 +171,9 @@ export const AdminSidebar: React.FC<{ onItemClick?: () => void }> = ({ onItemCli
           {menuSections.map((section, sIdx) => (
             <div key={sIdx} className="space-y-1">
               {section.title && (
-                <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 px-3 py-1">
+                <div className="px-3 py-1 text-[11px] font-medium text-zinc-500 uppercase tracking-wider">
                   {section.title}
-                </p>
+                </div>
               )}
 
               {section.items.map((item) => {
@@ -197,36 +189,31 @@ export const AdminSidebar: React.FC<{ onItemClick?: () => void }> = ({ onItemCli
 
                 return (
                   <div key={item.path} className="space-y-0.5">
-                    {/* Main Item */}
+                    {/* Main Nav Item */}
                     <div className="flex items-center">
                       <Link
                         to={item.subItems ? item.subItems[0].path : item.path}
                         onClick={onItemClick}
-                        className={`flex-1 flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                        className={`flex-1 flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
                           parentActive && !hasSub
-                            ? 'bg-[#e50914] text-white shadow-md shadow-red-600/30'
+                            ? 'bg-zinc-800/90 text-white font-semibold'
                             : parentActive
-                            ? 'text-white bg-zinc-800/80 font-bold'
-                            : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
+                            ? 'text-white bg-zinc-800/50 font-semibold'
+                            : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40'
                         }`}
                       >
                         <div className="flex items-center space-x-2.5 min-w-0">
-                          <Icon className={`w-4 h-4 flex-shrink-0 ${parentActive ? 'text-red-500' : 'text-zinc-400'}`} />
+                          <Icon className={`w-4 h-4 flex-shrink-0 ${parentActive ? 'text-red-500' : 'text-zinc-500'}`} />
                           <span className="truncate">{item.label}</span>
                         </div>
-
-                        {item.badge && (
-                          <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${item.badgeColor || 'bg-zinc-800 text-zinc-300 border-zinc-700'}`}>
-                            {item.badge}
-                          </span>
-                        )}
                       </Link>
 
                       {hasSub && (
                         <button
+                          type="button"
                           onClick={() => toggleSubmenu(menuKey)}
-                          className="p-2 text-zinc-500 hover:text-white rounded-lg transition-colors ml-1"
-                          title="Buka / Tutup Sub-menu"
+                          className="p-2 text-zinc-500 hover:text-white rounded-lg transition-colors ml-0.5"
+                          title="Buka atau tutup menu"
                         >
                           <ChevronDown
                             className={`w-3.5 h-3.5 transition-transform duration-200 ${
@@ -237,9 +224,9 @@ export const AdminSidebar: React.FC<{ onItemClick?: () => void }> = ({ onItemCli
                       )}
                     </div>
 
-                    {/* Sub Items (Clean Nested Routes) */}
+                    {/* Sub Items */}
                     {hasSub && isExpanded && (
-                      <div className="pl-6 pr-1 space-y-0.5 border-l border-zinc-800/80 ml-5 my-1">
+                      <div className="pl-6 pr-1 space-y-0.5 border-l border-zinc-800/70 ml-5 my-1">
                         {item.subItems!.map((sub) => {
                           const SubIcon = sub.icon;
                           const subActive = isExactActive(sub.path);
@@ -249,21 +236,16 @@ export const AdminSidebar: React.FC<{ onItemClick?: () => void }> = ({ onItemCli
                               key={sub.path}
                               to={sub.path}
                               onClick={onItemClick}
-                              className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
+                              className={`flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs transition-colors ${
                                 subActive
-                                  ? 'bg-[#e50914] text-white font-bold shadow-sm'
-                                  : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50 font-medium'
+                                  ? 'bg-zinc-800 text-white font-semibold'
+                                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/30'
                               }`}
                             >
                               <div className="flex items-center space-x-2 truncate">
-                                <SubIcon className="w-3.5 h-3.5 flex-shrink-0" />
+                                <SubIcon className={`w-3.5 h-3.5 flex-shrink-0 ${subActive ? 'text-red-500' : 'text-zinc-500'}`} />
                                 <span className="truncate">{sub.label}</span>
                               </div>
-                              {sub.badge && (
-                                <span className="text-[9px] font-bold px-1 rounded bg-black/40 text-emerald-400">
-                                  {sub.badge}
-                                </span>
-                              )}
                             </Link>
                           );
                         })}
@@ -277,26 +259,27 @@ export const AdminSidebar: React.FC<{ onItemClick?: () => void }> = ({ onItemCli
         </nav>
       </div>
 
-      {/* User Info & Streaming Link */}
-      <div className="p-3 border-t border-zinc-800 space-y-2 bg-[#0c0c0f]">
+      {/* User Info & Footer */}
+      <div className="p-3 border-t border-zinc-800/80 bg-[#0a0a0c] space-y-2">
         <Link
           to="/"
           onClick={onItemClick}
-          className="flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition-colors"
+          className="flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-800/40 transition-colors"
         >
-          <Film className="w-4 h-4 text-red-500" />
-          <span>Ke Halaman Streaming</span>
+          <Film className="w-4 h-4 text-zinc-500" />
+          <span>Kembali ke Streaming</span>
         </Link>
 
-        <div className="pt-2 border-t border-zinc-800/80 flex items-center justify-between px-1">
+        <div className="pt-2 border-t border-zinc-800/60 flex items-center justify-between px-1">
           <div className="min-w-0 pr-2">
-            <p className="text-xs font-bold text-white truncate">{user?.full_name || 'Admin'}</p>
-            <p className="text-[10px] text-zinc-500 truncate">{user?.email}</p>
+            <p className="text-xs font-semibold text-zinc-200 truncate">{user?.full_name || 'Admin'}</p>
+            <p className="text-[11px] text-zinc-500 truncate">{user?.email}</p>
           </div>
           <button
+            type="button"
             onClick={() => logout()}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-            title="Keluar"
+            className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800/60 transition-colors"
+            title="Keluar akun"
           >
             <LogOut className="w-4 h-4" />
           </button>

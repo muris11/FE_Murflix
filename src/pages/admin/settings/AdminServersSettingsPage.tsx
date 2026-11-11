@@ -226,9 +226,9 @@ export const AdminServersSettingsPage: React.FC = () => {
           </button>
           <button
             onClick={handleOpenAddModal}
-            className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-[#e50914] hover:bg-red-700 text-white text-xs font-bold shadow-lg shadow-red-600/30 transition-all hover:scale-105"
+            className="flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold border border-zinc-700 transition-colors"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 text-zinc-400" />
             <span>Tambah Server</span>
           </button>
         </div>
@@ -338,17 +338,17 @@ export const AdminServersSettingsPage: React.FC = () => {
                   </div>
                   <div className="min-w-0 flex-1 space-y-1.5">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h4 className="text-base font-bold text-white">{server.name}</h4>
-                      <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-400 border border-zinc-700/60">
+                      <h4 className="text-sm font-semibold text-white">{server.name}</h4>
+                      <span className="text-[11px] font-mono text-zinc-500">
                         {server.id}
                       </span>
                       {isAdFree && (
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                        <span className="text-[11px] font-medium text-emerald-400">
                           Ad-Free
                         </span>
                       )}
                       {server.description && (
-                        <span className="text-xs text-zinc-400">({server.description})</span>
+                        <span className="text-xs text-zinc-500">({server.description})</span>
                       )}
                     </div>
 
@@ -431,7 +431,7 @@ export const AdminServersSettingsPage: React.FC = () => {
                   {/* Delete */}
                   <button
                     onClick={() => handleDeleteServer(index)}
-                    className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 transition-colors"
+                    className="p-2 rounded-xl text-zinc-400 hover:text-red-400 hover:bg-zinc-800 transition-colors"
                     title="Hapus Server"
                   >
                     <Trash2 className="w-4 h-4" />

@@ -20,10 +20,10 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
             <Menu className="w-5 h-5" />
           </button>
 
-          <Link to="/admin" className="flex items-center space-x-1.5">
+          <Link to="/admin" className="flex items-center space-x-2">
             <MurflixLogo size="sm" />
-            <span className="text-[9px] font-bold uppercase tracking-wider text-red-500 border border-red-500/40 px-1.5 py-0.5 rounded">
-              Admin
+            <span className="text-[11px] font-semibold text-zinc-400 tracking-wider uppercase">
+              Konsol
             </span>
           </Link>
         </div>

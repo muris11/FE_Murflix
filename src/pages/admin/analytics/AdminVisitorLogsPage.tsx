@@ -91,35 +91,35 @@ export const AdminVisitorLogsPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-zinc-800/80">
         <div>
           <div className="flex items-center space-x-2 text-xs text-zinc-400 mb-1">
-            <Link to="/admin" className="hover:text-white">Admin</Link>
+            <Link to="/admin" className="hover:text-white transition-colors">Admin</Link>
             <span>/</span>
-            <Link to="/admin/analytics" className="hover:text-white">Pelacakan & Analitik</Link>
+            <Link to="/admin/analytics" className="hover:text-white transition-colors">Pelacakan & Analitik</Link>
             <span>/</span>
-            <span className="text-red-500 font-semibold">Log Pengunjung & IP</span>
+            <span className="text-zinc-200 font-medium">Log Pengunjung & IP</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-            Log Lengkap Pengunjung & Deteksi IP
+          <h1 className="text-2xl font-bold text-white tracking-tight">
+            Log Lengkap Pengunjung &amp; Deteksi IP
           </h1>
-          <p className="text-xs sm:text-sm text-zinc-400 mt-1">
-            Rekaman terperinci setiap permintaan: alamat IP publik, koordinat GPS, lokasi kota/negara, ISP, perangkat, dan halaman yang diakses.
+          <p className="text-xs text-zinc-400 mt-1">
+            Rekaman terperinci alamat IP publik, koordinat GPS, lokasi kota/negara, ISP, perangkat, dan riwayat akses.
           </p>
         </div>
 
-        <div className="flex items-center space-x-2.5">
+        <div className="flex items-center space-x-2">
           <Link
             to="/admin/analytics"
-            className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold border border-zinc-700 transition-colors"
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700/60 transition-colors"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
+            <ArrowLeft className="w-3.5 h-3.5 text-zinc-400" />
             <span>Peta Geolocation</span>
           </Link>
           <button
             onClick={handleDeleteOldLogs}
             disabled={isDeleting}
-            className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 text-xs font-semibold border border-rose-800/60 transition-colors"
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-red-400 text-xs font-medium border border-zinc-700/60 transition-colors"
             title="Bersihkan log lebih dari 30 hari"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -129,21 +129,21 @@ export const AdminVisitorLogsPage: React.FC = () => {
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="bg-[#141416] border border-zinc-800 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="bg-[#121215] border border-zinc-800/80 rounded-xl p-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
         <form onSubmit={handleSearchSubmit} className="flex-1 flex items-center space-x-2">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
             <input
               type="text"
               placeholder="Cari IP, Kota, Negara, URL Halaman, ISP, atau Pengguna..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-black/50 border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 transition-colors font-mono"
+              className="w-full bg-[#0a0a0c] border border-zinc-800/80 rounded-lg pl-9 pr-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-600 transition-colors font-mono"
             />
           </div>
           <button
             type="submit"
-            className="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-white border border-zinc-700 transition-colors"
+            className="px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-medium text-white border border-zinc-700/60 transition-colors"
           >
             Cari
           </button>
@@ -157,7 +157,7 @@ export const AdminVisitorLogsPage: React.FC = () => {
               setSelectedDevice(e.target.value);
               setPage(1);
             }}
-            className="bg-black/50 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-red-500"
+            className="bg-[#0a0a0c] border border-zinc-800/80 rounded-lg px-2.5 py-2 text-xs text-zinc-300 focus:outline-none focus:border-zinc-600"
           >
             <option value="">Semua Perangkat</option>
             <option value="Desktop">Desktop</option>
@@ -172,7 +172,7 @@ export const AdminVisitorLogsPage: React.FC = () => {
               setLimit(Number(e.target.value));
               setPage(1);
             }}
-            className="bg-black/50 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-red-500"
+            className="bg-[#0a0a0c] border border-zinc-800/80 rounded-lg px-2.5 py-2 text-xs text-zinc-300 focus:outline-none focus:border-zinc-600"
           >
             <option value={25}>25 Baris</option>
             <option value={50}>50 Baris</option>
@@ -181,19 +181,19 @@ export const AdminVisitorLogsPage: React.FC = () => {
 
           <button
             onClick={() => fetchLogs()}
-            className="p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white border border-zinc-700"
+            className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white border border-zinc-700/60"
             title="Segarkan Log"
           >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
 
       {/* Logs Table */}
-      <div className="bg-[#141416] border border-zinc-800 rounded-2xl overflow-hidden shadow-xl">
+      <div className="bg-[#121215] border border-zinc-800/80 rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#18181c] border-b border-zinc-800 text-zinc-400 uppercase tracking-wider font-semibold">
+            <thead className="bg-[#0e0e11] border-b border-zinc-800/80 text-[11px] text-zinc-500 uppercase tracking-wider font-medium">
               <tr>
                 <th className="py-3 px-4">Waktu</th>
                 <th className="py-3 px-4">Alamat IP & Titik Koordinat</th>
@@ -360,104 +360,104 @@ export const AdminVisitorLogsPage: React.FC = () => {
       {/* Detail Popover / Modal */}
       {selectedDetail && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-          <div className="relative w-full max-w-2xl bg-[#161619] border border-zinc-800 rounded-3xl p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+          <div className="relative w-full max-w-2xl bg-[#121215] border border-zinc-800/80 rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-800/80">
               <div className="flex items-center space-x-2.5">
-                <MapPin className="w-5 h-5 text-red-500" />
-                <h3 className="text-lg font-bold text-white">
-                  Intelijen Akses Pengunjung: {selectedDetail.ip_address}
+                <MapPin className="w-4 h-4 text-zinc-400" />
+                <h3 className="text-sm font-semibold text-white">
+                  Detail Akses Pengunjung: {selectedDetail.ip_address}
                 </h3>
               </div>
               <button
                 onClick={() => setSelectedDetail(null)}
-                className="p-1.5 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+                className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-              <div className="bg-black/50 border border-zinc-800 p-3 rounded-xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+              <div className="bg-[#0a0a0c] border border-zinc-800/80 p-3 rounded-lg">
                 <span className="text-zinc-500 block text-[10px]">Alamat IP</span>
-                <span className="font-mono font-bold text-white text-sm">{selectedDetail.ip_address}</span>
+                <span className="font-mono font-semibold text-white text-xs">{selectedDetail.ip_address}</span>
               </div>
 
-              <div className="bg-black/50 border border-zinc-800 p-3 rounded-xl">
+              <div className="bg-[#0a0a0c] border border-zinc-800/80 p-3 rounded-lg">
                 <span className="text-zinc-500 block text-[10px]">Waktu Akses</span>
-                <span className="font-mono text-zinc-200">{new Date(selectedDetail.created_at).toLocaleString('id-ID')}</span>
+                <span className="font-mono text-zinc-300 text-xs">{new Date(selectedDetail.created_at).toLocaleString('id-ID')}</span>
               </div>
 
-              <div className="bg-black/50 border border-zinc-800 p-3 rounded-xl">
+              <div className="bg-[#0a0a0c] border border-zinc-800/80 p-3 rounded-lg">
                 <span className="text-zinc-500 block text-[10px]">Lokasi Geografis</span>
-                <span className="font-semibold text-white">
+                <span className="font-medium text-white text-xs">
                   {selectedDetail.city || 'Kota N/A'}, {selectedDetail.region || ''}, {selectedDetail.country} ({selectedDetail.country_code})
                 </span>
               </div>
 
-              <div className="bg-black/50 border border-zinc-800 p-3 rounded-xl">
-                <span className="text-zinc-500 block text-[10px]">Titik Koordinat (GPS Lintang & Bujur)</span>
+              <div className="bg-[#0a0a0c] border border-zinc-800/80 p-3 rounded-lg">
+                <span className="text-zinc-500 block text-[10px]">Titik Koordinat (GPS)</span>
                 {selectedDetail.latitude && selectedDetail.longitude ? (
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-amber-400 font-bold">
+                    <span className="font-mono text-zinc-200 font-semibold text-xs">
                       {selectedDetail.latitude.toFixed(6)}, {selectedDetail.longitude.toFixed(6)}
                     </span>
                     <a
                       href={`https://www.google.com/maps?q=${selectedDetail.latitude},${selectedDetail.longitude}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-red-400 hover:text-red-300 font-semibold text-[11px] flex items-center space-x-1"
+                      className="text-zinc-400 hover:text-white font-medium text-[11px] flex items-center space-x-1"
                     >
                       <span>Peta</span>
                       <ExternalLink className="w-3 h-3" />
                     </a>
                   </div>
                 ) : (
-                  <span className="text-zinc-500">Tidak tersedia</span>
+                  <span className="text-zinc-500 text-xs">Tidak tersedia</span>
                 )}
               </div>
 
-              <div className="bg-black/50 border border-zinc-800 p-3 rounded-xl sm:col-span-2">
-                <span className="text-zinc-500 block text-[10px]">Internet Service Provider (ISP) & ASN</span>
-                <span className="text-zinc-200 font-medium">
+              <div className="bg-[#0a0a0c] border border-zinc-800/80 p-3 rounded-lg sm:col-span-2">
+                <span className="text-zinc-500 block text-[10px]">Internet Service Provider (ISP) &amp; ASN</span>
+                <span className="text-zinc-300 font-medium text-xs">
                   {selectedDetail.isp || 'N/A'} {selectedDetail.asn ? `(${selectedDetail.asn})` : ''}
                 </span>
               </div>
 
-              <div className="bg-black/50 border border-zinc-800 p-3 rounded-xl sm:col-span-2">
+              <div className="bg-[#0a0a0c] border border-zinc-800/80 p-3 rounded-lg sm:col-span-2">
                 <span className="text-zinc-500 block text-[10px]">Halaman URL yang Diakses</span>
-                <span className="font-mono text-red-400 break-all">{selectedDetail.path}</span>
+                <span className="font-mono text-zinc-200 break-all text-xs">{selectedDetail.path}</span>
               </div>
 
               {selectedDetail.referrer && (
-                <div className="bg-black/50 border border-zinc-800 p-3 rounded-xl sm:col-span-2">
-                  <span className="text-zinc-500 block text-[10px]">HTTP Referrer (Asal Rujukan)</span>
-                  <span className="font-mono text-zinc-400 break-all">{selectedDetail.referrer}</span>
+                <div className="bg-[#0a0a0c] border border-zinc-800/80 p-3 rounded-lg sm:col-span-2">
+                  <span className="text-zinc-500 block text-[10px]">HTTP Referrer</span>
+                  <span className="font-mono text-zinc-400 break-all text-xs">{selectedDetail.referrer}</span>
                 </div>
               )}
 
-              <div className="bg-black/50 border border-zinc-800 p-3 rounded-xl">
-                <span className="text-zinc-500 block text-[10px]">Perangkat & OS</span>
-                <span className="text-zinc-200 font-semibold">{selectedDetail.device_type} - {selectedDetail.os}</span>
+              <div className="bg-[#0a0a0c] border border-zinc-800/80 p-3 rounded-lg">
+                <span className="text-zinc-500 block text-[10px]">Perangkat &amp; OS</span>
+                <span className="text-zinc-200 font-medium text-xs">{selectedDetail.device_type} - {selectedDetail.os}</span>
               </div>
 
-              <div className="bg-black/50 border border-zinc-800 p-3 rounded-xl">
-                <span className="text-zinc-500 block text-[10px]">Browser & Resolusi Layar</span>
-                <span className="text-zinc-200 font-semibold">
+              <div className="bg-[#0a0a0c] border border-zinc-800/80 p-3 rounded-lg">
+                <span className="text-zinc-500 block text-[10px]">Browser &amp; Resolusi</span>
+                <span className="text-zinc-200 font-medium text-xs">
                   {selectedDetail.browser} ({selectedDetail.screen_resolution || 'Resolusi N/A'})
                 </span>
               </div>
 
               {selectedDetail.user_email && (
-                <div className="bg-black/50 border border-zinc-800 p-3 rounded-xl sm:col-span-2">
+                <div className="bg-[#0a0a0c] border border-zinc-800/80 p-3 rounded-lg sm:col-span-2">
                   <span className="text-zinc-500 block text-[10px]">Pengguna Terautentikasi</span>
-                  <span className="text-emerald-400 font-bold">
+                  <span className="text-white font-medium text-xs">
                     {selectedDetail.user_name || 'User'} ({selectedDetail.user_email})
                   </span>
                 </div>
               )}
 
-              <div className="bg-black/50 border border-zinc-800 p-3 rounded-xl sm:col-span-2">
-                <span className="text-zinc-500 block text-[10px]">Raw User-Agent String</span>
+              <div className="bg-[#0a0a0c] border border-zinc-800/80 p-3 rounded-lg sm:col-span-2">
+                <span className="text-zinc-500 block text-[10px]">Raw User-Agent</span>
                 <span className="font-mono text-[10px] text-zinc-400 break-all">
                   {selectedDetail.user_agent}
                 </span>
@@ -467,7 +467,7 @@ export const AdminVisitorLogsPage: React.FC = () => {
             <div className="pt-2 flex justify-end">
               <button
                 onClick={() => setSelectedDetail(null)}
-                className="px-5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-200 transition-colors"
+                className="px-4 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-medium text-zinc-200 border border-zinc-700/60 transition-colors"
               >
                 Tutup
               </button>

@@ -142,9 +142,9 @@ export const AdminGeneralSettingsPage: React.FC = () => {
             <button
               type="submit"
               disabled={isSaving}
-              className="flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-[#e50914] hover:bg-red-700 text-white font-bold text-sm shadow-lg shadow-red-600/30 transition-all hover:scale-105"
+              className="inline-flex items-center space-x-1.5 px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs border border-zinc-700/60 transition-colors"
             >
-              <Save className="w-4 h-4" />
+              <Save className="w-4 h-4 text-zinc-400" />
               <span>{isSaving ? 'Menyimpan...' : 'Simpan Konfigurasi'}</span>
             </button>
           </div>

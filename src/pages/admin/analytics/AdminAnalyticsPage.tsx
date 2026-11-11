@@ -3,9 +3,6 @@ import { Link } from 'react-router-dom';
 import { adminApi } from '@/api/admin';
 import { AnalyticsOverview, VisitorCoordinate } from '@/types/analytics';
 import {
-  Activity,
-  Users,
-  Eye,
   Globe,
   MapPin,
   Compass,
@@ -16,12 +13,6 @@ import {
   ArrowRight,
   ExternalLink,
   RefreshCw,
-  Clock,
-  Radio,
-  Sliders,
-  Server,
-  Shield,
-  Layers,
 } from 'lucide-react';
 
 export const AdminAnalyticsPage: React.FC = () => {
@@ -51,7 +42,6 @@ export const AdminAnalyticsPage: React.FC = () => {
 
   useEffect(() => {
     fetchOverview(true);
-    // Auto-refresh every 15 seconds for real-time monitoring
     const interval = setInterval(() => {
       fetchOverview(false);
     }, 15000);
@@ -60,10 +50,10 @@ export const AdminAnalyticsPage: React.FC = () => {
 
   const getDeviceIcon = (device: string) => {
     const d = device.toLowerCase();
-    if (d.includes('mobile')) return <Smartphone className="w-3.5 h-3.5 text-blue-400" />;
-    if (d.includes('tablet')) return <Tablet className="w-3.5 h-3.5 text-purple-400" />;
-    if (d.includes('tv')) return <Tv className="w-3.5 h-3.5 text-amber-400" />;
-    return <Monitor className="w-3.5 h-3.5 text-emerald-400" />;
+    if (d.includes('mobile')) return <Smartphone className="w-4 h-4 text-zinc-400" />;
+    if (d.includes('tablet')) return <Tablet className="w-4 h-4 text-zinc-400" />;
+    if (d.includes('tv')) return <Tv className="w-4 h-4 text-zinc-400" />;
+    return <Monitor className="w-4 h-4 text-zinc-400" />;
   };
 
   // Convert (lat, lon) to SVG percentages (Equirectangular)
@@ -71,191 +61,149 @@ export const AdminAnalyticsPage: React.FC = () => {
     const x = ((lon + 180) / 360) * 100;
     const y = ((90 - lat) / 180) * 100;
     return {
-      x: Math.max(3, Math.min(97, x)),
-      y: Math.max(5, Math.min(95, y)),
+      x: Math.max(2, Math.min(98, x)),
+      y: Math.max(3, Math.min(97, y)),
     };
   };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <div className="w-12 h-12 rounded-full border-4 border-red-600 border-t-transparent animate-spin" />
+        <div className="w-10 h-10 rounded-full border-2 border-zinc-600 border-t-red-600 animate-spin" />
       </div>
     );
   }
 
+  const topCountry = data?.top_countries?.[0];
+  const topDevice = data?.top_devices?.[0];
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
+      
+      {/* Page Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-zinc-800/80">
         <div>
-          <div className="flex items-center space-x-2.5">
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              Pelacakan Pengunjung & Geolokasi Real-Time
-            </h1>
-            <span className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-red-500/10 border border-red-500/30 text-[11px] font-bold text-red-400">
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <span>LIVE</span>
-            </span>
-          </div>
-          <p className="text-xs sm:text-sm text-zinc-400 mt-1">
-            Deteksi IP, titik koordinat geografis, perangkat, browser, ISP, dan aktivitas akses seluruh pengunjung Murflix secara akurat.
+          <h1 className="text-2xl font-bold text-white tracking-tight">
+            Pelacakan Pengunjung &amp; Geolokasi
+          </h1>
+          <p className="text-xs text-zinc-400 mt-1">
+            Pantau sebaran geografis, koordinat presisi, perangkat, dan aktivitas pengunjung secara real-time.
           </p>
         </div>
 
         <div className="flex items-center space-x-3">
           <button
+            type="button"
             onClick={() => fetchOverview(false)}
             disabled={isRefreshing}
-            className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold border border-zinc-700 transition-colors"
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700/60 transition-colors"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-red-500' : ''}`} />
             <span>Segarkan</span>
           </button>
           <Link
             to="/admin/analytics/logs"
-            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-[#e50914] hover:bg-red-700 text-white text-xs font-bold shadow-lg shadow-red-600/30 transition-all hover:scale-105"
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700/60 transition-colors"
           >
-            <span>Buka Tabel Log Lengkap</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>Tabel Log Lengkap</span>
+            <ArrowRight className="w-3.5 h-3.5 text-zinc-400" />
           </Link>
         </div>
       </div>
 
-      {/* KPI Cards */}
+      {/* KPI Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3.5">
-        {/* Active Visitors Now */}
-        <div className="bg-[#141416] border border-red-500/30 rounded-2xl p-4 sm:p-5 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-red-600/10 rounded-full blur-2xl -mr-6 -mt-6 pointer-events-none" />
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-red-400 uppercase tracking-wider flex items-center space-x-1.5">
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
-              <span>Aktif Saat Ini</span>
-            </span>
-            <Radio className="w-4 h-4 text-red-500" />
-          </div>
-          <p className="text-3xl sm:text-4xl font-black text-white mt-2">
+        
+        {/* Active Visitors */}
+        <div className="bg-[#121215] border border-zinc-800/80 rounded-xl p-4 space-y-1">
+          <span className="text-xs font-medium text-zinc-400 block">Pengunjung Aktif</span>
+          <p className="text-3xl font-bold text-white tracking-tight">
             {data?.active_visitors || 0}
           </p>
-          <p className="text-[11px] text-zinc-400 mt-1">Dalam 5 menit terakhir</p>
+          <p className="text-[11px] text-zinc-500">5 menit terakhir</p>
         </div>
 
-        {/* Total Pageviews Today */}
-        <div className="bg-[#141416] border border-zinc-800 rounded-2xl p-4 sm:p-5 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-400">Kunjungan Hari Ini</span>
-            <Eye className="w-4 h-4 text-blue-400" />
-          </div>
-          <p className="text-3xl font-black text-white">{data?.visits_today || 0}</p>
-          <p className="text-[11px] text-zinc-500 font-mono">Total Semua: {data?.total_visits || 0}</p>
+        {/* Total Pageviews */}
+        <div className="bg-[#121215] border border-zinc-800/80 rounded-xl p-4 space-y-1">
+          <span className="text-xs font-medium text-zinc-400 block">Kunjungan Hari Ini</span>
+          <p className="text-3xl font-bold text-white tracking-tight">
+            {data?.visits_today || 0}
+          </p>
+          <p className="text-[11px] text-zinc-500">Total akumulasi: {data?.total_visits || 0}</p>
         </div>
 
-        {/* Unique IPs Today */}
-        <div className="bg-[#141416] border border-zinc-800 rounded-2xl p-4 sm:p-5 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-400">Pengunjung Unik (IP)</span>
-            <Users className="w-4 h-4 text-emerald-400" />
-          </div>
-          <p className="text-3xl font-black text-white">{data?.unique_ips_today || 0}</p>
-          <p className="text-[11px] text-zinc-500 font-mono">Total Unik: {data?.unique_ips || 0}</p>
+        {/* Unique IPs */}
+        <div className="bg-[#121215] border border-zinc-800/80 rounded-xl p-4 space-y-1">
+          <span className="text-xs font-medium text-zinc-400 block">IP Unik</span>
+          <p className="text-3xl font-bold text-white tracking-tight">
+            {data?.unique_ips_today || 0}
+          </p>
+          <p className="text-[11px] text-zinc-500">Total IP unik: {data?.unique_ips || 0}</p>
         </div>
 
         {/* Top Country */}
-        <div className="bg-[#141416] border border-zinc-800 rounded-2xl p-4 sm:p-5 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-400">Negara Terbanyak</span>
-            <Globe className="w-4 h-4 text-amber-400" />
-          </div>
-          <p className="text-xl sm:text-2xl font-black text-white truncate">
-            {data?.top_countries && data.top_countries.length > 0
-              ? `${data.top_countries[0].country}`
-              : 'N/A'}
+        <div className="bg-[#121215] border border-zinc-800/80 rounded-xl p-4 space-y-1">
+          <span className="text-xs font-medium text-zinc-400 block">Negara Terbanyak</span>
+          <p className="text-xl font-bold text-white truncate tracking-tight">
+            {topCountry?.country || 'N/A'}
           </p>
           <p className="text-[11px] text-zinc-500">
-            {data?.top_countries && data.top_countries.length > 0
-              ? `${data.top_countries[0].count} Kunjungan (${data.top_countries[0].percentage.toFixed(1)}%)`
-              : '0 Kunjungan'}
+            {topCountry ? `${topCountry.count} kunjungan (${topCountry.percentage.toFixed(0)}%)` : 'Belum ada data'}
           </p>
         </div>
 
         {/* Dominant Device */}
-        <div className="bg-[#141416] border border-zinc-800 rounded-2xl p-4 sm:p-5 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-400">Perangkat Dominan</span>
-            <Monitor className="w-4 h-4 text-purple-400" />
-          </div>
-          <p className="text-xl sm:text-2xl font-black text-white truncate">
-            {data?.top_devices && data.top_devices.length > 0
-              ? data.top_devices[0].device_type
-              : 'Desktop'}
+        <div className="bg-[#121215] border border-zinc-800/80 rounded-xl p-4 space-y-1">
+          <span className="text-xs font-medium text-zinc-400 block">Perangkat Utama</span>
+          <p className="text-xl font-bold text-white truncate tracking-tight">
+            {topDevice?.device_type || 'Desktop'}
           </p>
           <p className="text-[11px] text-zinc-500">
-            {data?.top_devices && data.top_devices.length > 0
-              ? `${data.top_devices[0].count} Pengguna (${data.top_devices[0].percentage.toFixed(1)}%)`
-              : '0 Pengguna'}
+            {topDevice ? `${topDevice.count} pengguna (${topDevice.percentage.toFixed(0)}%)` : 'Desktop'}
           </p>
         </div>
+
       </div>
 
-      {/* Interactive Geolocation Radar Map & Selected Visitor Detail */}
+      {/* Main Radar Map & Inspector Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
         {/* World Map Radar View (Col-Span 2) */}
-        <div className="lg:col-span-2 bg-[#121215] border border-zinc-800/80 rounded-3xl p-5 sm:p-6 space-y-4">
+        <div className="lg:col-span-2 bg-[#121215] border border-zinc-800/80 rounded-2xl p-5 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="flex items-center space-x-2.5">
-              <Compass className="w-5 h-5 text-red-500" />
-              <div>
-                <h3 className="text-base font-bold text-white">Peta Sebaran Titik Koordinat Pengunjung</h3>
-                <p className="text-xs text-zinc-400">
-                  Plot koordinat astronomis (Lintang & Bujur) dari pengunjung yang terdeteksi
-                </p>
-              </div>
+            <div>
+              <h2 className="text-sm font-semibold text-white">
+                Peta Sebaran Koordinat Pengunjung
+              </h2>
+              <p className="text-xs text-zinc-400">
+                Peta ekuirektangular global dengan titik koordinat astronomis pengunjung
+              </p>
             </div>
-            <div className="text-[11px] text-zinc-400 flex items-center space-x-2">
-              <span className="flex items-center space-x-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
-                <span>Pengunjung</span>
-              </span>
-              <span className="flex items-center space-x-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
-                <span>Terpilih</span>
-              </span>
+            
+            <div className="text-xs text-zinc-400 flex items-center space-x-3 font-medium">
+              <span className="text-red-400">Merah: Pengunjung</span>
+              <span className="text-amber-400">Kuning: Terpilih</span>
             </div>
           </div>
 
-          {/* Map Canvas with Grid Lines */}
-          <div className="relative w-full aspect-[1.8/1] bg-[#09090b] rounded-2xl border border-zinc-800 overflow-hidden shadow-inner">
-            {/* Subtle Latitude/Longitude Grid Lines */}
-            <div className="absolute inset-0 pointer-events-none opacity-20">
-              <div className="w-full h-full grid grid-cols-12 grid-rows-6 border border-zinc-700/50">
+          {/* Accurate World Map Canvas */}
+          <div className="relative w-full aspect-[2/1] bg-[#09090b] rounded-xl border border-zinc-800/80 overflow-hidden">
+            
+            {/* Real World Vector SVG Image */}
+            <img
+              src="/world-map.svg"
+              alt="World Map"
+              className="absolute inset-0 w-full h-full object-fill opacity-35 select-none pointer-events-none"
+            />
+
+            {/* Subtle Grid Coordinates Overlay */}
+            <div className="absolute inset-0 pointer-events-none opacity-10">
+              <div className="w-full h-full grid grid-cols-12 grid-rows-6">
                 {Array.from({ length: 72 }).map((_, i) => (
-                  <div key={i} className="border-r border-b border-zinc-700/40" />
+                  <div key={i} className="border-r border-b border-zinc-600" />
                 ))}
               </div>
             </div>
-
-            {/* Continents Outline Background (Stylized World Vector) */}
-            <svg
-              viewBox="0 0 1000 500"
-              className="absolute inset-0 w-full h-full opacity-15 text-zinc-600 fill-current pointer-events-none"
-            >
-              {/* North America */}
-              <path d="M 150,80 Q 220,70 280,120 Q 290,180 230,220 Q 180,260 140,200 Z" />
-              {/* South America */}
-              <path d="M 280,260 Q 340,300 320,380 Q 280,440 250,380 Q 240,300 280,260 Z" />
-              {/* Europe */}
-              <path d="M 480,90 Q 560,80 580,140 Q 530,170 480,150 Z" />
-              {/* Africa */}
-              <path d="M 480,180 Q 560,190 580,260 Q 560,360 500,380 Q 450,260 480,180 Z" />
-              {/* Asia */}
-              <path d="M 600,80 Q 820,70 880,160 Q 850,260 740,240 Q 640,220 600,150 Z" />
-              {/* Indonesia / SE Asia */}
-              <circle cx="750" cy="300" r="14" />
-              <circle cx="780" cy="315" r="18" />
-              <circle cx="820" cy="310" r="22" />
-              {/* Australia */}
-              <path d="M 780,360 Q 870,350 880,410 Q 820,450 770,410 Z" />
-            </svg>
 
             {/* Plotted Visitor Pinpoints */}
             {data?.recent_visitors?.map((visitor) => {
@@ -263,59 +211,46 @@ export const AdminAnalyticsPage: React.FC = () => {
               const isSelected = selectedVisitor?.id === visitor.id;
 
               return (
-                <div
+                <button
+                  type="button"
                   key={visitor.id}
                   onClick={() => setSelectedVisitor(visitor)}
                   style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
-                  className="absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer group z-10 transition-transform hover:scale-150"
+                  className="absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10 p-1 group focus:outline-none"
                   title={`${visitor.city}, ${visitor.country} (${visitor.ip_address})`}
                 >
-                  {/* Radar Pulse ring */}
                   <span
-                    className={`absolute -inset-2 rounded-full animate-ping opacity-60 ${
-                      isSelected ? 'bg-yellow-400' : 'bg-red-500'
-                    }`}
-                  />
-                  {/* Core Pin */}
-                  <span
-                    className={`relative block w-3 h-3 rounded-full border shadow-lg ${
+                    className={`block w-2.5 h-2.5 rounded-full border transition-all ${
                       isSelected
-                        ? 'bg-yellow-400 border-white ring-2 ring-yellow-400/50'
-                        : 'bg-[#e50914] border-white/80'
+                        ? 'bg-amber-400 border-white scale-125 ring-2 ring-amber-400/50'
+                        : 'bg-red-600 border-white/80 group-hover:scale-125'
                     }`}
                   />
-
-                  {/* Hover Mini Tooltip */}
-                  <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-[200px] bg-black/95 text-white text-[10px] font-sans rounded-lg px-2.5 py-1.5 shadow-xl border border-zinc-700 pointer-events-none z-30">
-                    <p className="font-bold text-red-400">{visitor.city || 'Kota'}, {visitor.country}</p>
-                    <p className="text-zinc-300 font-mono text-[9px]">{visitor.ip_address}</p>
-                    <p className="text-zinc-400 text-[9px]">Lat: {visitor.latitude.toFixed(4)}, Lon: {visitor.longitude.toFixed(4)}</p>
+                  
+                  {/* Tooltip on Hover */}
+                  <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-max max-w-[220px] bg-zinc-900 text-white text-[10px] rounded px-2 py-1 shadow-lg border border-zinc-700 pointer-events-none z-30 font-sans">
+                    <p className="font-semibold text-zinc-100">{visitor.city || 'Kota'}, {visitor.country}</p>
+                    <p className="text-zinc-400 font-mono text-[9px]">{visitor.ip_address}</p>
                   </div>
-                </div>
+                </button>
               );
             })}
 
-            {/* Map Legend & Summary Overlay */}
-            <div className="absolute bottom-3 left-3 bg-black/80 backdrop-blur-md border border-zinc-800 rounded-xl px-3 py-1.5 text-[11px] text-zinc-400 font-mono">
-              Koordinat terdeteksi: {data?.recent_visitors?.length || 0} titik
+            {/* Coordinates Summary */}
+            <div className="absolute bottom-2.5 left-2.5 bg-black/70 border border-zinc-800 rounded px-2.5 py-1 text-[11px] text-zinc-400 font-mono">
+              Koordinat terdeteksi: {data?.recent_visitors?.length || 0}
             </div>
           </div>
 
-          {/* Interactive OpenStreetMap Coordinate Live Inspector for Selected Visitor */}
+          {/* Quick Google Maps Bar for Selected Visitor */}
           {selectedVisitor && (
-            <div className="bg-[#161619] border border-zinc-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="space-y-1">
-                <div className="flex items-center space-x-2">
-                  <MapPin className="w-4 h-4 text-red-500" />
-                  <span className="text-xs font-bold text-white">
-                    Koordinat Presisi: {selectedVisitor.latitude.toFixed(6)}, {selectedVisitor.longitude.toFixed(6)}
-                  </span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 font-mono">
-                    {selectedVisitor.city}, {selectedVisitor.country}
-                  </span>
-                </div>
-                <p className="text-xs text-zinc-400">
-                  ISP: <span className="text-zinc-200">{selectedVisitor.isp}</span> | Akses: <code className="text-red-400">{selectedVisitor.path}</code>
+            <div className="border border-zinc-800/80 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#0e0e11]">
+              <div className="space-y-0.5">
+                <p className="text-xs font-semibold text-white">
+                  Koordinat: {selectedVisitor.latitude.toFixed(6)}, {selectedVisitor.longitude.toFixed(6)} ({selectedVisitor.city || 'Kota'}, {selectedVisitor.country})
+                </p>
+                <p className="text-[11px] text-zinc-400">
+                  Provider: {selectedVisitor.isp} | Jalur: {selectedVisitor.path}
                 </p>
               </div>
 
@@ -323,239 +258,191 @@ export const AdminAnalyticsPage: React.FC = () => {
                 href={`https://www.google.com/maps?q=${selectedVisitor.latitude},${selectedVisitor.longitude}`}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center justify-center space-x-1.5 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-md transition-colors whitespace-nowrap"
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700 transition-colors whitespace-nowrap self-start sm:self-auto"
               >
                 <span>Lihat di Google Maps</span>
-                <ExternalLink className="w-3.5 h-3.5" />
+                <ExternalLink className="w-3.5 h-3.5 text-zinc-400" />
               </a>
             </div>
           )}
         </div>
 
-        {/* Selected Visitor Live Dossier / Details (Col-Span 1) */}
-        <div className="bg-[#121215] border border-zinc-800/80 rounded-3xl p-5 sm:p-6 space-y-4 flex flex-col justify-between">
+        {/* Selected Visitor Inspector (Col-Span 1) */}
+        <div className="bg-[#121215] border border-zinc-800/80 rounded-2xl p-5 space-y-4 flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-              <h3 className="text-base font-bold text-white flex items-center space-x-2">
-                <MapPin className="w-4 h-4 text-red-500" />
-                <span>Detail Intelijen Pengunjung</span>
-              </h3>
-              <span className="text-[10px] font-mono text-zinc-400">Detail Lengkap</span>
+            <div className="pb-3 border-b border-zinc-800/80 flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-white">
+                Detail Pengunjung
+              </h2>
+              <span className="text-[11px] text-zinc-500 font-mono">Intelijen Akses</span>
             </div>
 
             {selectedVisitor ? (
-              <div className="mt-4 space-y-3.5 text-xs">
+              <div className="mt-4 space-y-3 text-xs divide-y divide-zinc-800/50">
+                
                 {/* IP Address */}
-                <div className="bg-black/40 border border-zinc-800 rounded-xl p-3">
-                  <span className="text-zinc-400 block text-[11px]">Alamat IP Publik</span>
-                  <span className="text-sm font-bold font-mono text-white tracking-wide">
+                <div className="pt-2 first:pt-0">
+                  <span className="text-[11px] text-zinc-500 block">Alamat IP Publik</span>
+                  <span className="font-mono font-semibold text-white text-sm">
                     {selectedVisitor.ip_address}
                   </span>
                 </div>
 
-                {/* Country & City */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-black/40 border border-zinc-800 rounded-xl p-3">
-                    <span className="text-zinc-400 block text-[11px]">Kota / Daerah</span>
-                    <span className="font-bold text-white truncate block">
-                      {selectedVisitor.city || 'N/A'}
-                    </span>
-                    <span className="text-[10px] text-zinc-500">{selectedVisitor.region}</span>
-                  </div>
-                  <div className="bg-black/40 border border-zinc-800 rounded-xl p-3">
-                    <span className="text-zinc-400 block text-[11px]">Negara</span>
-                    <span className="font-bold text-white truncate block">
-                      {selectedVisitor.country} ({selectedVisitor.country_code})
-                    </span>
-                  </div>
+                {/* Location */}
+                <div className="pt-2">
+                  <span className="text-[11px] text-zinc-500 block">Lokasi Geografis</span>
+                  <span className="text-zinc-200 font-medium block">
+                    {selectedVisitor.city || 'N/A'}, {selectedVisitor.region}
+                  </span>
+                  <span className="text-[11px] text-zinc-400">
+                    {selectedVisitor.country} ({selectedVisitor.country_code})
+                  </span>
                 </div>
 
-                {/* Exact Coordinates */}
-                <div className="bg-black/40 border border-zinc-800 rounded-xl p-3 space-y-1">
-                  <span className="text-zinc-400 block text-[11px]">Titik Koordinat Geografis (GPS)</span>
-                  <div className="grid grid-cols-2 gap-2 font-mono text-xs">
-                    <div>
-                      <span className="text-zinc-500 text-[10px]">Latitude (Lintang):</span>
-                      <p className="text-amber-400 font-bold">{selectedVisitor.latitude.toFixed(6)}</p>
-                    </div>
-                    <div>
-                      <span className="text-zinc-500 text-[10px]">Longitude (Bujur):</span>
-                      <p className="text-amber-400 font-bold">{selectedVisitor.longitude.toFixed(6)}</p>
-                    </div>
-                  </div>
+                {/* GPS Coordinates */}
+                <div className="pt-2">
+                  <span className="text-[11px] text-zinc-500 block">Koordinat Astronomis</span>
+                  <p className="font-mono text-zinc-200 text-xs mt-0.5">
+                    Lat: {selectedVisitor.latitude.toFixed(6)} | Lon: {selectedVisitor.longitude.toFixed(6)}
+                  </p>
                 </div>
 
-                {/* ISP / Provider */}
-                <div className="bg-black/40 border border-zinc-800 rounded-xl p-3">
-                  <span className="text-zinc-400 block text-[11px]">Internet Service Provider (ISP)</span>
-                  <span className="font-semibold text-zinc-200 block truncate">
-                    {selectedVisitor.isp || 'Unknown ISP'}
+                {/* ISP */}
+                <div className="pt-2">
+                  <span className="text-[11px] text-zinc-500 block">Penyedia Layanan (ISP)</span>
+                  <span className="text-zinc-200 font-medium block truncate">
+                    {selectedVisitor.isp || 'N/A'}
                   </span>
                 </div>
 
                 {/* Device & Browser */}
-                <div className="bg-black/40 border border-zinc-800 rounded-xl p-3 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-zinc-400 text-[11px]">Perangkat & Sistem Operasi</span>
-                    <div className="flex items-center space-x-1">
-                      {getDeviceIcon(selectedVisitor.device_type)}
-                      <span className="text-zinc-300 font-semibold">{selectedVisitor.device_type}</span>
-                    </div>
+                <div className="pt-2 space-y-1">
+                  <span className="text-[11px] text-zinc-500 block">Perangkat &amp; Browser</span>
+                  <div className="flex items-center space-x-2 text-zinc-200 font-medium">
+                    {getDeviceIcon(selectedVisitor.device_type)}
+                    <span>{selectedVisitor.device_type}</span>
                   </div>
-                  <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-zinc-400">OS:</span>
-                    <span className="text-white font-medium">{selectedVisitor.os}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-zinc-400">Browser:</span>
-                    <span className="text-white font-medium">{selectedVisitor.browser}</span>
-                  </div>
+                  <p className="text-[11px] text-zinc-400">
+                    Sistem Operasi: {selectedVisitor.os}
+                  </p>
+                  <p className="text-[11px] text-zinc-400">
+                    Peramban: {selectedVisitor.browser}
+                  </p>
                 </div>
 
-                {/* Access Path */}
-                <div className="bg-black/40 border border-zinc-800 rounded-xl p-3">
-                  <span className="text-zinc-400 block text-[11px]">Halaman Terakhir Diakses</span>
-                  <span className="font-mono text-red-400 break-all block mt-0.5">
+                {/* Path Accessed */}
+                <div className="pt-2">
+                  <span className="text-[11px] text-zinc-500 block">Halaman Terakhir</span>
+                  <span className="font-mono text-zinc-300 block break-all text-[11px] mt-0.5">
                     {selectedVisitor.path}
                   </span>
                 </div>
+
+                {/* Timestamp */}
+                <div className="pt-2">
+                  <span className="text-[11px] text-zinc-500 block">Waktu Akses</span>
+                  <span className="text-zinc-400 text-[11px]">
+                    {new Date(selectedVisitor.created_at).toLocaleString('id-ID')}
+                  </span>
+                </div>
+
               </div>
             ) : (
               <div className="py-12 text-center text-zinc-500 text-xs">
-                Pilih salah satu titik di peta untuk melihat detail pengunjung.
+                Pilih titik pada peta untuk melihat detail pengunjung.
               </div>
             )}
           </div>
 
           <div className="pt-3 border-t border-zinc-800/80 flex items-center justify-between text-[11px] text-zinc-500">
-            <span>Terakhir diperbarui:</span>
+            <span>Pembaruan otomatis</span>
             <span>{lastUpdated.toLocaleTimeString('id-ID')}</span>
           </div>
         </div>
+
       </div>
 
       {/* Breakdowns: Top Countries, Top Cities, Devices, Top Pages */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        
         {/* Top Countries */}
-        <div className="bg-[#141416] border border-zinc-800 rounded-2xl p-5 space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
-            <h4 className="text-sm font-bold text-white flex items-center space-x-2">
-              <Globe className="w-4 h-4 text-red-500" />
-              <span>Top 10 Negara</span>
-            </h4>
-            <span className="text-xs text-zinc-500 font-mono">Kunjungan</span>
+        <div className="bg-[#121215] border border-zinc-800/80 rounded-xl p-4 space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+            <h3 className="text-xs font-semibold text-white">Top 10 Negara</h3>
+            <span className="text-[10px] text-zinc-500 font-mono">Kunjungan</span>
           </div>
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {data?.top_countries?.map((c, i) => (
-              <div key={i} className="space-y-1">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-zinc-300 font-medium truncate">{c.country} ({c.country_code})</span>
-                  <span className="font-bold text-white font-mono">{c.count}</span>
-                </div>
-                <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-red-600 rounded-full"
-                    style={{ width: `${Math.min(100, Math.max(5, c.percentage))}%` }}
-                  />
-                </div>
+              <div key={i} className="flex items-center justify-between text-xs">
+                <span className="text-zinc-300 truncate max-w-[140px]">{c.country}</span>
+                <span className="font-mono text-zinc-400 text-[11px]">{c.count} ({c.percentage.toFixed(0)}%)</span>
               </div>
             ))}
             {(!data?.top_countries || data.top_countries.length === 0) && (
-              <p className="text-xs text-zinc-500 text-center py-4">Belum ada data negara</p>
+              <p className="text-xs text-zinc-500">Belum ada data kunjungan.</p>
             )}
           </div>
         </div>
 
         {/* Top Cities */}
-        <div className="bg-[#141416] border border-zinc-800 rounded-2xl p-5 space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
-            <h4 className="text-sm font-bold text-white flex items-center space-x-2">
-              <MapPin className="w-4 h-4 text-emerald-400" />
-              <span>Top 10 Kota</span>
-            </h4>
-            <span className="text-xs text-zinc-500 font-mono">Kunjungan</span>
+        <div className="bg-[#121215] border border-zinc-800/80 rounded-xl p-4 space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+            <h3 className="text-xs font-semibold text-white">Top 10 Kota</h3>
+            <span className="text-[10px] text-zinc-500 font-mono">Kunjungan</span>
           </div>
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {data?.top_cities?.map((city, i) => (
-              <div key={i} className="flex items-center justify-between text-xs py-1 border-b border-zinc-800/40 last:border-0">
-                <div className="min-w-0 pr-2">
-                  <p className="text-zinc-200 font-semibold truncate">{city.city}</p>
-                  <p className="text-[10px] text-zinc-500 truncate">{city.country}</p>
-                </div>
-                <span className="font-bold text-emerald-400 font-mono flex-shrink-0">{city.count}</span>
+              <div key={i} className="flex items-center justify-between text-xs">
+                <span className="text-zinc-300 truncate max-w-[140px]">{city.city}</span>
+                <span className="font-mono text-zinc-400 text-[11px]">{city.count}</span>
               </div>
             ))}
             {(!data?.top_cities || data.top_cities.length === 0) && (
-              <p className="text-xs text-zinc-500 text-center py-4">Belum ada data kota</p>
+              <p className="text-xs text-zinc-500">Belum ada data kota.</p>
             )}
           </div>
         </div>
 
-        {/* Top Devices & Browsers */}
-        <div className="bg-[#141416] border border-zinc-800 rounded-2xl p-5 space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
-            <h4 className="text-sm font-bold text-white flex items-center space-x-2">
-              <Monitor className="w-4 h-4 text-purple-400" />
-              <span>Perangkat & Browser</span>
-            </h4>
+        {/* Device Distribution */}
+        <div className="bg-[#121215] border border-zinc-800/80 rounded-xl p-4 space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+            <h3 className="text-xs font-semibold text-white">Perangkat</h3>
+            <span className="text-[10px] text-zinc-500 font-mono">Distribusi</span>
           </div>
-          <div className="space-y-3">
-            <div>
-              <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Tipe Perangkat</p>
-              <div className="space-y-1.5">
-                {data?.top_devices?.map((dev, i) => (
-                  <div key={i} className="flex items-center justify-between text-xs">
-                    <span className="text-zinc-300 flex items-center space-x-1.5">
-                      {getDeviceIcon(dev.device_type)}
-                      <span>{dev.device_type}</span>
-                    </span>
-                    <span className="font-mono text-zinc-400 font-bold">
-                      {dev.count} ({dev.percentage.toFixed(0)}%)
-                    </span>
-                  </div>
-                ))}
+          <div className="space-y-2">
+            {data?.top_devices?.map((d, i) => (
+              <div key={i} className="flex items-center justify-between text-xs">
+                <span className="text-zinc-300">{d.device_type}</span>
+                <span className="font-mono text-zinc-400 text-[11px]">{d.count} ({d.percentage.toFixed(0)}%)</span>
               </div>
-            </div>
-
-            <div className="pt-2 border-t border-zinc-800/60">
-              <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Browser Teratas</p>
-              <div className="space-y-1.5">
-                {data?.top_browsers?.map((b, i) => (
-                  <div key={i} className="flex items-center justify-between text-xs">
-                    <span className="text-zinc-300 truncate">{b.browser}</span>
-                    <span className="font-mono text-zinc-400 font-bold">{b.count}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
+            {(!data?.top_devices || data.top_devices.length === 0) && (
+              <p className="text-xs text-zinc-500">Belum ada data perangkat.</p>
+            )}
           </div>
         </div>
 
-        {/* Top Visited Pages */}
-        <div className="bg-[#141416] border border-zinc-800 rounded-2xl p-5 space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
-            <h4 className="text-sm font-bold text-white flex items-center space-x-2">
-              <Layers className="w-4 h-4 text-blue-400" />
-              <span>Halaman Terpopuler</span>
-            </h4>
-            <span className="text-xs text-zinc-500 font-mono">Akses</span>
+        {/* Top Paths */}
+        <div className="bg-[#121215] border border-zinc-800/80 rounded-xl p-4 space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+            <h3 className="text-xs font-semibold text-white">Halaman Terpopuler</h3>
+            <span className="text-[10px] text-zinc-500 font-mono">Hits</span>
           </div>
           <div className="space-y-2">
             {data?.top_paths?.map((p, i) => (
-              <div key={i} className="flex items-center justify-between text-xs py-1 border-b border-zinc-800/40 last:border-0">
-                <span className="text-zinc-300 font-mono truncate max-w-[170px]" title={p.path}>
-                  {p.path}
-                </span>
-                <span className="font-bold text-blue-400 font-mono flex-shrink-0">{p.count}</span>
+              <div key={i} className="flex items-center justify-between text-xs">
+                <span className="font-mono text-zinc-300 truncate max-w-[140px] text-[11px]">{p.path}</span>
+                <span className="font-mono text-zinc-400 text-[11px]">{p.count}</span>
               </div>
             ))}
             {(!data?.top_paths || data.top_paths.length === 0) && (
-              <p className="text-xs text-zinc-500 text-center py-4">Belum ada rekaman halaman</p>
+              <p className="text-xs text-zinc-500">Belum ada data halaman.</p>
             )}
           </div>
         </div>
+
       </div>
+
     </div>
   );
 };
-

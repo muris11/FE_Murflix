@@ -10,10 +10,9 @@ import {
   Plus,
   ArrowRight,
   Activity,
-  Globe2,
+  Globe,
   Navigation,
   Eye,
-  Radio,
 } from 'lucide-react';
 import { adminApi } from '@/api/admin';
 import { DashboardStats } from '@/types/admin';
@@ -50,189 +49,170 @@ export const AdminDashboardPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <div className="w-12 h-12 rounded-full border-4 border-red-600 border-t-transparent animate-spin" />
+        <div className="w-10 h-10 rounded-full border-2 border-zinc-600 border-t-red-600 animate-spin" />
       </div>
     );
   }
 
   const statCards = [
-    { label: 'Total Pengguna', value: stats?.total_users || 0, icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-    { label: 'Pelanggan Aktif', value: stats?.active_users || 0, icon: UserCheck, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-    { label: 'Langganan Habis', value: stats?.expired_users || 0, icon: UserX, color: 'text-rose-500', bg: 'bg-rose-500/10' },
-    { label: 'Admin Sistem', value: stats?.admin_users || 0, icon: Shield, color: 'text-purple-500', bg: 'bg-purple-500/10' },
-    { label: 'Paket Langganan', value: stats?.total_plans || 0, icon: Tag, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    { label: 'Total Pengguna', value: stats?.total_users || 0, icon: Users },
+    { label: 'Pelanggan Aktif', value: stats?.active_users || 0, icon: UserCheck },
+    { label: 'Langganan Berakhir', value: stats?.expired_users || 0, icon: UserX },
+    { label: 'Administrator', value: stats?.admin_users || 0, icon: Shield },
+    { label: 'Paket Langganan', value: stats?.total_plans || 0, icon: Tag },
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800/80">
         <div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Admin Overview</h1>
-          <p className="text-sm text-gray-400 mt-1">
-            Ringkasan status pengguna, paket langganan dan kontrol operasional Murflix
+          <h1 className="text-2xl font-bold text-white tracking-tight">Konsol Overview</h1>
+          <p className="text-xs text-zinc-400 mt-1">
+            Ringkasan status pengguna, paket langganan, dan pemantauan operasional Murflix.
           </p>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2.5">
           <Link
             to="/admin/users/create"
-            className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-[#e50914] hover:bg-red-700 text-white font-bold text-sm shadow-lg shadow-red-600/30 transition-all hover:scale-105"
+            className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-lg bg-[#e50914] hover:bg-red-700 text-white font-semibold text-xs transition-colors"
           >
             <Plus className="w-4 h-4" />
-            <span>Tambah User</span>
+            <span>Tambah Pengguna</span>
           </Link>
           <Link
-            to="/admin/settings"
-            className="p-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition-colors border border-gray-700"
-            title="Pengaturan API"
+            to="/admin/settings/servers"
+            className="p-2 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white transition-colors border border-zinc-700/60"
+            title="Pengaturan Sistem"
           >
-            <Settings className="w-5 h-5" />
+            <Settings className="w-4 h-4" />
           </Link>
         </div>
       </div>
 
       {/* KPI Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3.5">
         {statCards.map((card, idx) => {
           const Icon = card.icon;
           return (
-            <div key={idx} className="bg-[#181818] border border-gray-800 rounded-2xl p-5 space-y-3">
+            <div key={idx} className="bg-[#121215] border border-zinc-800/80 rounded-xl p-4 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-gray-400">{card.label}</span>
-                <div className={`p-2 rounded-xl ${card.bg}`}>
-                  <Icon className={`w-4 h-4 ${card.color}`} />
-                </div>
+                <span className="text-xs font-medium text-zinc-400">{card.label}</span>
+                <Icon className="w-4 h-4 text-zinc-500" />
               </div>
-              <p className="text-3xl font-black text-white">{card.value}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-white tracking-tight">{card.value}</p>
             </div>
           );
         })}
       </div>
 
-      {/* Live Visitor Intelligence Banner */}
-      <div className="bg-gradient-to-r from-red-950/40 via-[#18181b] to-zinc-900 border border-red-900/30 rounded-3xl p-6 sm:p-7 shadow-2xl relative overflow-hidden">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-3">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-red-600/20 border border-red-500/30 text-red-400 text-xs font-bold uppercase tracking-wider">
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <span>Intelijen Pengunjung &amp; Radar Geolokasi Live</span>
-            </div>
-            <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-              Lacak Pengunjung &amp; Titik Koordinat GPS Real-Time
+      {/* Visitor Intelligence Overview Card */}
+      <div className="bg-[#121215] border border-zinc-800/80 rounded-2xl p-5 sm:p-6 space-y-5">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-zinc-800/80">
+          <div>
+            <h2 className="text-base font-semibold text-white">
+              Intelijen Pengunjung &amp; Geolokasi
             </h2>
-            <p className="text-xs sm:text-sm text-gray-400 max-w-2xl leading-relaxed">
-              Pantau siapa saja yang membuka tautan Murflix secara real-time: alamat IP asli, negara, kota, provider internet (ISP), sistem operasi, peramban, serta titik koordinat latitude dan longitude interaktif di peta dunia.
+            <p className="text-xs text-zinc-400 mt-0.5">
+              Deteksi alamat IP publik, koordinat GPS lintang dan bujur, provider ISP, serta perangkat pengunjung secara real-time.
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-shrink-0">
+          <div className="flex items-center space-x-2.5 flex-shrink-0">
             <Link
               to="/admin/analytics"
-              className="inline-flex items-center justify-center space-x-2 px-5 py-3 rounded-2xl bg-[#e50914] hover:bg-red-700 text-white font-bold text-xs tracking-wide shadow-lg shadow-red-600/30 transition-all hover:scale-105"
+              className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700/60 transition-colors"
             >
-              <Navigation className="w-4 h-4" />
-              <span>Buka Peta Radar Geolokasi</span>
+              <Navigation className="w-3.5 h-3.5 text-zinc-400" />
+              <span>Buka Peta Radar</span>
             </Link>
             <Link
               to="/admin/analytics/logs"
-              className="inline-flex items-center justify-center space-x-2 px-4 py-3 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-gray-300 hover:text-white font-bold text-xs border border-zinc-700 transition-all"
+              className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700/60 transition-colors"
             >
-              <Eye className="w-4 h-4" />
+              <Eye className="w-3.5 h-3.5 text-zinc-400" />
               <span>Log Lengkap</span>
             </Link>
           </div>
         </div>
 
         {/* Live Visitor Metrics Row */}
-        <div className="mt-6 pt-6 border-t border-zinc-800/80 grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="p-3.5 rounded-2xl bg-black/40 border border-white/5 space-y-1">
-            <div className="flex items-center space-x-1.5 text-xs text-emerald-400 font-bold uppercase tracking-wider">
-              <Radio className="w-3.5 h-3.5 animate-pulse" />
-              <span>Online Sekarang</span>
-            </div>
-            <p className="text-2xl font-black text-white">{analytics?.active_visitors ?? 0}</p>
-            <span className="text-[10px] text-gray-500 block">5 menit terakhir</span>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+          <div className="border border-zinc-800/80 rounded-xl p-3.5 bg-[#0e0e11] space-y-1">
+            <span className="text-xs font-medium text-zinc-400 block">Pengunjung Aktif</span>
+            <p className="text-2xl font-bold text-white tracking-tight">{analytics?.active_visitors ?? 0}</p>
+            <span className="text-[11px] text-zinc-500 block">5 menit terakhir</span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-black/40 border border-white/5 space-y-1">
-            <div className="flex items-center space-x-1.5 text-xs text-blue-400 font-bold uppercase tracking-wider">
-              <Activity className="w-3.5 h-3.5" />
-              <span>Total Kunjungan</span>
-            </div>
-            <p className="text-2xl font-black text-white">{analytics?.total_visits ?? 0}</p>
-            <span className="text-[10px] text-gray-500 block">Akumulasi pageview</span>
+          <div className="border border-zinc-800/80 rounded-xl p-3.5 bg-[#0e0e11] space-y-1">
+            <span className="text-xs font-medium text-zinc-400 block">Kunjungan Hari Ini</span>
+            <p className="text-2xl font-bold text-white tracking-tight">{analytics?.visits_today ?? 0}</p>
+            <span className="text-[11px] text-zinc-500 block">Total akumulasi: {analytics?.total_visits ?? 0}</span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-black/40 border border-white/5 space-y-1">
-            <div className="flex items-center space-x-1.5 text-xs text-purple-400 font-bold uppercase tracking-wider">
-              <Globe2 className="w-3.5 h-3.5" />
-              <span>Unique IP</span>
-            </div>
-            <p className="text-2xl font-black text-white">{analytics?.unique_ips ?? 0}</p>
-            <span className="text-[10px] text-gray-500 block">Alamat IP unik</span>
+          <div className="border border-zinc-800/80 rounded-xl p-3.5 bg-[#0e0e11] space-y-1">
+            <span className="text-xs font-medium text-zinc-400 block">IP Unik</span>
+            <p className="text-2xl font-bold text-white tracking-tight">{analytics?.unique_ips_today ?? 0}</p>
+            <span className="text-[11px] text-zinc-500 block">Total IP unik: {analytics?.unique_ips ?? 0}</span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-black/40 border border-white/5 space-y-1">
-            <div className="flex items-center space-x-1.5 text-xs text-amber-400 font-bold uppercase tracking-wider">
-              <Navigation className="w-3.5 h-3.5" />
-              <span>Kunjungan Hari Ini</span>
-            </div>
-            <p className="text-2xl font-black text-white">{analytics?.visits_today ?? 0}</p>
-            <span className="text-[10px] text-gray-500 block">Unique IP: {analytics?.unique_ips_today ?? 0}</span>
+          <div className="border border-zinc-800/80 rounded-xl p-3.5 bg-[#0e0e11] space-y-1">
+            <span className="text-xs font-medium text-zinc-400 block">Koordinat Terpetakan</span>
+            <p className="text-2xl font-bold text-white tracking-tight">{analytics?.recent_visitors?.length ?? 0}</p>
+            <span className="text-[11px] text-zinc-500 block">Titik GPS aktif</span>
           </div>
         </div>
       </div>
 
       {/* Recent Users Table */}
-      <div className="bg-[#181818] border border-gray-800 rounded-2xl p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-white">Pengguna Terbaru</h2>
-          <Link to="/admin/users" className="text-xs font-semibold text-red-500 hover:text-red-400 flex items-center space-x-1">
+      <div className="bg-[#121215] border border-zinc-800/80 rounded-2xl p-5 space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-zinc-800/80">
+          <h2 className="text-sm font-semibold text-white">Pengguna Terbaru</h2>
+          <Link to="/admin/users" className="text-xs text-zinc-400 hover:text-white flex items-center space-x-1 transition-colors">
             <span>Lihat Semua</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-gray-300">
-            <thead className="bg-[#121212] text-xs text-gray-400 uppercase tracking-wider border-b border-gray-800">
+          <table className="w-full text-left text-xs text-zinc-300">
+            <thead className="text-[11px] text-zinc-500 uppercase tracking-wider border-b border-zinc-800/80">
               <tr>
-                <th className="px-4 py-3 rounded-l-lg">User</th>
-                <th className="px-4 py-3">Role</th>
-                <th className="px-4 py-3">Status Langganan</th>
-                <th className="px-4 py-3">Masa Aktif</th>
-                <th className="px-4 py-3 rounded-r-lg text-right">Aksi</th>
+                <th className="py-2.5 px-3">Pengguna</th>
+                <th className="py-2.5 px-3">Peran (Role)</th>
+                <th className="py-2.5 px-3">Status Langganan</th>
+                <th className="py-2.5 px-3">Masa Berlaku</th>
+                <th className="py-2.5 px-3 text-right">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800/60">
+            <tbody className="divide-y divide-zinc-800/60 font-sans">
               {recentUsers.map((u) => (
-                <tr key={u.id} className="hover:bg-gray-800/40 transition-colors">
-                  <td className="px-4 py-3.5">
+                <tr key={u.id} className="hover:bg-zinc-800/40 transition-colors">
+                  <td className="py-3 px-3">
                     <div>
                       <p className="font-semibold text-white">{u.full_name || 'Tanpa Nama'}</p>
-                      <p className="text-xs text-gray-400">{u.email}</p>
+                      <p className="text-[11px] text-zinc-400">{u.email}</p>
                     </div>
                   </td>
-                  <td className="px-4 py-3.5">
-                    <span className={`px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider ${
-                      u.role === 'admin' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'bg-gray-800 text-gray-300'
-                    }`}>
-                      {u.role}
+                  <td className="py-3 px-3">
+                    <span className={`font-semibold ${u.role === 'admin' ? 'text-purple-400' : 'text-zinc-400'}`}>
+                      {u.role === 'admin' ? 'Admin' : 'Pengguna'}
                     </span>
                   </td>
-                  <td className="px-4 py-3.5">
-                    <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${
+                  <td className="py-3 px-3">
+                    <span className={`font-medium ${
                       u.role === 'admin' || u.subscription_status === 'forever'
-                        ? 'bg-blue-500/20 text-blue-400'
+                        ? 'text-blue-400'
                         : u.subscription_status === 'active'
-                        ? 'bg-emerald-500/20 text-emerald-400'
-                        : 'bg-red-500/20 text-red-400'
+                        ? 'text-emerald-400'
+                        : 'text-zinc-500'
                     }`}>
-                      {u.role === 'admin' ? 'Lifetime Admin' : u.subscription_status === 'forever' ? 'Selamanya' : u.subscription_status === 'active' ? 'Aktif' : 'Expired'}
+                      {u.role === 'admin' ? 'Akses Permanen' : u.subscription_status === 'forever' ? 'Selamanya' : u.subscription_status === 'active' ? 'Aktif' : 'Kedaluwarsa'}
                     </span>
                   </td>
-                  <td className="px-4 py-3.5 text-xs text-gray-400">
+                  <td className="py-3 px-3 text-zinc-400 font-mono text-[11px]">
                     {u.subscription_expires_at
                       ? new Date(u.subscription_expires_at).toLocaleDateString('id-ID', {
                           day: 'numeric',
@@ -241,12 +221,12 @@ export const AdminDashboardPage: React.FC = () => {
                         })
                       : 'Permanen'}
                   </td>
-                  <td className="px-4 py-3.5 text-right">
+                  <td className="py-3 px-3 text-right">
                     <Link
                       to={`/admin/users/${u.id}/edit`}
-                      className="text-xs text-blue-400 hover:text-blue-300 font-semibold"
+                      className="text-xs text-zinc-400 hover:text-white font-medium transition-colors"
                     >
-                      Edit
+                      Kelola
                     </Link>
                   </td>
                 </tr>
