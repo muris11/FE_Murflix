@@ -1,22 +1,38 @@
 import React, { useEffect, useState, useTransition } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, X, Sparkles, TrendingUp, Flame, Film, Tv, Clapperboard } from 'lucide-react';
+import {
+  Search,
+  X,
+  Sparkles,
+  TrendingUp,
+  Flame,
+  Film,
+  Tv,
+  Clapperboard,
+  Rocket,
+  Ghost,
+  Smile,
+  Zap,
+  Compass,
+  Heart,
+  Eye,
+} from 'lucide-react';
 import { moviesApi } from '@/api/movies';
 import { MovieCard } from '@/components/media/MovieCard';
 import { MovieCardSkeleton } from '@/components/media/MovieCardSkeleton';
 import { MediaItem } from '@/types/tmdb';
 
 const TRENDING_KEYWORDS = [
-  { label: '🔥 Sedang Tren', query: 'Action' },
-  { label: '🚀 Fiksi Ilmiah', query: 'Sci-Fi' },
-  { label: '👻 Horor', query: 'Horror' },
-  { label: '🎭 Drama', query: 'Drama' },
-  { label: '😂 Komedi', query: 'Comedy' },
-  { label: '💥 Superhero', query: 'Avengers' },
-  { label: '🐉 Petualangan', query: 'Adventure' },
-  { label: '💖 Romantis', query: 'Romance' },
-  { label: '✨ Anime', query: 'Animation' },
-  { label: '🕵️ Misteri', query: 'Mystery' },
+  { label: 'Sedang Tren', query: 'Action', icon: Flame },
+  { label: 'Fiksi Ilmiah', query: 'Sci-Fi', icon: Rocket },
+  { label: 'Horor', query: 'Horror', icon: Ghost },
+  { label: 'Drama', query: 'Drama', icon: Clapperboard },
+  { label: 'Komedi', query: 'Comedy', icon: Smile },
+  { label: 'Superhero', query: 'Avengers', icon: Zap },
+  { label: 'Petualangan', query: 'Adventure', icon: Compass },
+  { label: 'Romantis', query: 'Romance', icon: Heart },
+  { label: 'Animasi', query: 'Animation', icon: Sparkles },
+  { label: 'Misteri', query: 'Mystery', icon: Eye },
 ];
 
 export const SearchPage: React.FC = () => {
@@ -148,16 +164,20 @@ export const SearchPage: React.FC = () => {
 
         {/* Quick Keyword / Genre Chips */}
         <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar py-1">
-          {TRENDING_KEYWORDS.map((item) => (
-            <button
-              key={item.label}
-              type="button"
-              onClick={() => selectKeyword(item.query)}
-              className="flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 border border-white/5 hover:border-red-500/40 text-zinc-300 hover:text-white transition-all transform hover:scale-105 active:scale-95"
-            >
-              {item.label}
-            </button>
-          ))}
+          {TRENDING_KEYWORDS.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => selectKeyword(item.query)}
+                className="flex-shrink-0 flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 border border-white/5 hover:border-red-500/40 text-zinc-300 hover:text-white transition-all transform hover:scale-105 active:scale-95"
+              >
+                <Icon className="w-3.5 h-3.5 text-red-500" />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 

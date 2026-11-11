@@ -383,8 +383,9 @@ export const AdminSettingsPage: React.FC = () => {
                     <Sparkles className="w-4 h-4 text-amber-300" />
                     <span>{settings['demo_account_button_text'] || 'Masuk dengan Akun Demo (1-Click)'}</span>
                   </div>
-                  <p className="text-[10px] text-zinc-500">
-                    Status: {isDemoEnabled ? '🟢 Muncul di /login' : '🔴 Tidak ditampilkan'}
+                  <p className="text-[10px] text-zinc-400 flex items-center justify-center space-x-1.5 pt-1">
+                    <span className={`w-2 h-2 rounded-full ${isDemoEnabled ? 'bg-emerald-500 ring-2 ring-emerald-500/30' : 'bg-rose-500'}`} />
+                    <span>{isDemoEnabled ? 'Aktif dan muncul di /login' : 'Nonaktif / Tidak ditampilkan'}</span>
                   </p>
                 </div>
               </div>

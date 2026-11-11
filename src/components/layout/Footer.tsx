@@ -11,16 +11,16 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2">
               <li><Link to="/browse/movies" className="hover:text-white transition-colors">Semua Film</Link></li>
               <li><Link to="/browse/tv" className="hover:text-white transition-colors">Serial TV</Link></li>
-              <li><Link to="/dramabox" className="hover:text-white transition-colors">DramaBox VIP</Link></li>
-              <li><Link to="/reelshort" className="hover:text-white transition-colors">ReelShort</Link></li>
+              <li><Link to="/search" className="hover:text-white transition-colors">Pencarian & Tren</Link></li>
+              <li><Link to="/my-list" className="hover:text-white transition-colors">Daftar Saya</Link></li>
             </ul>
           </div>
           <div className="space-y-3">
-            <h4 className="font-semibold text-gray-200">Koleksi</h4>
+            <h4 className="font-semibold text-gray-200">Koleksi Genre</h4>
             <ul className="space-y-2">
-              <li><Link to="/anime" className="hover:text-white transition-colors">Anime</Link></li>
-              <li><Link to="/my-list" className="hover:text-white transition-colors">Daftar Saya</Link></li>
               <li><Link to="/browse/genre/28" className="hover:text-white transition-colors">Film Action</Link></li>
+              <li><Link to="/browse/genre/878" className="hover:text-white transition-colors">Fiksi Ilmiah (Sci-Fi)</Link></li>
+              <li><Link to="/browse/genre/27" className="hover:text-white transition-colors">Horor & Misteri</Link></li>
               <li><Link to="/browse/genre/35" className="hover:text-white transition-colors">Film Komedi</Link></li>
             </ul>
           </div>
@@ -35,7 +35,7 @@ export const Footer: React.FC = () => {
           <div className="space-y-3">
             <h4 className="font-semibold text-gray-200">Tentang</h4>
             <p className="text-gray-500 text-xs leading-relaxed">
-              Murflix adalah platform streaming film, serial TV, drama pendek dan anime dengan multi-server player berkecepatan tinggi.
+              Murflix adalah platform streaming film dan serial TV dengan multi-server player berkecepatan tinggi dan kualitas sinematik.
             </p>
           </div>
         </div>

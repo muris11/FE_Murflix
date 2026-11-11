@@ -59,3 +59,4 @@ export const MurflixLogo: React.FC<MurflixLogoProps> = ({ className = '', size =
     </div>
   );
 };
+

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Server, AlertCircle, Play, List, SkipForward, SkipBack, ChevronRight, Check } from 'lucide-react';
+import { X, Server, AlertCircle, Play, List, SkipForward, SkipBack, ChevronRight, Check, Info } from 'lucide-react';
 import { moviesApi } from '@/api/movies';
 import { StreamingServer, SeasonItem, EpisodeItem } from '@/types/tmdb';
 import { getTMDBImageUrl, getDirectTMDBUrl } from '@/utils/image';
@@ -465,7 +465,8 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
         {/* Bottom Helper Bar */}
         <div className="px-4 py-2 bg-[#0e0e10] border-t border-white/5 flex flex-wrap items-center justify-between text-[11px] text-gray-400 gap-2">
           <div className="flex items-center gap-2">
-            <span>💡 Jika video loading lambat atau tidak muncul, klik nama server lain di atas (VidLink / VidSrc / Embed.su).</span>
+            <Info className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+            <span>Jika video loading lambat atau tidak muncul, klik nama server lain di atas (VidLink / VidSrc / Embed.su).</span>
           </div>
           <div className="flex items-center gap-3 text-gray-500">
             {mediaType === 'tv' && (

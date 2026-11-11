@@ -16,6 +16,7 @@ import {
   Check,
   ChevronDown,
   Share2,
+  Info,
 } from 'lucide-react';
 import { moviesApi } from '@/api/movies';
 import { StreamingServer, MovieDetails, TVDetails, EpisodeItem, SeasonItem, MediaItem } from '@/types/tmdb';
@@ -419,8 +420,9 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
               </div>
 
               {/* Notice */}
-              <p className="text-[11px] text-zinc-500">
-                💡 Tip: Jika video lambat atau error, ganti pilihan server pemutar di atas (VidLink / VidSrc / Embed.su).
+              <p className="text-[11px] text-zinc-500 flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+                <span>Petunjuk: Jika video lambat atau error, ganti pilihan server pemutar di atas (VidLink / VidSrc / Embed.su).</span>
               </p>
             </div>
           </div>
