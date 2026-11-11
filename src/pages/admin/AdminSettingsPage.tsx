@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '@/api/admin';
 import { SystemSetting } from '@/types/admin';
-import { Settings, Save, ShieldCheck, Key, Eye, EyeOff, Server, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Settings, Save, ShieldCheck, Key, Eye, EyeOff, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export const AdminSettingsPage: React.FC = () => {
   const [settings, setSettings] = useState<Record<string, string>>({});
@@ -168,26 +168,6 @@ export const AdminSettingsPage: React.FC = () => {
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-red-500"
               />
             </div>
-          </div>
-        </div>
-
-        {/* Sansekai API Card */}
-        <div className="bg-[#181818] border border-gray-800 rounded-2xl p-6 sm:p-8 space-y-4 shadow-xl">
-          <div className="flex items-center space-x-2 border-b border-gray-800 pb-3">
-            <Server className="w-5 h-5 text-blue-500" />
-            <h2 className="text-lg font-bold text-white">Konfigurasi Sansekai API (DramaBox & Anime)</h2>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">
-              Sansekai API Base URL
-            </label>
-            <input
-              type="text"
-              value={settings['sansekai_base_url'] || 'https://api.sansekai.my.id/api'}
-              onChange={(e) => handleChange('sansekai_base_url', e.target.value)}
-              className="w-full bg-gray-900 border border-gray-700 text-white rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-red-500"
-            />
           </div>
         </div>
 

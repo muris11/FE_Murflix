@@ -25,16 +25,21 @@ export const MovieRow: React.FC<MovieRowProps> = ({ title, items = [], isLoading
   };
 
   return (
-    <div className="space-y-3 px-4 sm:px-6 lg:px-8 py-4 relative group">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white tracking-wide">{title}</h2>
+    <div className="space-y-3 px-4 sm:px-6 lg:px-8 py-3 relative group">
+      {/* Row Header with red accent bar */}
+      <div className="flex items-center space-x-2.5">
+        <div className="w-1.5 h-5 sm:h-6 bg-[#e50914] rounded-full shadow-[0_0_8px_rgba(229,9,20,0.6)]" />
+        <h2 className="text-base sm:text-lg md:text-xl font-extrabold text-white tracking-wide">
+          {title}
+        </h2>
       </div>
 
       <div className="relative">
         {/* Left Arrow Button */}
         <button
           onClick={() => scroll('left')}
-          className="absolute -left-3 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-black/70 hover:bg-[#e50914] text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-xl border border-gray-700 hover:border-[#e50914] hover:scale-110"
+          className="absolute -left-3 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-black/80 hover:bg-[#e50914] text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-xl border border-white/10 hover:border-[#e50914] hover:scale-110 active:scale-95"
+          aria-label="Scroll Kiri"
         >
           <ChevronLeft className="w-6 h-6" />
         </button>
@@ -45,14 +50,19 @@ export const MovieRow: React.FC<MovieRowProps> = ({ title, items = [], isLoading
           className="flex space-x-3 sm:space-x-4 overflow-x-auto no-scrollbar scroll-smooth py-2 px-1"
         >
           {isLoading
-            ? Array.from({ length: 6 }).map((_, i) => <MovieCardSkeleton key={i} />)
-            : items.map((item) => <MovieCard key={item.id} item={item} />)}
+            ? Array.from({ length: 6 }).map((_, i) => (
+                <MovieCardSkeleton key={i} className="flex-shrink-0 w-36 sm:w-44 md:w-52" />
+              ))
+            : items.map((item) => (
+                <MovieCard key={item.id} item={item} className="flex-shrink-0 w-36 sm:w-44 md:w-52" />
+              ))}
         </div>
 
         {/* Right Arrow Button */}
         <button
           onClick={() => scroll('right')}
-          className="absolute -right-3 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-black/70 hover:bg-[#e50914] text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-xl border border-gray-700 hover:border-[#e50914] hover:scale-110"
+          className="absolute -right-3 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-black/80 hover:bg-[#e50914] text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-xl border border-white/10 hover:border-[#e50914] hover:scale-110 active:scale-95"
+          aria-label="Scroll Kanan"
         >
           <ChevronRight className="w-6 h-6" />
         </button>
@@ -60,4 +70,3 @@ export const MovieRow: React.FC<MovieRowProps> = ({ title, items = [], isLoading
     </div>
   );
 };
-

@@ -1,21 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Play, Star, Plus, Check, ArrowLeft, Clock, Calendar } from 'lucide-react';
+import { Play, Plus, Check, Star, Clock, Calendar, ArrowLeft } from 'lucide-react';
 import { moviesApi } from '@/api/movies';
-import { watchlistApi } from '@/api/watchlist';
-import { VideoPlayerModal } from '@/components/media/VideoPlayerModal';
+import { MovieDetails } from '@/types/tmdb';
 import { MovieRow } from '@/components/media/MovieRow';
+import { VideoPlayerModal } from '@/components/media/VideoPlayerModal';
+import { watchlistApi } from '@/api/watchlist';
+import { getTMDBImageUrl, getDirectTMDBUrl } from '@/utils/image';
 
 export const MovieDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [movie, setMovie] = useState<any>(null);
+  const [movie, setMovie] = useState<MovieDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isPlayerOpen, setIsPlayerOpen] = useState(false);
   const [isInList, setIsInList] = useState(false);
+  const [isPlayerOpen, setIsPlayerOpen] = useState(false);
+  const [backdropError, setBackdropError] = useState(false);
+  const [posterError, setPosterError] = useState(false);
 
   useEffect(() => {
     if (!id) return;
     setIsLoading(true);
+    setBackdropError(false);
+    setPosterError(false);
     moviesApi
       .getMovieDetails(id)
       .then((data) => {
@@ -36,7 +42,7 @@ export const MovieDetailPage: React.FC = () => {
         await watchlistApi.add({
           media_type: 'movie',
           tmdb_id: movie.id,
-          title: movie.title,
+          title: movie.title || 'Untitled',
           poster_path: movie.poster_path,
           backdrop_path: movie.backdrop_path,
           vote_average: movie.vote_average,
@@ -58,15 +64,27 @@ export const MovieDetailPage: React.FC = () => {
 
   if (!movie) {
     return (
-      <div className="min-h-screen bg-[#141414] flex flex-col items-center justify-center text-white">
+      <div className="min-h-screen bg-[#141414] flex flex-col items-center justify-center text-white space-y-4">
         <h2 className="text-xl font-bold">Film tidak ditemukan</h2>
-        <Link to="/" className="mt-4 text-red-500 hover:underline">Kembali ke Beranda</Link>
+        <Link to="/" className="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-medium text-sm transition-colors">
+          Kembali ke Beranda
+        </Link>
       </div>
     );
   }
 
-  const backdropUrl = movie.backdrop_path ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}` : '';
-  const posterUrl = movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : '/placeholder.svg';
+  const backdropUrl = movie.backdrop_path
+    ? backdropError
+      ? getDirectTMDBUrl(movie.backdrop_path, 'original')
+      : getTMDBImageUrl(movie.backdrop_path, 'original')
+    : '';
+
+  const posterUrl = movie.poster_path
+    ? posterError
+      ? getDirectTMDBUrl(movie.poster_path, 'w500')
+      : getTMDBImageUrl(movie.poster_path, 'w500')
+    : '/placeholder.svg';
+
   const releaseYear = (movie.release_date || '').split('-')[0];
   const runtime = movie.runtime ? `${Math.floor(movie.runtime / 60)}j ${movie.runtime % 60}m` : null;
 
@@ -75,13 +93,18 @@ export const MovieDetailPage: React.FC = () => {
       {/* Hero Backdrop */}
       <div className="relative w-full h-[55vh] sm:h-[70vh] bg-black overflow-hidden">
         {backdropUrl && (
-          <img src={backdropUrl} alt={movie.title} className="w-full h-full object-cover object-center scale-105" />
+          <img
+            src={backdropUrl}
+            alt={movie.title}
+            onError={() => setBackdropError(true)}
+            className="w-full h-full object-cover object-center scale-105"
+          />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/60 to-black/40" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#141414]/90 via-[#141414]/40 to-transparent w-full md:w-3/4" />
 
         <div className="absolute top-20 left-4 sm:left-8 z-30">
-          <Link to="/" className="flex items-center space-x-2 text-sm text-gray-300 hover:text-white bg-black/60 px-3 py-1.5 rounded-full backdrop-blur-md border border-gray-700">
+          <Link to="/" className="flex items-center space-x-2 text-sm text-gray-300 hover:text-white bg-black/60 px-4 py-2 rounded-full backdrop-blur-md border border-gray-700 shadow-lg transition-transform hover:scale-105">
             <ArrowLeft className="w-4 h-4" />
             <span>Kembali</span>
           </Link>
@@ -91,8 +114,13 @@ export const MovieDetailPage: React.FC = () => {
       {/* Main Info */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 -mt-32 sm:-mt-48 flex flex-col md:flex-row gap-8">
         {/* Poster */}
-        <div className="flex-shrink-0 w-48 sm:w-64 md:w-72 mx-auto md:mx-0 rounded-2xl overflow-hidden shadow-2xl border border-gray-800 bg-gray-900">
-          <img src={posterUrl} alt={movie.title} className="w-full h-auto object-cover" />
+        <div className="flex-shrink-0 w-48 sm:w-64 md:w-72 mx-auto md:mx-0 rounded-2xl overflow-hidden shadow-2xl border border-gray-800 bg-[#18181b]">
+          <img
+            src={posterUrl}
+            alt={movie.title}
+            onError={() => setPosterError(true)}
+            className="w-full h-auto object-cover"
+          />
         </div>
 
         {/* Details */}
@@ -159,18 +187,25 @@ export const MovieDetailPage: React.FC = () => {
           </div>
 
           {/* Cast */}
-          {movie.credits?.cast?.length > 0 && (
+          {(movie.credits?.cast?.length ?? 0) > 0 && (
             <div className="pt-6 space-y-3">
               <h3 className="text-lg font-bold text-gray-200">Pemeran Utama</h3>
               <div className="flex space-x-4 overflow-x-auto no-scrollbar py-2">
-                {movie.credits.cast.slice(0, 10).map((cast: any) => (
+                {(movie.credits?.cast || []).slice(0, 10).map((cast: any) => (
                   <div key={cast.id} className="flex-shrink-0 w-24 text-center space-y-1">
-                    <div className="w-20 h-20 mx-auto rounded-full overflow-hidden bg-gray-800 border border-gray-700">
+                    <div className="w-20 h-20 mx-auto rounded-full overflow-hidden bg-gray-800 border border-gray-700 shadow-md">
                       {cast.profile_path ? (
-                        <img src={`https://image.tmdb.org/t/p/w185${cast.profile_path}`} alt={cast.name} className="w-full h-full object-cover" />
+                        <img
+                          src={getTMDBImageUrl(cast.profile_path, 'w185')}
+                          alt={cast.name}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = getDirectTMDBUrl(cast.profile_path, 'w185');
+                          }}
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-xs text-gray-500 font-bold">
-                          {cast.name[0]}
+                        <div className="w-full h-full flex items-center justify-center text-sm text-gray-400 font-bold bg-zinc-800">
+                          {cast.name?.[0] || '?'}
                         </div>
                       )}
                     </div>
@@ -185,9 +220,9 @@ export const MovieDetailPage: React.FC = () => {
       </div>
 
       {/* Recommendations */}
-      {movie.recommendations?.results?.length > 0 && (
+      {(movie.recommendations?.results?.length ?? 0) > 0 && (
         <div className="max-w-7xl mx-auto mt-16">
-          <MovieRow title="Rekomendasi Serupa" items={movie.recommendations.results} />
+          <MovieRow title="Rekomendasi Serupa" items={movie.recommendations?.results || []} />
         </div>
       )}
 
@@ -203,4 +238,3 @@ export const MovieDetailPage: React.FC = () => {
     </div>
   );
 };
-

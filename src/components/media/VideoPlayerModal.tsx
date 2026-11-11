@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Server, Maximize2, AlertCircle } from 'lucide-react';
+import { X, Server, AlertCircle } from 'lucide-react';
 import { moviesApi } from '@/api/movies';
 import { StreamingServer } from '@/types/tmdb';
 
@@ -79,7 +79,6 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
 }) => {
   const [servers, setServers] = useState<StreamingServer[]>(DEFAULT_SERVERS);
   const [activeServer, setActiveServer] = useState<string>('vidlink');
-  const [showServerPicker, setShowServerPicker] = useState(false);
 
   useEffect(() => {
     moviesApi
@@ -119,7 +118,7 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
     if (directVideoUrl) return directVideoUrl;
     if (!tmdbId) return '';
 
-    let urlTemplate = mediaType === 'movie' ? currentServer.movieUrl : currentServer.tvUrl;
+    const urlTemplate = mediaType === 'movie' ? currentServer.movieUrl : currentServer.tvUrl;
     return urlTemplate
       .replace('{id}', String(tmdbId))
       .replace('{s}', String(season))
@@ -129,60 +128,44 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
   const embedUrl = getEmbedUrl();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-2 sm:p-4 md:p-6 animate-fadeIn">
-      <div className="relative w-full max-w-6xl bg-[#181818] rounded-2xl overflow-hidden border border-gray-800 shadow-2xl flex flex-col max-h-[95vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-md p-2 sm:p-4 md:p-6 animate-fadeIn">
+      <div className="relative w-full max-w-6xl bg-[#121214] rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-black flex flex-col max-h-[96vh]">
         
         {/* Top Header Bar */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-gray-800 bg-[#121212]">
-          <div className="min-w-0 pr-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-6 py-3 border-b border-white/10 bg-[#18181b] gap-2">
+          <div className="min-w-0 pr-2">
             <h3 className="text-base sm:text-lg font-bold text-white truncate">{title || 'Memutar Video'}</h3>
             {subTitle && <p className="text-xs text-gray-400 truncate">{subTitle}</p>}
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-between sm:justify-end space-x-3">
+            {/* Quick Server Switcher Pills */}
             {!directVideoUrl && (
-              <div className="relative">
-                <button
-                  onClick={() => setShowServerPicker(!showServerPicker)}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs sm:text-sm font-medium text-gray-200 transition-colors border border-gray-700"
-                >
-                  <Server className="w-3.5 h-3.5 text-red-500" />
-                  <span>Server: {currentServer?.name}</span>
-                </button>
-
-                {showServerPicker && (
-                  <div className="absolute right-0 mt-2 w-56 bg-[#222] border border-gray-700 rounded-xl shadow-2xl p-2 z-50 space-y-1">
-                    <p className="text-[11px] font-semibold text-gray-400 px-2 py-1 uppercase tracking-wider">
-                      Pilih Server Cadangan
-                    </p>
-                    {servers.map((s) => (
-                      <button
-                        key={s.id}
-                        onClick={() => {
-                          setActiveServer(s.id);
-                          setShowServerPicker(false);
-                        }}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-colors flex items-center justify-between ${
-                          activeServer === s.id
-                            ? 'bg-[#e50914] text-white'
-                            : 'text-gray-300 hover:bg-gray-800'
-                        }`}
-                      >
-                        <div>
-                          <p className="font-semibold">{s.name}</p>
-                          <p className="text-[10px] text-gray-300 opacity-80">{s.description}</p>
-                        </div>
-                        {activeServer === s.id && <span className="text-[10px] uppercase font-bold">Aktif</span>}
-                      </button>
-                    ))}
-                  </div>
-                )}
+              <div className="flex items-center space-x-1.5 overflow-x-auto no-scrollbar py-1">
+                <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider hidden md:inline mr-1">
+                  Server:
+                </span>
+                {servers.map((s) => (
+                  <button
+                    key={s.id}
+                    onClick={() => setActiveServer(s.id)}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex items-center space-x-1 ${
+                      activeServer === s.id
+                        ? 'bg-[#e50914] text-white shadow-md shadow-red-600/40'
+                        : 'bg-zinc-800/80 text-gray-300 hover:bg-zinc-700 hover:text-white border border-white/5'
+                    }`}
+                  >
+                    <Server className="w-3 h-3" />
+                    <span>{s.name}</span>
+                  </button>
+                ))}
               </div>
             )}
 
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg bg-gray-800 hover:bg-red-600 hover:text-white text-gray-400 transition-colors"
+              className="p-1.5 rounded-lg bg-zinc-800 hover:bg-red-600 hover:text-white text-gray-300 transition-colors ml-2"
+              title="Tutup (ESC)"
             >
               <X className="w-5 h-5" />
             </button>
@@ -193,6 +176,7 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
         <div className="relative w-full aspect-video bg-black flex items-center justify-center">
           {embedUrl ? (
             <iframe
+              key={embedUrl}
               src={embedUrl}
               title={title || 'Player'}
               className="w-full h-full border-0"
@@ -208,12 +192,11 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
         </div>
 
         {/* Bottom Helper Bar */}
-        <div className="px-4 py-2 bg-[#101010] border-t border-gray-800 flex items-center justify-between text-[11px] text-gray-400">
-          <span>💡 Jika video tidak bisa diputar atau lambat, ganti server melalui tombol "Server" di kanan atas.</span>
-          <span className="hidden sm:inline">Tekan ESC untuk keluar</span>
+        <div className="px-4 py-2 bg-[#0e0e10] border-t border-white/5 flex items-center justify-between text-[11px] text-gray-400">
+          <span>💡 Jika video loading lambat atau tidak muncul, klik nama server lain di atas (VidLink / VidSrc / Embed.su).</span>
+          <span className="hidden sm:inline text-gray-500">Tekan ESC untuk keluar</span>
         </div>
       </div>
     </div>
   );
 };
-

@@ -126,30 +126,9 @@ export const AppRoutes: React.FC = () => {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/dramabox"
-          element={
-            <ProtectedRoute>
-              <DramaBoxPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/reelshort"
-          element={
-            <ProtectedRoute>
-              <ReelShortPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/anime"
-          element={
-            <ProtectedRoute>
-              <AnimePage />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/dramabox" element={<Navigate to="/browse/movies" replace />} />
+        <Route path="/reelshort" element={<Navigate to="/browse/movies" replace />} />
+        <Route path="/anime" element={<Navigate to="/browse/movies" replace />} />
         <Route
           path="/search"
           element={

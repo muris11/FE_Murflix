@@ -47,6 +47,23 @@ export interface EpisodeItem {
   vote_average?: number;
 }
 
+export interface MovieDetails extends MediaItem {
+  runtime?: number;
+  tagline?: string;
+  genres?: { id: number; name: string }[];
+  credits?: { cast: CastMember[] };
+  recommendations?: { results: MediaItem[] };
+}
+
+export interface TVDetails extends MediaItem {
+  number_of_seasons?: number;
+  number_of_episodes?: number;
+  tagline?: string;
+  genres?: { id: number; name: string }[];
+  seasons?: SeasonItem[];
+  credits?: { cast: CastMember[] };
+}
+
 export interface SeasonItem {
   id: number;
   name: string;

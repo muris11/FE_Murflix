@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Play, Info, Star } from 'lucide-react';
 import { MediaItem } from '@/types/tmdb';
 import { VideoPlayerModal } from './VideoPlayerModal';
+import { getTMDBImageUrl, getDirectTMDBUrl } from '@/utils/image';
 
 interface HeroProps {
   item?: MediaItem;
@@ -10,16 +11,19 @@ interface HeroProps {
 
 export const Hero: React.FC<HeroProps> = ({ item }) => {
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   if (!item) return null;
 
   const title = item.title || item.name || 'Featured';
   const mediaType = item.media_type || (item.first_air_date ? 'tv' : 'movie');
   const releaseYear = (item.release_date || item.first_air_date || '').split('-')[0];
-  const backdropUrl = item.backdrop_path
-    ? `https://image.tmdb.org/t/p/original${item.backdrop_path}`
-    : item.poster_path
-    ? `https://image.tmdb.org/t/p/original${item.poster_path}`
+  const targetPath = item.backdrop_path || item.poster_path;
+
+  const backdropUrl = targetPath
+    ? imageError
+      ? getDirectTMDBUrl(targetPath, 'original')
+      : getTMDBImageUrl(targetPath, 'original')
     : '';
 
   const detailPath = mediaType === 'tv' ? `/tv/${item.id}` : `/movie/${item.id}`;
@@ -32,13 +36,14 @@ export const Hero: React.FC<HeroProps> = ({ item }) => {
           <img
             src={backdropUrl}
             alt={title}
+            onError={() => setImageError(true)}
             className="w-full h-full object-cover object-center transform scale-105 animate-subtleZoom"
           />
         )}
 
         {/* Gradient Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/40 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#141414]/90 via-[#141414]/40 to-transparent w-full md:w-2/3" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#141414]/95 via-[#141414]/50 to-transparent w-full md:w-2/3" />
 
         {/* Content Box */}
         <div className="absolute bottom-12 sm:bottom-16 md:bottom-20 left-0 right-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
@@ -98,4 +103,3 @@ export const Hero: React.FC<HeroProps> = ({ item }) => {
     </>
   );
 };
-
