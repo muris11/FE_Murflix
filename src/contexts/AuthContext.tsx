@@ -49,6 +49,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const loginDemo = async () => {
+    try {
+      const res = await authApi.demoLogin();
+      localStorage.setItem('murflix_token', res.token);
+      localStorage.setItem('murflix_user', JSON.stringify(res.user));
+      setUser(res.user);
+      return { success: true };
+    } catch (err: any) {
+      const message = err.response?.data?.error || err.message || 'Login demo gagal';
+      return { success: false, error: message };
+    }
+  };
+
   const logout = async () => {
     try {
       await authApi.logout();
@@ -78,6 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAdmin,
         isSubscriptionValid,
         login,
+        loginDemo,
         logout,
         refreshUser,
       }}

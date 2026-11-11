@@ -579,3 +579,4 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
     </div>
   );
 };
+

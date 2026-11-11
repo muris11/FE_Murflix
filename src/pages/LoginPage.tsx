@@ -18,7 +18,7 @@ export const LoginPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [demoConfig, setDemoConfig] = useState<DemoConfig | null>(null);
 
-  const { login } = useAuth();
+  const { login, loginDemo } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectParam = searchParams.get('redirect') || '/';
@@ -56,21 +56,29 @@ export const LoginPage: React.FC = () => {
   };
 
   const handleDemoLogin = async () => {
-    if (!demoConfig?.email) return;
     setError(null);
     setIsSubmitting(true);
-    setEmail(demoConfig.email);
-    if (demoConfig.password) {
-      setPassword(demoConfig.password);
-    }
 
     try {
-      const res = await login(demoConfig.email, demoConfig.password || '');
-      if (!res.success) {
-        setError(res.error || 'Gagal masuk dengan akun demo. Hubungi Admin.');
-      } else {
+      // 1. Coba endpoint demo login langsung (bypass mismatch password)
+      const res = await loginDemo();
+      if (res.success) {
         navigate(redirectParam);
+        return;
       }
+
+      // 2. Fallback jika ada email & password terisi
+      if (demoConfig?.email && demoConfig?.password) {
+        setEmail(demoConfig.email);
+        setPassword(demoConfig.password);
+        const fallbackRes = await login(demoConfig.email, demoConfig.password);
+        if (fallbackRes.success) {
+          navigate(redirectParam);
+          return;
+        }
+      }
+
+      setError(res.error || 'Gagal masuk dengan akun demo. Hubungi Admin.');
     } catch (err: any) {
       setError(err.message || 'Gagal masuk dengan akun demo');
     } finally {

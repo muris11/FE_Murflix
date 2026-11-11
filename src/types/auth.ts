@@ -36,6 +36,7 @@ export interface AuthContextType {
   isAdmin: boolean;
   isSubscriptionValid: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  loginDemo: () => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }

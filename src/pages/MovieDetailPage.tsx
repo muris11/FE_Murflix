@@ -4,7 +4,9 @@ import { Play, Plus, Check, Star, Clock, Calendar, ArrowLeft } from 'lucide-reac
 import { moviesApi } from '@/api/movies';
 import { MovieDetails } from '@/types/tmdb';
 import { MovieRow } from '@/components/media/MovieRow';
-import { VideoPlayerModal } from '@/components/media/VideoPlayerModal';
+import { PersonModal } from '@/components/media/PersonModal';
+import { WatchProvidersBadge } from '@/components/media/WatchProvidersBadge';
+import { CollectionSection } from '@/components/media/CollectionSection';
 import { watchlistApi } from '@/api/watchlist';
 import { getTMDBImageUrl, getDirectTMDBUrl } from '@/utils/image';
 import { extractIdFromSlug, getWatchMovieUrl } from '@/utils/slug';
@@ -16,9 +18,9 @@ export const MovieDetailPage: React.FC = () => {
   const [movie, setMovie] = useState<MovieDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isInList, setIsInList] = useState(false);
-  const [isPlayerOpen, setIsPlayerOpen] = useState(false);
   const [backdropError, setBackdropError] = useState(false);
   const [posterError, setPosterError] = useState(false);
+  const [selectedPersonId, setSelectedPersonId] = useState<number | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -92,9 +94,9 @@ export const MovieDetailPage: React.FC = () => {
   const runtime = movie.runtime ? `${Math.floor(movie.runtime / 60)}j ${movie.runtime % 60}m` : null;
 
   return (
-    <div className="min-h-screen bg-[#141414] pb-20">
+    <div className="min-h-screen bg-[#141414] pb-24">
       {/* Hero Backdrop */}
-      <div className="relative w-full h-[55vh] sm:h-[70vh] bg-black overflow-hidden">
+      <div className="relative w-full h-[50vh] sm:h-[65vh] bg-black overflow-hidden">
         {backdropUrl && (
           <img
             src={backdropUrl}
@@ -115,18 +117,21 @@ export const MovieDetailPage: React.FC = () => {
       </div>
 
       {/* Main Info */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 -mt-32 sm:-mt-48 flex flex-col md:flex-row gap-8">
-        {/* Poster (Aspect 2:3, self-start so it never vertically stretches) */}
-        <div className="flex-shrink-0 w-48 sm:w-64 md:w-72 mx-auto md:mx-0 rounded-2xl overflow-hidden shadow-2xl border border-white/10 self-start aspect-[2/3] bg-zinc-900 ring-1 ring-white/10">
-          <img
-            src={posterUrl}
-            alt={movie.title}
-            onError={() => setPosterError(true)}
-            className="w-full h-full object-cover"
-          />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 -mt-28 sm:-mt-44 flex flex-col md:flex-row gap-8">
+        
+        {/* Snug Poster Container (Zero gap, 2:3 ratio) */}
+        <div className="flex-shrink-0 w-44 sm:w-60 md:w-68 mx-auto md:mx-0 self-start">
+          <div className="aspect-[2/3] w-full rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-zinc-900 ring-1 ring-white/10">
+            <img
+              src={posterUrl}
+              alt={movie.title}
+              onError={() => setPosterError(true)}
+              className="w-full h-full object-cover"
+            />
+          </div>
         </div>
 
-        {/* Details */}
+        {/* Details Content */}
         <div className="flex-1 space-y-4 text-white">
           <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-300">
             {movie.vote_average && (
@@ -155,28 +160,32 @@ export const MovieDetailPage: React.FC = () => {
           <h1 className="text-3xl sm:text-5xl font-black tracking-tight">{movie.title}</h1>
           {movie.tagline && <p className="text-sm italic text-gray-400">"{movie.tagline}"</p>}
 
-          {/* Genres */}
-          <div className="flex flex-wrap gap-2 pt-1">
-            {movie.genres?.map((g: any) => (
-              <span key={g.id} className="px-3 py-1 rounded-full bg-gray-800 text-xs text-gray-300 border border-gray-700">
-                {g.name}
-              </span>
-            ))}
+          {/* Genres & Watch Providers */}
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            <div className="flex flex-wrap gap-2">
+              {movie.genres?.map((g: any) => (
+                <span key={g.id} className="px-3 py-1 rounded-full bg-gray-800 text-xs text-gray-300 border border-gray-700">
+                  {g.name}
+                </span>
+              ))}
+            </div>
+
+            <WatchProvidersBadge providersData={movie['watch/providers']} />
           </div>
 
-          {/* Action Buttons (1:1 Netflix Style) */}
+          {/* Action Buttons (1:1 Netflix Style - Direct Cinema Watch) */}
           <div className="flex flex-wrap items-center gap-4 pt-4">
             <button
               onClick={() => navigate(getWatchMovieUrl(movie.id, movie.title))}
-              className="flex items-center space-x-2 px-8 py-3.5 rounded-full bg-white hover:bg-zinc-200 text-black font-extrabold text-sm sm:text-base shadow-2xl transition-transform hover:scale-105 active:scale-95"
+              className="flex items-center space-x-2 px-8 py-3.5 rounded-full bg-[#e50914] hover:bg-red-700 text-white font-extrabold text-sm sm:text-base shadow-2xl shadow-red-950/60 transition-transform hover:scale-105 active:scale-95"
             >
-              <Play className="w-5 h-5 fill-black" />
-              <span>Putar Film</span>
+              <Play className="w-5 h-5 fill-white ml-0.5" />
+              <span>Nonton Sekarang</span>
             </button>
 
             <button
               onClick={toggleWatchlist}
-              className="flex items-center space-x-2 px-6 py-3.5 rounded-full bg-zinc-700/60 hover:bg-zinc-700/80 backdrop-blur-md text-white font-semibold text-sm border border-white/10 transition-colors"
+              className="flex items-center space-x-2 px-6 py-3.5 rounded-full bg-zinc-800/80 hover:bg-zinc-700 text-white font-semibold text-sm border border-white/10 transition-colors"
             >
               {isInList ? <Check className="w-4 h-4 text-emerald-400" /> : <Plus className="w-4 h-4" />}
               <span>{isInList ? 'Di Daftar Saya' : 'Tambah ke Daftar'}</span>
@@ -189,14 +198,21 @@ export const MovieDetailPage: React.FC = () => {
             <p className="text-gray-300 text-sm sm:text-base leading-relaxed">{movie.overview}</p>
           </div>
 
-          {/* Cast */}
+          {/* Cast Avatars (Clickable to open PersonModal) */}
           {(movie.credits?.cast?.length ?? 0) > 0 && (
             <div className="pt-6 space-y-3">
-              <h3 className="text-lg font-bold text-gray-200">Pemeran Utama</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-gray-200">Pemeran Utama</h3>
+                <span className="text-xs text-gray-500">Klik aktor untuk melihat profil & karya</span>
+              </div>
               <div className="flex space-x-4 overflow-x-auto no-scrollbar py-2">
-                {(movie.credits?.cast || []).slice(0, 10).map((cast: any) => (
-                  <div key={cast.id} className="flex-shrink-0 w-24 text-center space-y-1">
-                    <div className="w-20 h-20 mx-auto rounded-full overflow-hidden bg-gray-800 border border-gray-700 shadow-md">
+                {(movie.credits?.cast || []).slice(0, 12).map((cast: any) => (
+                  <button
+                    key={cast.id}
+                    onClick={() => setSelectedPersonId(cast.id)}
+                    className="flex-shrink-0 w-24 text-center space-y-1.5 group focus:outline-none"
+                  >
+                    <div className="w-20 h-20 mx-auto rounded-full overflow-hidden bg-gray-800 border-2 border-transparent group-hover:border-red-500 shadow-md group-hover:scale-105 transition-all">
                       {cast.profile_path ? (
                         <img
                           src={getTMDBImageUrl(cast.profile_path, 'w185')}
@@ -205,6 +221,7 @@ export const MovieDetailPage: React.FC = () => {
                             (e.target as HTMLImageElement).src = getDirectTMDBUrl(cast.profile_path, 'w185');
                           }}
                           className="w-full h-full object-cover"
+                          loading="lazy"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-sm text-gray-400 font-bold bg-zinc-800">
@@ -212,31 +229,42 @@ export const MovieDetailPage: React.FC = () => {
                         </div>
                       )}
                     </div>
-                    <p className="text-xs font-semibold text-white line-clamp-1">{cast.name}</p>
+                    <p className="text-xs font-semibold text-white line-clamp-1 group-hover:text-red-400 transition-colors">
+                      {cast.name}
+                    </p>
                     <p className="text-[10px] text-gray-400 line-clamp-1">{cast.character}</p>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
           )}
+
+          {/* Franchise / Collection Section */}
+          {movie.belongs_to_collection && (
+            <CollectionSection
+              collectionId={movie.belongs_to_collection.id}
+              currentMovieId={movie.id}
+            />
+          )}
         </div>
       </div>
 
-      {/* Recommendations */}
-      {(movie.recommendations?.results?.length ?? 0) > 0 && (
-        <div className="max-w-7xl mx-auto mt-16">
-          <MovieRow title="Rekomendasi Serupa" items={movie.recommendations?.results || []} />
+      {/* Similar & Recommendations */}
+      {((movie.recommendations?.results?.length ?? 0) > 0 || (movie.similar?.results?.length ?? 0) > 0) && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 space-y-10">
+          {(movie.recommendations?.results?.length ?? 0) > 0 && (
+            <MovieRow title="Rekomendasi Serupa" items={movie.recommendations?.results || []} />
+          )}
+          {(movie.similar?.results?.length ?? 0) > 0 && (
+            <MovieRow title="Film Terkait Lainnya" items={movie.similar?.results || []} />
+          )}
         </div>
       )}
 
-      {/* Video Player Modal */}
-      <VideoPlayerModal
-        isOpen={isPlayerOpen}
-        onClose={() => setIsPlayerOpen(false)}
-        tmdbId={movie.id}
-        mediaType="movie"
-        title={movie.title}
-        subTitle={releaseYear ? `Tahun ${releaseYear}` : undefined}
+      {/* Person Detail Modal */}
+      <PersonModal
+        personId={selectedPersonId}
+        onClose={() => setSelectedPersonId(null)}
       />
     </div>
   );

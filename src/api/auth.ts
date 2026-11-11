@@ -10,6 +10,11 @@ export const authApi = {
     return res.data;
   },
 
+  demoLogin: async () => {
+    const res = await apiClient.post<{ token: string; user: User }>('/auth/demo-login');
+    return res.data;
+  },
+
   logout: async () => {
     const res = await apiClient.post('/auth/logout');
     return res.data;
@@ -25,4 +30,3 @@ export const authApi = {
     return res.data;
   },
 };
-

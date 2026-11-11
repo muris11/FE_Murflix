@@ -34,3 +34,4 @@ export function extractIdFromSlug(param: string | undefined): string {
   const match = param.match(/^(\d+)/);
   return match ? match[1] : param;
 }
+
