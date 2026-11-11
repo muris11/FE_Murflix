@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Play, Star, Plus, Check, Film, Tv } from 'lucide-react';
 import { MediaItem } from '@/types/tmdb';
-import { VideoPlayerModal } from './VideoPlayerModal';
 import { watchlistApi } from '@/api/watchlist';
 import { getTMDBImageUrl, getDirectTMDBUrl } from '@/utils/image';
 import { getMovieUrl, getTVUrl, getWatchMovieUrl, getWatchTVUrl } from '@/utils/slug';
@@ -14,7 +13,6 @@ interface MovieCardProps {
 }
 
 export const MovieCard: React.FC<MovieCardProps> = ({ item, className = '' }) => {
-  const [isPlayerOpen, setIsPlayerOpen] = useState(false);
   const [isInList, setIsInList] = useState(false);
   const [retryStage, setRetryStage] = useState<0 | 1 | 2>(0);
 
@@ -142,16 +140,6 @@ export const MovieCard: React.FC<MovieCardProps> = ({ item, className = '' }) =>
           </div>
         </Link>
       </div>
-
-      {/* Video Player Modal */}
-      <VideoPlayerModal
-        isOpen={isPlayerOpen}
-        onClose={() => setIsPlayerOpen(false)}
-        tmdbId={item.id}
-        mediaType={mediaType === 'tv' ? 'tv' : 'movie'}
-        title={title}
-        subTitle={releaseYear ? `Tahun ${releaseYear}` : undefined}
-      />
     </>
   );
 };

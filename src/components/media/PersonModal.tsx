@@ -81,7 +81,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({ personId, onClose }) =
               </div>
 
               <div className="flex-1 space-y-3 text-center sm:text-left">
-                <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider uppercase bg-red-600/20 text-red-400 border border-red-500/30">
+                <span className="inline-block text-xs font-bold tracking-wider uppercase text-red-500">
                   {person.known_for_department || 'Pemeran'}
                 </span>
 

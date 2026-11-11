@@ -27,7 +27,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
         <div className="p-5 border-b border-zinc-800/80 flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
             <span className="text-xl sm:text-2xl font-black text-[#e50914] tracking-wider">MURFLIX</span>
-            <span className="text-[10px] font-bold uppercase tracking-widest bg-red-600/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-red-500 border border-red-500/40 px-1.5 py-0.5 rounded">
               Admin
             </span>
           </Link>
@@ -109,7 +109,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
 
           <Link to="/admin" className="flex items-center space-x-1.5">
             <span className="text-lg font-black text-[#e50914] tracking-wider">MURFLIX</span>
-            <span className="text-[9px] font-bold uppercase tracking-wider bg-red-600/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30">
+            <span className="text-[9px] font-bold uppercase tracking-wider text-red-500 border border-red-500/40 px-1.5 py-0.5 rounded">
               Admin
             </span>
           </Link>

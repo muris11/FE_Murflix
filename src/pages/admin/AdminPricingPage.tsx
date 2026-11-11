@@ -123,12 +123,12 @@ export const AdminPricingPage: React.FC = () => {
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-600/20 text-red-400 border border-red-500/30">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider text-red-400 border border-red-500/40">
                     {plan.duration_unit === 'forever' ? 'Lifetime' : `${plan.duration_value} ${plan.duration_unit}`}
                   </span>
 
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${
-                    plan.is_active ? 'bg-emerald-500/20 text-emerald-400' : 'bg-gray-800 text-gray-500'
+                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${
+                    plan.is_active ? 'border-emerald-500/40 text-emerald-400' : 'border-zinc-800 text-zinc-500'
                   }`}>
                     {plan.is_active ? 'Aktif' : 'Nonaktif'}
                   </span>

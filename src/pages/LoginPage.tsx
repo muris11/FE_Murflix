@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { Lock, Mail, AlertCircle, ArrowRight, Sparkles, ShieldCheck } from 'lucide-react';
+import { Lock, Mail, AlertCircle, ArrowRight, UserCheck, ShieldCheck } from 'lucide-react';
 import { apiClient } from '@/api/client';
 import { MurflixLogo } from '@/components/layout/MurflixLogo';
 
@@ -120,9 +120,9 @@ export const LoginPage: React.FC = () => {
               type="button"
               onClick={handleDemoLogin}
               disabled={isSubmitting}
-              className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-extrabold text-sm flex items-center justify-center space-x-2.5 shadow-xl shadow-red-900/40 transition-all hover:scale-[1.02] active:scale-95 border border-amber-400/30 group"
+              className="w-full py-3.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-bold text-sm flex items-center justify-center space-x-2.5 transition-all hover:scale-[1.01] active:scale-95 border border-zinc-700 group shadow-lg"
             >
-              <Sparkles className="w-4 h-4 text-amber-200 group-hover:rotate-12 transition-transform" />
+              <UserCheck className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
               <span>{demoConfig.button_text || 'Masuk dengan Akun Demo (1-Click)'}</span>
             </button>
 

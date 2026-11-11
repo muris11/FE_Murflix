@@ -228,7 +228,7 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
             <h3 className="text-base sm:text-lg font-bold text-white truncate flex items-center gap-2">
               <span>{title || 'Memutar Video'}</span>
               {mediaType === 'tv' && (
-                <span className="px-2 py-0.5 rounded bg-red-600/20 text-[#e50914] text-xs font-mono font-bold border border-red-500/30">
+                <span className="px-2 py-0.5 rounded text-[#e50914] text-xs font-mono font-bold border border-red-500/40">
                   S{currentSeason}:E{currentEpisode}
                 </span>
               )}

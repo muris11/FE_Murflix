@@ -135,7 +135,7 @@ export const MovieDetailPage: React.FC = () => {
         <div className="flex-1 space-y-4 text-white">
           <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-300">
             {movie.vote_average && (
-              <div className="flex items-center space-x-1 px-2.5 py-1 rounded-md bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold">
+              <div className="flex items-center space-x-1 text-amber-400 font-bold">
                 <Star className="w-3.5 h-3.5 fill-current" />
                 <span>{movie.vote_average.toFixed(1)}</span>
               </div>
@@ -152,7 +152,7 @@ export const MovieDetailPage: React.FC = () => {
                 <span>{runtime}</span>
               </span>
             )}
-            <span className="px-2 py-0.5 rounded bg-red-600/20 text-red-400 border border-red-500/30 uppercase text-[10px] font-bold">
+            <span className="text-red-400 uppercase text-xs font-bold">
               Film
             </span>
           </div>

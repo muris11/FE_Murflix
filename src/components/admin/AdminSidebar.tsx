@@ -27,7 +27,7 @@ export const AdminSidebar: React.FC = () => {
         <div className="p-6 border-b border-gray-800">
           <Link to="/" className="flex items-center space-x-2">
             <MurflixLogo size="sm" />
-            <span className="text-[10px] font-bold uppercase tracking-widest bg-red-600/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-red-500 border border-red-500/40 px-1.5 py-0.5 rounded">
               Admin
             </span>
           </Link>

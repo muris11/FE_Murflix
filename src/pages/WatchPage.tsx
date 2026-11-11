@@ -15,6 +15,8 @@ import {
   Tv,
   Check,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Share2,
   Info,
 } from 'lucide-react';
@@ -254,7 +256,7 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
                 <span>{title || 'Sedang Memutar'}</span>
                 {releaseYear && <span className="text-zinc-500 text-xs font-normal">({releaseYear})</span>}
                 {mediaType === 'tv' && (
-                  <span className="px-2 py-0.5 rounded bg-red-600/20 text-[#e50914] text-xs font-bold font-mono border border-red-500/30">
+                  <span className="px-2 py-0.5 rounded text-[#e50914] text-xs font-bold font-mono border border-red-500/40">
                     S{currentSeason}:E{currentEpisode}
                   </span>
                 )}
@@ -361,9 +363,10 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
                   <button
                     onClick={handlePrevEpisode}
                     disabled={currentSeason === 1 && currentEpisode === 1}
-                    className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-gray-200 disabled:opacity-30 disabled:hover:bg-zinc-800 transition-colors font-semibold"
+                    className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-gray-200 disabled:opacity-30 disabled:hover:bg-zinc-800 transition-colors font-semibold flex items-center space-x-1"
                   >
-                    ⏮ Episode Sebelumnya
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    <span>Episode Sebelumnya</span>
                   </button>
 
                   <span className="font-mono text-zinc-400">
@@ -372,9 +375,10 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
 
                   <button
                     onClick={handleNextEpisode}
-                    className="px-3 py-1.5 rounded-xl bg-[#e50914] hover:bg-red-700 text-white font-semibold transition-colors shadow-md shadow-red-600/30"
+                    className="px-3 py-1.5 rounded-xl bg-[#e50914] hover:bg-red-700 text-white font-semibold transition-colors shadow-md shadow-red-600/30 flex items-center space-x-1"
                   >
-                    Episode Berikutnya ⏭
+                    <span>Episode Berikutnya</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
               )}
@@ -392,7 +396,7 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
 
                 <div className="flex items-center space-x-3 text-xs">
                   {(movie?.vote_average || tv?.vote_average) && (
-                    <div className="flex items-center space-x-1 px-2.5 py-1 rounded-md bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30">
+                    <div className="flex items-center space-x-1 text-amber-400 font-bold">
                       <Star className="w-3.5 h-3.5 fill-current" />
                       <span>{(movie?.vote_average || tv?.vote_average)?.toFixed(1)}</span>
                     </div>
@@ -403,7 +407,7 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
                       <span>{releaseYear}</span>
                     </span>
                   )}
-                  <span className="px-2 py-0.5 rounded bg-red-600/20 text-[#e50914] font-bold uppercase text-[10px] border border-red-500/30">
+                  <span className="text-[#e50914] font-bold uppercase text-xs">
                     {mediaType === 'tv' ? 'Serial TV' : 'Film'}
                   </span>
                 </div>

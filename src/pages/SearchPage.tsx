@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom';
 import {
   Search,
   X,
-  Sparkles,
   TrendingUp,
   Flame,
   Film,
@@ -31,7 +30,7 @@ const TRENDING_KEYWORDS = [
   { label: 'Superhero', query: 'Avengers', icon: Zap },
   { label: 'Petualangan', query: 'Adventure', icon: Compass },
   { label: 'Romantis', query: 'Romance', icon: Heart },
-  { label: 'Animasi', query: 'Animation', icon: Sparkles },
+  { label: 'Animasi', query: 'Animation', icon: Film },
   { label: 'Misteri', query: 'Mystery', icon: Eye },
 ];
 
@@ -287,7 +286,7 @@ export const SearchPage: React.FC = () => {
               <h3 className="text-lg sm:text-xl font-black text-white tracking-tight">
                 Paling Banyak Dicari Hari Ini
               </h3>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-red-600/20 text-red-400 border border-red-500/30 font-bold ml-2">
+              <span className="text-xs px-2 py-0.5 rounded-full text-red-500 border border-red-500/40 font-bold ml-2">
                 Trending
               </span>
             </div>

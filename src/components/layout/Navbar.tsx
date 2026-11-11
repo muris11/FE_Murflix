@@ -118,7 +118,7 @@ export const Navbar: React.FC = () => {
                     <div className="px-4 py-2 border-b border-gray-800">
                       <p className="text-xs font-bold text-white truncate">{user?.full_name || 'Member'}</p>
                       <p className="text-[11px] text-gray-400 truncate">{user?.email}</p>
-                      <span className="inline-block mt-1 px-2 py-0.5 rounded bg-red-600/20 text-red-400 text-[10px] font-bold uppercase">
+                      <span className="inline-block mt-1 px-2 py-0.5 rounded text-red-500 border border-red-500/40 text-[10px] font-bold uppercase">
                         {user?.role === 'admin' ? 'Super Admin' : user?.plan_name || 'Member Aktif'}
                       </span>
                     </div>

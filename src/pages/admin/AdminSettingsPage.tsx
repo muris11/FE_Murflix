@@ -12,7 +12,6 @@ import {
   CheckCircle2,
   AlertCircle,
   UserCheck,
-  Sparkles,
   ToggleLeft,
   ToggleRight,
   Tv,
@@ -143,7 +142,7 @@ export const AdminSettingsPage: React.FC = () => {
                 : 'text-zinc-400 hover:text-white'
             }`}
           >
-            <Sparkles className="w-4 h-4" />
+            <UserCheck className="w-4 h-4" />
             <span>Akun Demo Login</span>
           </button>
         </div>
@@ -171,12 +170,12 @@ export const AdminSettingsPage: React.FC = () => {
           <div className="space-y-6 animate-fadeIn">
             
             {/* Security Banner */}
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-red-950/40 via-red-900/20 to-black border border-red-500/30 flex items-start space-x-3">
-              <ShieldCheck className="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" />
+            <div className="p-4 rounded-2xl bg-[#18181b] border border-zinc-800 flex items-start space-x-3">
+              <ShieldCheck className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
               <div className="text-xs text-zinc-300 leading-relaxed">
                 <p className="font-bold text-white text-sm mb-1">Proteksi Keamanan API</p>
                 Semua token rahasia (seperti TMDB Read Token) tersimpan aman di tabel PostgreSQL{' '}
-                <code className="text-red-400 bg-red-950/60 px-1.5 py-0.5 rounded">system_settings</code>. Backend Golang
+                <code className="text-zinc-300 font-mono text-xs border border-zinc-700 px-1.5 py-0.5 rounded">system_settings</code>. Backend Golang
                 menyediakan proxy gambar agar pengguna tidak mengalami DNS blocking TMDB.
               </div>
             </div>
@@ -265,8 +264,8 @@ export const AdminSettingsPage: React.FC = () => {
           <div className="space-y-6 animate-fadeIn">
             
             {/* Info Card */}
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-950/40 via-amber-900/20 to-black border border-amber-500/30 flex items-start space-x-3">
-              <Sparkles className="w-6 h-6 text-amber-400 flex-shrink-0 mt-0.5" />
+            <div className="p-4 rounded-2xl bg-[#18181b] border border-zinc-800 flex items-start space-x-3">
+              <UserCheck className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
               <div className="text-xs text-zinc-300 leading-relaxed">
                 <p className="font-bold text-white text-sm mb-1">Pengaturan Akun Demo 1-Click Login</p>
                 Ketika diaktifkan, tombol demo akan muncul di halaman login (`/login`). Pengunjung atau reviewer cukup
@@ -379,13 +378,12 @@ export const AdminSettingsPage: React.FC = () => {
                   Preview Tombol pada Halaman Login:
                 </span>
                 <div className="p-4 rounded-xl bg-black/50 border border-zinc-800 max-w-sm mx-auto text-center space-y-2">
-                  <div className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 text-white font-bold text-xs flex items-center justify-center space-x-2 shadow-lg">
-                    <Sparkles className="w-4 h-4 text-amber-300" />
+                  <div className="w-full py-3 px-4 rounded-xl bg-zinc-800 border border-zinc-700 text-white font-bold text-xs flex items-center justify-center space-x-2 shadow-md">
+                    <UserCheck className="w-4 h-4 text-emerald-400" />
                     <span>{settings['demo_account_button_text'] || 'Masuk dengan Akun Demo (1-Click)'}</span>
                   </div>
-                  <p className="text-[10px] text-zinc-400 flex items-center justify-center space-x-1.5 pt-1">
-                    <span className={`w-2 h-2 rounded-full ${isDemoEnabled ? 'bg-emerald-500 ring-2 ring-emerald-500/30' : 'bg-rose-500'}`} />
-                    <span>{isDemoEnabled ? 'Aktif dan muncul di /login' : 'Nonaktif / Tidak ditampilkan'}</span>
+                  <p className="text-xs text-zinc-400 pt-1">
+                    Status: <span className={isDemoEnabled ? 'text-emerald-400 font-bold' : 'text-zinc-500 font-semibold'}>{isDemoEnabled ? 'Aktif di halaman /login' : 'Nonaktif'}</span>
                   </p>
                 </div>
               </div>

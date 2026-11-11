@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Play, Info, Star } from 'lucide-react';
 import { MediaItem } from '@/types/tmdb';
-import { VideoPlayerModal } from './VideoPlayerModal';
 import { getTMDBImageUrl, getDirectTMDBUrl } from '@/utils/image';
 import { getMovieUrl, getTVUrl, getWatchMovieUrl, getWatchTVUrl } from '@/utils/slug';
 
@@ -11,7 +10,6 @@ interface HeroProps {
 }
 
 export const Hero: React.FC<HeroProps> = ({ item }) => {
-  const [isPlayerOpen, setIsPlayerOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
 
   if (!item) {
@@ -126,24 +124,15 @@ export const Hero: React.FC<HeroProps> = ({ item }) => {
 
           {/* Bottom-Right Netflix Badges (Sesuai Screenshot User) */}
           <div className="absolute bottom-8 right-6 sm:right-10 z-20 hidden md:flex items-center space-x-2.5">
-            <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-black/75 backdrop-blur-md border border-red-500/30 text-white text-xs font-bold shadow-lg">
-              <span className="w-2 h-2 rounded-full bg-[#e50914] animate-ping" />
+            <div className="flex items-center px-3 py-1.5 rounded-full bg-black/75 backdrop-blur-md border border-red-500/30 text-white text-xs font-bold shadow-lg">
               <span>Baru Ditambahkan</span>
             </div>
-            <div className="flex items-center space-x-1 px-2.5 py-1 rounded-md bg-[#e50914] text-white text-xs font-black tracking-wider uppercase shadow-lg">
+            <div className="flex items-center px-2.5 py-1 rounded-md bg-[#e50914] text-white text-xs font-black tracking-wider uppercase shadow-lg">
               <span>TOP 10</span>
             </div>
           </div>
         </div>
       </div>
-
-      <VideoPlayerModal
-        isOpen={isPlayerOpen}
-        onClose={() => setIsPlayerOpen(false)}
-        tmdbId={item.id}
-        mediaType={mediaType === 'tv' ? 'tv' : 'movie'}
-        title={title}
-      />
     </>
   );
 };

@@ -144,7 +144,7 @@ export const TVDetailPage: React.FC = () => {
         <div className="flex-1 space-y-4 text-white">
           <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-300">
             {tv.vote_average && (
-              <div className="flex items-center space-x-1 px-2.5 py-1 rounded-md bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold">
+              <div className="flex items-center space-x-1 text-amber-400 font-bold">
                 <Star className="w-3.5 h-3.5 fill-current" />
                 <span>{tv.vote_average.toFixed(1)}</span>
               </div>
@@ -155,7 +155,7 @@ export const TVDetailPage: React.FC = () => {
                 <span>{releaseYear}</span>
               </span>
             )}
-            <span className="px-2 py-0.5 rounded bg-blue-600/20 text-blue-400 border border-blue-500/30 uppercase text-[10px] font-bold">
+            <span className="text-zinc-400 text-xs font-semibold">
               {tv.number_of_seasons} Musim • {tv.number_of_episodes} Episode
             </span>
           </div>
@@ -343,7 +343,7 @@ export const TVDetailPage: React.FC = () => {
                             {ep.episode_number}. {ep.name}
                           </h4>
                           {isSelected && (
-                            <span className="px-2 py-0.5 rounded bg-red-600/20 text-[#e50914] border border-red-500/30 text-[10px] font-bold uppercase tracking-wider">
+                            <span className="text-[#e50914] text-xs font-bold uppercase tracking-wider">
                               Diputar Sekarang
                             </span>
                           )}
