@@ -105,23 +105,31 @@ export const NotificationDropdown: React.FC = () => {
         <Bell className="w-5 h-5 transition-transform hover:scale-110" />
 
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 min-w-4 h-4 px-1 rounded-full bg-[#e50914] text-white text-[10px] font-black flex items-center justify-center shadow-lg shadow-red-600/50 animate-pulse">
+          <span className="absolute top-1 right-1 min-w-4 h-4 px-1 rounded-full bg-[#e50914] text-white text-[10px] font-black flex items-center justify-center shadow-md">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
 
-      {/* Dropdown Popover */}
+      {/* Mobile Backdrop Overlay */}
       {isOpen && (
-        <div className="absolute right-0 mt-2.5 w-80 sm:w-96 rounded-2xl bg-[#141417] border border-zinc-800 shadow-2xl z-50 overflow-hidden animate-fadeIn">
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-[2px] z-40 sm:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Dropdown Popover (Centered & Full-Width Constrained on Mobile) */}
+      {isOpen && (
+        <div className="fixed sm:absolute inset-x-3 sm:inset-x-auto sm:right-0 top-16 sm:top-full mt-2 sm:mt-2.5 max-w-sm sm:max-w-none sm:w-96 mx-auto sm:mx-0 rounded-2xl bg-[#141417] border border-zinc-800 shadow-2xl z-50 overflow-hidden animate-fadeIn">
           
           {/* Header */}
           <div className="p-4 border-b border-zinc-800/80 flex items-center justify-between bg-zinc-900/60">
             <div className="flex items-center space-x-2">
               <span className="font-bold text-white text-sm">Pemberitahuan</span>
               {unreadCount > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-red-600/20 border border-red-500/30 text-red-400 text-[10px] font-black">
-                  {unreadCount} baru
+                <span className="text-red-500 text-xs font-semibold">
+                  ({unreadCount} baru)
                 </span>
               )}
             </div>
@@ -149,6 +157,16 @@ export const NotificationDropdown: React.FC = () => {
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               )}
+
+              {/* Close Button for Mobile */}
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="p-1 rounded-lg hover:bg-zinc-800 text-gray-400 hover:text-white transition-colors sm:hidden"
+                title="Tutup pemberitahuan"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
           </div>
 
@@ -179,7 +197,7 @@ export const NotificationDropdown: React.FC = () => {
           </div>
 
           {/* List of Notifications */}
-          <div className="max-h-[380px] overflow-y-auto divide-y divide-zinc-800/40">
+          <div className="max-h-[50vh] sm:max-h-[380px] overflow-y-auto divide-y divide-zinc-800/40">
             {displayedNotifications.length === 0 ? (
               <div className="p-8 text-center space-y-2">
                 <div className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto text-gray-500">
@@ -234,8 +252,8 @@ export const NotificationDropdown: React.FC = () => {
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center space-x-1.5 min-w-0">
                         {item.badge && (
-                          <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-zinc-800 text-gray-300 border border-zinc-700 flex-shrink-0">
-                            {item.badge}
+                          <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider flex-shrink-0">
+                            [{item.badge}]
                           </span>
                         )}
                         <h4
