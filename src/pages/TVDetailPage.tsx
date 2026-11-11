@@ -1,51 +1,96 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Play, Plus, Check, Star, Calendar, ArrowLeft } from 'lucide-react';
+import { Play, Plus, Check, Star, Calendar, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { moviesApi } from '@/api/movies';
-import { TVDetails } from '@/types/tmdb';
+import { TVDetails, MediaItem } from '@/types/tmdb';
 import { MovieRow } from '@/components/media/MovieRow';
 import { PersonModal } from '@/components/media/PersonModal';
 import { WatchProvidersBadge } from '@/components/media/WatchProvidersBadge';
 import { watchlistApi } from '@/api/watchlist';
 import { getTMDBImageUrl, getDirectTMDBUrl } from '@/utils/image';
-import { extractIdFromSlug, getWatchTVUrl } from '@/utils/slug';
+import { extractIdFromSlug, getWatchTVUrl, resolveMediaId, getCachedIdFromSlug } from '@/utils/slug';
+
+const EPISODES_PER_PAGE = 20;
 
 export const TVDetailPage: React.FC = () => {
   const { id: rawSlugId } = useParams<{ id: string }>();
-  const id = extractIdFromSlug(rawSlugId);
   const navigate = useNavigate();
+
+  // Fast ID resolution (handles /tv/who-is-who, /tv/78292-who-is-who, or /tv/78292)
+  const [resolvedId, setResolvedId] = useState<string | null>(() => {
+    const extracted = extractIdFromSlug(rawSlugId);
+    return /^\d+$/.test(extracted) ? extracted : getCachedIdFromSlug('tv', rawSlugId || '');
+  });
+
   const [tv, setTv] = useState<TVDetails | null>(null);
+  const [fallbackTV, setFallbackTV] = useState<MediaItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isInList, setIsInList] = useState(false);
   const [selectedSeason, setSelectedSeason] = useState(1);
   const [selectedEpisode, setSelectedEpisode] = useState(1);
+  const [currentEpisodePage, setCurrentEpisodePage] = useState(1);
   const [seasonData, setSeasonData] = useState<any>(null);
   const [backdropError, setBackdropError] = useState(false);
   const [posterError, setPosterError] = useState(false);
   const [selectedPersonId, setSelectedPersonId] = useState<number | null>(null);
 
+  // Resolve pure slug to numeric ID if not numeric
   useEffect(() => {
-    if (!id) return;
+    if (!rawSlugId) return;
+    let isMounted = true;
+    resolveMediaId(rawSlugId, 'tv').then((id) => {
+      if (isMounted && id) {
+        setResolvedId(id);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, [rawSlugId]);
+
+  // Fetch TV Details once ID is resolved
+  useEffect(() => {
+    if (!resolvedId) return;
     setIsLoading(true);
     setBackdropError(false);
     setPosterError(false);
     moviesApi
-      .getTVDetails(id)
+      .getTVDetails(resolvedId)
       .then((data) => {
         setTv(data);
-        watchlistApi.check('tv', Number(id)).then(setIsInList).catch(() => {});
+        watchlistApi.check('tv', Number(resolvedId)).then(setIsInList).catch(() => {});
       })
-      .catch((err) => console.error(err))
+      .catch((err) => console.error('Failed to load TV details:', err))
       .finally(() => setIsLoading(false));
-  }, [id]);
+  }, [resolvedId]);
 
+  // Fetch Season episodes
   useEffect(() => {
-    if (!id || !tv) return;
+    if (!resolvedId || !tv) return;
     moviesApi
-      .getTVSeason(id, selectedSeason)
-      .then((data) => setSeasonData(data))
-      .catch((err) => console.error(err));
-  }, [id, tv, selectedSeason]);
+      .getTVSeason(resolvedId, selectedSeason)
+      .then((data) => {
+        setSeasonData(data);
+        setCurrentEpisodePage(1); // Reset episode pagination on season change
+      })
+      .catch((err) => console.error('Failed to load TV season:', err));
+  }, [resolvedId, tv, selectedSeason]);
+
+  // Fetch fallback recommendations if show has none
+  useEffect(() => {
+    if (tv) {
+      const recs = tv.recommendations?.results || [];
+      const sim = tv.similar?.results || [];
+      if (recs.length === 0 && sim.length === 0) {
+        moviesApi
+          .getPopularTV()
+          .then((res) => {
+            setFallbackTV((res.results || []).map((item) => ({ ...item, media_type: 'tv' })));
+          })
+          .catch(() => {});
+      }
+    }
+  }, [tv]);
 
   const toggleWatchlist = async () => {
     if (!tv) return;
@@ -102,6 +147,25 @@ export const TVDetailPage: React.FC = () => {
 
   const releaseYear = (tv.first_air_date || '').split('-')[0];
 
+  // Episode Pagination calculations
+  const allEpisodes: any[] = seasonData?.episodes || [];
+  const totalEpisodes = allEpisodes.length;
+  const totalEpisodePages = Math.ceil(totalEpisodes / EPISODES_PER_PAGE);
+  const paginatedEpisodes = allEpisodes.slice(
+    (currentEpisodePage - 1) * EPISODES_PER_PAGE,
+    currentEpisodePage * EPISODES_PER_PAGE
+  );
+
+  // Recommendations mapping (ensure media_type = 'tv')
+  const recommendations: MediaItem[] = (tv.recommendations?.results || []).map((item) => ({
+    ...item,
+    media_type: 'tv',
+  }));
+  const similarShows: MediaItem[] = (tv.similar?.results || []).map((item) => ({
+    ...item,
+    media_type: 'tv',
+  }));
+
   return (
     <div className="min-h-screen bg-[#141414] pb-24">
       {/* Hero Backdrop */}
@@ -128,7 +192,7 @@ export const TVDetailPage: React.FC = () => {
       {/* Main Info */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 -mt-28 sm:-mt-44 flex flex-col md:flex-row gap-8">
         
-        {/* Snug Poster Container (Zero gap, 2:3 ratio) */}
+        {/* Snug Poster Container */}
         <div className="flex-shrink-0 w-44 sm:w-60 md:w-68 mx-auto md:mx-0 self-start">
           <div className="aspect-[2/3] w-full rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-zinc-900 ring-1 ring-white/10">
             <img
@@ -163,10 +227,10 @@ export const TVDetailPage: React.FC = () => {
           <h1 className="text-3xl sm:text-5xl font-black tracking-tight">{tv.name}</h1>
           {tv.tagline && <p className="text-sm italic text-gray-400">"{tv.tagline}"</p>}
 
-          {/* Genres & Watch Providers */}
+          {/* Genres & Providers */}
           <div className="flex flex-wrap items-center gap-3 pt-1">
             <div className="flex flex-wrap gap-2">
-              {tv.genres?.map((g: any) => (
+              {tv.genres?.map((g) => (
                 <span key={g.id} className="px-3 py-1 rounded-full bg-gray-800 text-xs text-gray-300 border border-gray-700">
                   {g.name}
                 </span>
@@ -176,14 +240,14 @@ export const TVDetailPage: React.FC = () => {
             <WatchProvidersBadge providersData={tv['watch/providers']} />
           </div>
 
-          {/* Action Buttons (1:1 Netflix Style) */}
+          {/* Action Buttons (1:1 Netflix Direct Cinema Watch) */}
           <div className="flex flex-wrap items-center gap-4 pt-4">
             <button
               onClick={() => navigate(getWatchTVUrl(tv.id, tv.name, selectedSeason, selectedEpisode))}
               className="flex items-center space-x-2 px-8 py-3.5 rounded-full bg-[#e50914] hover:bg-red-700 text-white font-extrabold text-sm sm:text-base shadow-2xl shadow-red-950/60 transition-transform hover:scale-105 active:scale-95"
             >
               <Play className="w-5 h-5 fill-white ml-0.5" />
-              <span>Nonton S{selectedSeason} E{selectedEpisode}</span>
+              <span>Nonton S{selectedSeason}:E{selectedEpisode}</span>
             </button>
 
             <button
@@ -201,7 +265,7 @@ export const TVDetailPage: React.FC = () => {
             <p className="text-gray-300 text-sm sm:text-base leading-relaxed">{tv.overview}</p>
           </div>
 
-          {/* Cast Avatars */}
+          {/* Cast Avatars (Clickable to open PersonModal) */}
           {(tv.credits?.cast?.length ?? 0) > 0 && (
             <div className="pt-6 space-y-3">
               <div className="flex items-center justify-between">
@@ -209,7 +273,7 @@ export const TVDetailPage: React.FC = () => {
                 <span className="text-xs text-gray-500">Klik aktor untuk melihat profil & karya</span>
               </div>
               <div className="flex space-x-4 overflow-x-auto no-scrollbar py-2">
-                {(tv.credits?.cast || []).slice(0, 12).map((cast: any) => (
+                {(tv.credits?.cast || []).slice(0, 12).map((cast) => (
                   <button
                     key={cast.id}
                     onClick={() => setSelectedPersonId(cast.id)}
@@ -223,7 +287,7 @@ export const TVDetailPage: React.FC = () => {
                           onError={(e) => {
                             (e.target as HTMLImageElement).src = getDirectTMDBUrl(cast.profile_path, 'w185');
                           }}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                           loading="lazy"
                         />
                       ) : (
@@ -242,13 +306,13 @@ export const TVDetailPage: React.FC = () => {
             </div>
           )}
 
-          {/* Netflix 1:1 Episode Section */}
+          {/* Netflix 1:1 Episode Section with Batch Range & Pagination */}
           <div className="pt-8 space-y-5 border-t border-zinc-800">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">Episode</h3>
                 <p className="text-xs text-zinc-400 mt-0.5">
-                  Musim {selectedSeason}: {seasonData?.episodes?.length || 0} Episode Tersedia
+                  Musim {selectedSeason}: {totalEpisodes} Episode Tersedia
                 </p>
               </div>
 
@@ -261,8 +325,9 @@ export const TVDetailPage: React.FC = () => {
                       const s = Number(e.target.value);
                       setSelectedSeason(s);
                       setSelectedEpisode(1);
+                      setCurrentEpisodePage(1);
                     }}
-                    className="px-3.5 py-2 rounded-xl bg-zinc-800 border border-zinc-700 text-white text-xs sm:text-sm font-semibold focus:outline-none focus:border-red-500 transition-colors"
+                    className="px-3.5 py-2 rounded-xl bg-zinc-800 border border-zinc-700 text-white text-xs sm:text-sm font-semibold focus:outline-none focus:border-red-500 transition-colors cursor-pointer"
                   >
                     {tv.seasons
                       ?.filter((s) => s.season_number > 0)
@@ -276,86 +341,177 @@ export const TVDetailPage: React.FC = () => {
               )}
             </div>
 
-            {/* Netflix Horizontal Episode Rows */}
-            {seasonData?.episodes?.length > 0 ? (
-              <div className="divide-y divide-zinc-800/80 rounded-2xl bg-[#141416] border border-white/5 overflow-hidden shadow-xl">
-                {seasonData.episodes.map((ep: any) => {
-                  const isSelected = selectedEpisode === ep.episode_number;
+            {/* Episode Range Batch Selector (Like Netflix Episode Range Pills) */}
+            {totalEpisodePages > 1 && (
+              <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar py-1">
+                <span className="text-xs font-semibold text-zinc-400 flex-shrink-0 mr-1">Batch Episode:</span>
+                {Array.from({ length: totalEpisodePages }).map((_, idx) => {
+                  const pageNum = idx + 1;
+                  const startEp = (pageNum - 1) * EPISODES_PER_PAGE + 1;
+                  const endEp = Math.min(pageNum * EPISODES_PER_PAGE, totalEpisodes);
+                  const isActive = currentEpisodePage === pageNum;
                   return (
-                    <div
-                      key={ep.id}
-                      onClick={() => navigate(getWatchTVUrl(tv.id, tv.name, selectedSeason, ep.episode_number))}
-                      className={`p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 transition-all cursor-pointer group ${
-                        isSelected
-                          ? 'bg-red-950/20 border-l-4 border-l-[#e50914]'
-                          : 'hover:bg-zinc-800/40 border-l-4 border-l-transparent'
+                    <button
+                      key={pageNum}
+                      type="button"
+                      onClick={() => setCurrentEpisodePage(pageNum)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex-shrink-0 ${
+                        isActive
+                          ? 'bg-[#e50914] text-white shadow-md shadow-red-600/30 ring-1 ring-red-500/50'
+                          : 'bg-zinc-800/80 text-zinc-300 hover:bg-zinc-700 hover:text-white border border-white/5'
                       }`}
                     >
-                      {/* Big Episode Number */}
-                      <span className={`text-xl sm:text-2xl font-black w-8 text-center flex-shrink-0 transition-colors ${
-                        isSelected ? 'text-[#e50914]' : 'text-zinc-500 group-hover:text-white'
-                      }`}>
-                        {ep.episode_number}
-                      </span>
+                      {startEp} - {endEp}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
-                      {/* Episode 16:9 Thumbnail */}
-                      <div className="relative aspect-video w-full sm:w-44 md:w-52 flex-shrink-0 rounded-xl overflow-hidden bg-zinc-900 border border-white/10 shadow-md">
-                        {ep.still_path ? (
-                          <img
-                            src={getTMDBImageUrl(ep.still_path, 'w300')}
-                            alt={ep.name}
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = getDirectTMDBUrl(ep.still_path, 'w300');
-                            }}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center text-zinc-500 font-bold bg-zinc-900">
-                            <span className="text-xs uppercase tracking-wider">Episode</span>
-                            <span className="text-xl text-zinc-400">{ep.episode_number}</span>
-                          </div>
-                        )}
-
-                        {/* Hover Play Overlay */}
-                        <div className={`absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity ${
-                          isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+            {/* Paginated Episode List */}
+            {allEpisodes.length > 0 ? (
+              <div className="space-y-4">
+                <div className="divide-y divide-zinc-800/80 rounded-2xl bg-[#141416] border border-white/5 overflow-hidden shadow-xl">
+                  {paginatedEpisodes.map((ep: any) => {
+                    const isSelected = selectedEpisode === ep.episode_number;
+                    return (
+                      <div
+                        key={ep.id}
+                        onClick={() => navigate(getWatchTVUrl(tv.id, tv.name, selectedSeason, ep.episode_number))}
+                        className={`p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 transition-all cursor-pointer group ${
+                          isSelected
+                            ? 'bg-red-950/20 border-l-4 border-l-[#e50914]'
+                            : 'hover:bg-zinc-800/40 border-l-4 border-l-transparent'
+                        }`}
+                      >
+                        {/* Big Episode Number */}
+                        <span className={`text-xl sm:text-2xl font-black w-8 text-center flex-shrink-0 transition-colors ${
+                          isSelected ? 'text-[#e50914]' : 'text-zinc-500 group-hover:text-white'
                         }`}>
-                          <div className="w-10 h-10 rounded-full bg-[#e50914] text-white flex items-center justify-center shadow-xl shadow-red-600/50 transform group-hover:scale-110 transition-transform">
-                            <Play className="w-5 h-5 fill-current ml-0.5" />
-                          </div>
-                        </div>
+                          {ep.episode_number}
+                        </span>
 
-                        {/* Duration Badge */}
-                        {ep.runtime && (
-                          <span className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/85 text-[10px] font-mono font-medium text-gray-300 border border-white/10">
-                            {ep.runtime} mnt
-                          </span>
-                        )}
-                      </div>
+                        {/* Episode 16:9 Thumbnail */}
+                        <div className="relative aspect-video w-full sm:w-44 md:w-52 flex-shrink-0 rounded-xl overflow-hidden bg-zinc-900 border border-white/10 shadow-md">
+                          {ep.still_path ? (
+                            <img
+                              src={getTMDBImageUrl(ep.still_path, 'w300')}
+                              alt={ep.name}
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = getDirectTMDBUrl(ep.still_path, 'w300');
+                              }}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center text-zinc-500 font-bold bg-zinc-900">
+                              <span className="text-xs uppercase tracking-wider">Episode</span>
+                              <span className="text-xl text-zinc-400">{ep.episode_number}</span>
+                            </div>
+                          )}
 
-                      {/* Episode Details */}
-                      <div className="flex-1 min-w-0 space-y-1.5">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <h4 className={`text-sm sm:text-base font-bold transition-colors ${
-                            isSelected ? 'text-[#e50914]' : 'text-white group-hover:text-red-400'
+                          {/* Hover Play Overlay */}
+                          <div className={`absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity ${
+                            isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                           }`}>
-                            {ep.episode_number}. {ep.name}
-                          </h4>
-                          {isSelected && (
-                            <span className="text-[#e50914] text-xs font-bold uppercase tracking-wider">
-                              Diputar Sekarang
+                            <div className="w-10 h-10 rounded-full bg-[#e50914] text-white flex items-center justify-center shadow-xl shadow-red-600/50 transform group-hover:scale-110 transition-transform">
+                              <Play className="w-5 h-5 fill-current ml-0.5" />
+                            </div>
+                          </div>
+
+                          {/* Duration Badge */}
+                          {ep.runtime && (
+                            <span className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/85 text-[10px] font-mono font-medium text-gray-300 border border-white/10">
+                              {ep.runtime} mnt
                             </span>
                           )}
                         </div>
 
-                        <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed line-clamp-2 sm:line-clamp-3">
-                          {ep.overview || 'Tidak ada deskripsi rinci untuk episode ini.'}
-                        </p>
+                        {/* Episode Details */}
+                        <div className="flex-1 min-w-0 space-y-1.5">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <h4 className={`text-sm sm:text-base font-bold transition-colors ${
+                              isSelected ? 'text-[#e50914]' : 'text-white group-hover:text-red-400'
+                            }`}>
+                              {ep.episode_number}. {ep.name}
+                            </h4>
+                            {isSelected && (
+                              <span className="text-[#e50914] text-xs font-bold uppercase tracking-wider">
+                                Diputar Sekarang
+                              </span>
+                            )}
+                          </div>
+
+                          <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed line-clamp-2 sm:line-clamp-3">
+                            {ep.overview || 'Tidak ada deskripsi rinci untuk episode ini.'}
+                          </p>
+                        </div>
                       </div>
+                    );
+                  })}
+                </div>
+
+                {/* Numbered Pagination Bar at Bottom */}
+                {totalEpisodePages > 1 && (
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 px-1">
+                    <span className="text-xs text-zinc-400">
+                      Menampilkan episode {(currentEpisodePage - 1) * EPISODES_PER_PAGE + 1} -{' '}
+                      {Math.min(currentEpisodePage * EPISODES_PER_PAGE, totalEpisodes)} dari {totalEpisodes} episode
+                    </span>
+
+                    <div className="flex items-center space-x-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setCurrentEpisodePage((p) => Math.max(p - 1, 1))}
+                        disabled={currentEpisodePage === 1}
+                        className="px-3 py-1.5 rounded-lg bg-zinc-800 text-xs font-semibold text-zinc-200 hover:bg-zinc-700 disabled:opacity-30 disabled:hover:bg-zinc-800 transition-colors flex items-center space-x-1"
+                      >
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                        <span>Sebelumnya</span>
+                      </button>
+
+                      {Array.from({ length: totalEpisodePages }).map((_, idx) => {
+                        const pageNum = idx + 1;
+                        if (
+                          totalEpisodePages > 7 &&
+                          pageNum !== 1 &&
+                          pageNum !== totalEpisodePages &&
+                          Math.abs(pageNum - currentEpisodePage) > 1
+                        ) {
+                          if (pageNum === 2 || pageNum === totalEpisodePages - 1) {
+                            return <span key={pageNum} className="text-zinc-600 px-1 text-xs">...</span>;
+                          }
+                          return null;
+                        }
+                        const isActive = currentEpisodePage === pageNum;
+                        return (
+                          <button
+                            key={pageNum}
+                            type="button"
+                            onClick={() => setCurrentEpisodePage(pageNum)}
+                            className={`w-8 h-8 rounded-lg text-xs font-bold transition-colors ${
+                              isActive
+                                ? 'bg-[#e50914] text-white shadow-md'
+                                : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white'
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+
+                      <button
+                        type="button"
+                        onClick={() => setCurrentEpisodePage((p) => Math.min(p + 1, totalEpisodePages))}
+                        disabled={currentEpisodePage === totalEpisodePages}
+                        className="px-3 py-1.5 rounded-lg bg-zinc-800 text-xs font-semibold text-zinc-200 hover:bg-zinc-700 disabled:opacity-30 disabled:hover:bg-zinc-800 transition-colors flex items-center space-x-1"
+                      >
+                        <span>Berikutnya</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
                     </div>
-                  );
-                })}
+                  </div>
+                )}
               </div>
             ) : (
               <div className="p-8 text-center text-xs text-zinc-500 rounded-xl bg-zinc-900/40 border border-zinc-800">
@@ -366,17 +522,18 @@ export const TVDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Similar & Recommendations */}
-      {((tv.recommendations?.results?.length ?? 0) > 0 || (tv.similar?.results?.length ?? 0) > 0) && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 space-y-10">
-          {(tv.recommendations?.results?.length ?? 0) > 0 && (
-            <MovieRow title="Serial Rekomendasi" items={tv.recommendations?.results || []} />
-          )}
-          {(tv.similar?.results?.length ?? 0) > 0 && (
-            <MovieRow title="Serial Terkait Lainnya" items={tv.similar?.results || []} />
-          )}
-        </div>
-      )}
+      {/* Similar & Recommendations Rows */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 space-y-10">
+        {recommendations.length > 0 ? (
+          <MovieRow title="Rekomendasi Serial TV Serupa" items={recommendations} />
+        ) : fallbackTV.length > 0 ? (
+          <MovieRow title="Rekomendasi Serial TV Terpopuler" items={fallbackTV} />
+        ) : null}
+
+        {similarShows.length > 0 && (
+          <MovieRow title="Serial Terkait Lainnya" items={similarShows} />
+        )}
+      </div>
 
       {/* Person Detail Modal */}
       <PersonModal

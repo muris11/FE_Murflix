@@ -23,7 +23,15 @@ import {
 import { moviesApi } from '@/api/movies';
 import { StreamingServer, MovieDetails, TVDetails, EpisodeItem, SeasonItem, MediaItem } from '@/types/tmdb';
 import { getTMDBImageUrl, getDirectTMDBUrl } from '@/utils/image';
-import { extractIdFromSlug, getMovieUrl, getTVUrl, getWatchMovieUrl, getWatchTVUrl } from '@/utils/slug';
+import {
+  extractIdFromSlug,
+  getMovieUrl,
+  getTVUrl,
+  getWatchMovieUrl,
+  getWatchTVUrl,
+  resolveMediaId,
+  getCachedIdFromSlug,
+} from '@/utils/slug';
 
 interface WatchPageProps {
   mediaType: 'movie' | 'tv';
@@ -82,9 +90,24 @@ const DEFAULT_SERVERS: StreamingServer[] = [
 
 export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
   const { id: rawSlugId } = useParams<{ id: string }>();
-  const id = extractIdFromSlug(rawSlugId);
+  const [resolvedId, setResolvedId] = useState<string | null>(() => {
+    const extracted = extractIdFromSlug(rawSlugId);
+    return /^\d+$/.test(extracted) ? extracted : getCachedIdFromSlug(mediaType, rawSlugId || '');
+  });
+  const id = resolvedId;
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!rawSlugId) return;
+    let isMounted = true;
+    resolveMediaId(rawSlugId, mediaType).then((resId) => {
+      if (isMounted && resId) setResolvedId(resId);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, [rawSlugId, mediaType]);
 
   const currentSeason = Number(searchParams.get('s')) || 1;
   const currentEpisode = Number(searchParams.get('e')) || 1;
@@ -231,7 +254,7 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
     );
   }
 
-  const detailPath = mediaType === 'movie' ? getMovieUrl(id, title) : getTVUrl(id, title);
+  const detailPath = id ? (mediaType === 'movie' ? getMovieUrl(id, title) : getTVUrl(id, title)) : '/';
 
   return (
     <div

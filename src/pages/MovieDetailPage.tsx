@@ -9,11 +9,14 @@ import { WatchProvidersBadge } from '@/components/media/WatchProvidersBadge';
 import { CollectionSection } from '@/components/media/CollectionSection';
 import { watchlistApi } from '@/api/watchlist';
 import { getTMDBImageUrl, getDirectTMDBUrl } from '@/utils/image';
-import { extractIdFromSlug, getWatchMovieUrl } from '@/utils/slug';
+import { extractIdFromSlug, getWatchMovieUrl, resolveMediaId, getCachedIdFromSlug } from '@/utils/slug';
 
 export const MovieDetailPage: React.FC = () => {
   const { id: rawSlugId } = useParams<{ id: string }>();
-  const id = extractIdFromSlug(rawSlugId);
+  const [resolvedId, setResolvedId] = useState<string | null>(() => {
+    const extracted = extractIdFromSlug(rawSlugId);
+    return /^\d+$/.test(extracted) ? extracted : getCachedIdFromSlug('movie', rawSlugId || '');
+  });
   const navigate = useNavigate();
   const [movie, setMovie] = useState<MovieDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,19 +26,30 @@ export const MovieDetailPage: React.FC = () => {
   const [selectedPersonId, setSelectedPersonId] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!id) return;
+    if (!rawSlugId) return;
+    let isMounted = true;
+    resolveMediaId(rawSlugId, 'movie').then((id) => {
+      if (isMounted && id) setResolvedId(id);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, [rawSlugId]);
+
+  useEffect(() => {
+    if (!resolvedId) return;
     setIsLoading(true);
     setBackdropError(false);
     setPosterError(false);
     moviesApi
-      .getMovieDetails(id)
+      .getMovieDetails(resolvedId)
       .then((data) => {
         setMovie(data);
-        watchlistApi.check('movie', Number(id)).then(setIsInList).catch(() => {});
+        watchlistApi.check('movie', Number(resolvedId)).then(setIsInList).catch(() => {});
       })
       .catch((err) => console.error(err))
       .finally(() => setIsLoading(false));
-  }, [id]);
+  }, [resolvedId]);
 
   const toggleWatchlist = async () => {
     if (!movie) return;
