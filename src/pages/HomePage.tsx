@@ -54,12 +54,12 @@ export const HomePage: React.FC = () => {
   }, []);
 
   return (
-    <div className="pb-16 overflow-x-hidden">
-      {/* Big Hero Banner */}
+    <div className="pb-16 overflow-x-hidden w-full">
+      {/* Full Bleed Hero Banner */}
       <Hero item={featured} />
 
-      {/* Row Sections (Aligned with Hero container) */}
-      <div className="relative z-20 mt-2 sm:mt-4 space-y-6 sm:space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Row Sections (Full Width Seamless Netflix Layout) */}
+      <div className="relative z-20 -mt-10 sm:-mt-16 md:-mt-20 space-y-8 sm:space-y-12 w-full px-4 sm:px-8 md:px-12 lg:px-16">
         <MovieRow title="Sedang Trending Minggu Ini" items={trending} isLoading={isLoading} />
         <MovieRow title="Film Terpopuler" items={popularMovies} isLoading={isLoading} />
         <MovieRow title="Serial TV Paling Banyak Ditonton" items={popularTV} isLoading={isLoading} />

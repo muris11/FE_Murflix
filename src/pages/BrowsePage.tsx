@@ -93,7 +93,7 @@ export const BrowsePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#141414] pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-[#141414] pt-24 pb-20 px-4 sm:px-8 md:px-12 lg:px-16 w-full space-y-8">
       
       {/* Header Banner */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-zinc-800 pb-5">
@@ -104,7 +104,7 @@ export const BrowsePage: React.FC = () => {
               {isTV ? 'Katalog Serial TV' : 'Katalog Film'}
             </h1>
             <p className="text-xs sm:text-sm text-zinc-400 mt-0.5">
-              Halaman {currentPage} dari {totalPages.toLocaleString()} • Menampilkan 20 judul per halaman (Super Ringan)
+              Halaman {currentPage} dari {totalPages.toLocaleString()} - Menampilkan 20 judul per halaman (Super Ringan)
             </p>
           </div>
         </div>
@@ -147,8 +147,8 @@ export const BrowsePage: React.FC = () => {
 
       {/* Grid Content */}
       {isLoading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5 sm:gap-4">
-          {Array.from({ length: 18 }).map((_, i) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
+          {Array.from({ length: 21 }).map((_, i) => (
             <MovieCardSkeleton key={i} />
           ))}
         </div>
@@ -163,7 +163,7 @@ export const BrowsePage: React.FC = () => {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
           {items.map((item) => (
             <MovieCard key={item.id} item={{ ...item, media_type: mediaType }} />
           ))}

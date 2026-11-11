@@ -134,7 +134,7 @@ export const SearchPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#141414] pt-24 pb-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-10">
+    <div className="min-h-screen bg-[#141414] pt-24 pb-28 px-4 sm:px-8 md:px-12 lg:px-16 w-full space-y-10">
       
       {/* Search Input Hero Bar */}
       <div className="max-w-3xl mx-auto space-y-4">
@@ -234,13 +234,13 @@ export const SearchPage: React.FC = () => {
 
           {/* Results Grid / Loading / Empty */}
           {isSearching ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {Array.from({ length: 12 }).map((_, i) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
+              {Array.from({ length: 14 }).map((_, i) => (
                 <MovieCardSkeleton key={i} />
               ))}
             </div>
           ) : results.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
               {results.map((item) => (
                 <MovieCard key={`${item.media_type || 'item'}-${item.id}`} item={item} />
               ))}

@@ -48,7 +48,7 @@ export const Navbar: React.FC = () => {
         isScrolled ? 'bg-[#141414]/95 backdrop-blur-md shadow-lg shadow-black/40 border-b border-white/5' : 'bg-gradient-to-b from-black/85 via-black/40 to-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16">
         <div className="flex items-center justify-between h-16 sm:h-20">
           
           {/* Logo & Navigation */}

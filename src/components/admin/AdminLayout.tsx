@@ -143,7 +143,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
 
       {/* Main Content Area (Adaptive, never overflows) */}
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <main className="p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto min-w-0">
+        <main className="p-4 sm:p-6 lg:p-8 w-full min-w-0">
           {children}
         </main>
       </div>

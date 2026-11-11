@@ -278,7 +278,7 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
     >
       {/* Dedicated Cinema Header (Clean 1:1, Zero Navbar Collision) */}
       <div className="bg-[#141418] border-b border-white/10 px-3 sm:px-6 lg:px-8 py-3 sticky top-0 z-40 shadow-md">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+        <div className="w-full flex items-center justify-between gap-3">
           
           {/* Left: Brand + Back Button + Media Title */}
           <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
@@ -345,7 +345,7 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
       </div>
 
       {/* Main 2-Column Cinema Layout (Layarkaca21 / Netflix Style) */}
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 pt-4 sm:pt-6">
+      <div className="w-full px-2 sm:px-4 md:px-8 lg:px-12 pt-4 sm:pt-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           
           {/* Left Column: Player & Controls & Metadata (8 or 9 cols on desktop) */}
