@@ -8,6 +8,7 @@ import { LoginPage } from '@/pages/LoginPage';
 import { SubscriptionExpiredPage } from '@/pages/SubscriptionExpiredPage';
 import { MovieDetailPage } from '@/pages/MovieDetailPage';
 import { TVDetailPage } from '@/pages/TVDetailPage';
+import { WatchPage } from '@/pages/WatchPage';
 import { DramaBoxPage } from '@/pages/DramaBoxPage';
 import { ReelShortPage } from '@/pages/ReelShortPage';
 import { AnimePage } from '@/pages/AnimePage';
@@ -95,10 +96,26 @@ export const AppRoutes: React.FC = () => {
           }
         />
         <Route
+          path="/watch/movie/:id"
+          element={
+            <ProtectedRoute>
+              <WatchPage mediaType="movie" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/tv/:id"
           element={
             <ProtectedRoute>
               <TVDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/watch/tv/:id"
+          element={
+            <ProtectedRoute>
+              <WatchPage mediaType="tv" />
             </ProtectedRoute>
           }
         />

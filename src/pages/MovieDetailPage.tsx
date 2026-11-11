@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Play, Plus, Check, Star, Clock, Calendar, ArrowLeft } from 'lucide-react';
 import { moviesApi } from '@/api/movies';
 import { MovieDetails } from '@/types/tmdb';
@@ -7,9 +7,12 @@ import { MovieRow } from '@/components/media/MovieRow';
 import { VideoPlayerModal } from '@/components/media/VideoPlayerModal';
 import { watchlistApi } from '@/api/watchlist';
 import { getTMDBImageUrl, getDirectTMDBUrl } from '@/utils/image';
+import { extractIdFromSlug, getWatchMovieUrl } from '@/utils/slug';
 
 export const MovieDetailPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id: rawSlugId } = useParams<{ id: string }>();
+  const id = extractIdFromSlug(rawSlugId);
+  const navigate = useNavigate();
   const [movie, setMovie] = useState<MovieDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isInList, setIsInList] = useState(false);
@@ -113,13 +116,13 @@ export const MovieDetailPage: React.FC = () => {
 
       {/* Main Info */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 -mt-32 sm:-mt-48 flex flex-col md:flex-row gap-8">
-        {/* Poster */}
-        <div className="flex-shrink-0 w-48 sm:w-64 md:w-72 mx-auto md:mx-0 rounded-2xl overflow-hidden shadow-2xl border border-gray-800 bg-[#18181b]">
+        {/* Poster (Aspect 2:3, self-start so it never vertically stretches) */}
+        <div className="flex-shrink-0 w-48 sm:w-64 md:w-72 mx-auto md:mx-0 rounded-2xl overflow-hidden shadow-2xl border border-white/10 self-start aspect-[2/3] bg-zinc-900 ring-1 ring-white/10">
           <img
             src={posterUrl}
             alt={movie.title}
             onError={() => setPosterError(true)}
-            className="w-full h-auto object-cover"
+            className="w-full h-full object-cover"
           />
         </div>
 
@@ -161,19 +164,19 @@ export const MovieDetailPage: React.FC = () => {
             ))}
           </div>
 
-          {/* Action Buttons */}
+          {/* Action Buttons (1:1 Netflix Style) */}
           <div className="flex flex-wrap items-center gap-4 pt-4">
             <button
-              onClick={() => setIsPlayerOpen(true)}
-              className="flex items-center space-x-2 px-8 py-3.5 rounded-xl bg-[#e50914] hover:bg-red-700 text-white font-bold text-base shadow-xl shadow-red-600/30 transition-transform hover:scale-105 active:scale-95"
+              onClick={() => navigate(getWatchMovieUrl(movie.id, movie.title))}
+              className="flex items-center space-x-2 px-8 py-3.5 rounded-full bg-white hover:bg-zinc-200 text-black font-extrabold text-sm sm:text-base shadow-2xl transition-transform hover:scale-105 active:scale-95"
             >
-              <Play className="w-5 h-5 fill-current" />
-              <span>Nonton Sekarang</span>
+              <Play className="w-5 h-5 fill-black" />
+              <span>Putar Film</span>
             </button>
 
             <button
               onClick={toggleWatchlist}
-              className="flex items-center space-x-2 px-6 py-3.5 rounded-xl bg-gray-800/90 hover:bg-gray-700 text-white font-semibold text-sm border border-gray-700 transition-colors"
+              className="flex items-center space-x-2 px-6 py-3.5 rounded-full bg-zinc-700/60 hover:bg-zinc-700/80 backdrop-blur-md text-white font-semibold text-sm border border-white/10 transition-colors"
             >
               {isInList ? <Check className="w-4 h-4 text-emerald-400" /> : <Plus className="w-4 h-4" />}
               <span>{isInList ? 'Di Daftar Saya' : 'Tambah ke Daftar'}</span>

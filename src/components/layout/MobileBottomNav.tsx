@@ -10,8 +10,8 @@ export const MobileBottomNav: React.FC = () => {
 
   const navItems = [
     { label: 'Beranda', path: '/', icon: Home },
+    { label: 'Serial', path: '/browse/tv', icon: Tv },
     { label: 'Film', path: '/browse/movies', icon: Film },
-    { label: 'Series TV', path: '/browse/tv', icon: Tv },
     { label: 'Cari', path: '/search', icon: Search },
     { label: 'Daftar Saya', path: '/my-list', icon: Bookmark },
   ];

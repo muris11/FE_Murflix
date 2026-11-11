@@ -5,6 +5,7 @@ import { MediaItem } from '@/types/tmdb';
 import { VideoPlayerModal } from './VideoPlayerModal';
 import { watchlistApi } from '@/api/watchlist';
 import { getTMDBImageUrl, getDirectTMDBUrl } from '@/utils/image';
+import { getMovieUrl, getTVUrl, getWatchMovieUrl, getWatchTVUrl } from '@/utils/slug';
 
 interface MovieCardProps {
   item: MediaItem;
@@ -36,7 +37,8 @@ export const MovieCard: React.FC<MovieCardProps> = ({ item, className = '' }) =>
     }
   };
 
-  const detailPath = mediaType === 'tv' ? `/tv/${item.id}` : `/movie/${item.id}`;
+  const detailPath = mediaType === 'tv' ? getTVUrl(item.id, title) : getMovieUrl(item.id, title);
+  const watchPath = mediaType === 'tv' ? getWatchTVUrl(item.id, title) : getWatchMovieUrl(item.id, title);
 
   const toggleWatchlist = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -108,17 +110,14 @@ export const MovieCard: React.FC<MovieCardProps> = ({ item, className = '' }) =>
             
             {/* Quick Actions (Reveal on Hover / Always accessible) */}
             <div className="flex items-center space-x-2 mb-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setIsPlayerOpen(true);
-                }}
+              <Link
+                to={watchPath}
+                onClick={(e) => e.stopPropagation()}
                 className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#e50914] hover:bg-red-700 text-white flex items-center justify-center shadow-lg shadow-red-600/40 transition-transform hover:scale-110 active:scale-95"
-                title="Tonton Sekarang"
+                title="Tonton Sekarang (Cinema Mode)"
               >
                 <Play className="w-4 h-4 fill-current ml-0.5" />
-              </button>
+              </Link>
 
               <button
                 onClick={toggleWatchlist}

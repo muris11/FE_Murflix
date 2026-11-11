@@ -58,8 +58,8 @@ export const HomePage: React.FC = () => {
       {/* Big Hero Banner */}
       <Hero item={featured} />
 
-      {/* Row Sections */}
-      <div className="relative z-20 mt-4 sm:mt-6 space-y-6 sm:space-y-8">
+      {/* Row Sections (Aligned with Hero container) */}
+      <div className="relative z-20 mt-2 sm:mt-4 space-y-6 sm:space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <MovieRow title="Sedang Trending Minggu Ini" items={trending} isLoading={isLoading} />
         <MovieRow title="Film Terpopuler" items={popularMovies} isLoading={isLoading} />
         <MovieRow title="Serial TV Paling Banyak Ditonton" items={popularTV} isLoading={isLoading} />

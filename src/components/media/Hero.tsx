@@ -4,6 +4,7 @@ import { Play, Info, Star } from 'lucide-react';
 import { MediaItem } from '@/types/tmdb';
 import { VideoPlayerModal } from './VideoPlayerModal';
 import { getTMDBImageUrl, getDirectTMDBUrl } from '@/utils/image';
+import { getMovieUrl, getTVUrl, getWatchMovieUrl, getWatchTVUrl } from '@/utils/slug';
 
 interface HeroProps {
   item?: MediaItem;
@@ -13,7 +14,19 @@ export const Hero: React.FC<HeroProps> = ({ item }) => {
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  if (!item) return null;
+  if (!item) {
+    return (
+      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-4">
+        <div className="relative w-full h-[55vh] sm:h-[65vh] md:h-[75vh] rounded-2xl sm:rounded-3xl overflow-hidden bg-zinc-900 animate-pulse border border-white/5">
+          <div className="absolute bottom-8 sm:bottom-12 md:bottom-16 left-0 right-0 px-6 sm:px-10 lg:px-12 space-y-4">
+            <div className="h-10 sm:h-14 bg-zinc-800 rounded-xl w-3/4 max-w-lg" />
+            <div className="h-4 bg-zinc-800/80 rounded w-1/2 max-w-sm" />
+            <div className="h-12 bg-zinc-800/60 rounded-full w-40" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const title = item.title || item.name || 'Featured';
   const mediaType = item.media_type || (item.first_air_date ? 'tv' : 'movie');
@@ -26,15 +39,16 @@ export const Hero: React.FC<HeroProps> = ({ item }) => {
       : getTMDBImageUrl(targetPath, 'original')
     : '';
 
-  const detailPath = mediaType === 'tv' ? `/tv/${item.id}` : `/movie/${item.id}`;
+  const detailPath = mediaType === 'tv' ? getTVUrl(item.id, title) : getMovieUrl(item.id, title);
+  const watchPath = mediaType === 'tv' ? getWatchTVUrl(item.id, title) : getWatchMovieUrl(item.id, title);
 
   const rating = item.vote_average ? item.vote_average.toFixed(1) : null;
 
   return (
     <>
-      <div className="relative w-full max-w-[1440px] mx-auto px-2 sm:px-4 md:px-6 pt-20 sm:pt-24 pb-4">
+      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-4">
         {/* Netflix 1:1 Rounded Hero Banner Container */}
-        <div className="relative w-full h-[62vh] sm:h-[72vh] md:h-[80vh] rounded-2xl sm:rounded-3xl overflow-hidden bg-black border border-white/10 shadow-2xl shadow-black/80">
+        <div className="relative w-full h-[58vh] sm:h-[68vh] md:h-[76vh] rounded-2xl sm:rounded-3xl overflow-hidden bg-black border border-white/10 shadow-2xl shadow-black/80">
           
           {/* Backdrop Image */}
           {backdropUrl && (
@@ -92,13 +106,13 @@ export const Hero: React.FC<HeroProps> = ({ item }) => {
 
             {/* Action Buttons (1:1 Netflix Style) */}
             <div className="flex flex-wrap items-center gap-3 pt-2">
-              <button
-                onClick={() => setIsPlayerOpen(true)}
+              <Link
+                to={watchPath}
                 className="flex items-center space-x-2 px-7 py-3 rounded-full bg-white hover:bg-zinc-200 text-black font-extrabold text-sm sm:text-base shadow-2xl transition-transform hover:scale-105 active:scale-95"
               >
                 <Play className="w-5 h-5 fill-black" />
                 <span>Putar</span>
-              </button>
+              </Link>
 
               <Link
                 to={detailPath}

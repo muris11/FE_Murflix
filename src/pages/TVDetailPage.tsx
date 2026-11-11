@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Play, Plus, Check, Star, Calendar, ArrowLeft } from 'lucide-react';
 import { moviesApi } from '@/api/movies';
 import { TVDetails } from '@/types/tmdb';
 import { VideoPlayerModal } from '@/components/media/VideoPlayerModal';
 import { watchlistApi } from '@/api/watchlist';
 import { getTMDBImageUrl, getDirectTMDBUrl } from '@/utils/image';
+import { extractIdFromSlug, getWatchTVUrl } from '@/utils/slug';
 
 export const TVDetailPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id: rawSlugId } = useParams<{ id: string }>();
+  const id = extractIdFromSlug(rawSlugId);
+  const navigate = useNavigate();
   const [tv, setTv] = useState<TVDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isInList, setIsInList] = useState(false);
@@ -122,13 +125,13 @@ export const TVDetailPage: React.FC = () => {
 
       {/* Main Info */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 -mt-32 sm:-mt-48 flex flex-col md:flex-row gap-8">
-        {/* Poster */}
-        <div className="flex-shrink-0 w-48 sm:w-64 md:w-72 mx-auto md:mx-0 rounded-2xl overflow-hidden shadow-2xl border border-gray-800 bg-[#18181b]">
+        {/* Poster (Aspect 2:3, self-start so it never vertically stretches) */}
+        <div className="flex-shrink-0 w-48 sm:w-64 md:w-72 mx-auto md:mx-0 rounded-2xl overflow-hidden shadow-2xl border border-white/10 self-start aspect-[2/3] bg-zinc-900 ring-1 ring-white/10">
           <img
             src={posterUrl}
             alt={tv.name}
             onError={() => setPosterError(true)}
-            className="w-full h-auto object-cover"
+            className="w-full h-full object-cover"
           />
         </div>
 
@@ -167,7 +170,7 @@ export const TVDetailPage: React.FC = () => {
           {/* Action Buttons (1:1 Netflix Style) */}
           <div className="flex flex-wrap items-center gap-4 pt-4">
             <button
-              onClick={() => setIsPlayerOpen(true)}
+              onClick={() => navigate(getWatchTVUrl(tv.id, tv.name, selectedSeason, selectedEpisode))}
               className="flex items-center space-x-2 px-8 py-3.5 rounded-full bg-white hover:bg-zinc-200 text-black font-extrabold text-sm sm:text-base shadow-2xl transition-transform hover:scale-105 active:scale-95"
             >
               <Play className="w-5 h-5 fill-black" />
@@ -230,10 +233,7 @@ export const TVDetailPage: React.FC = () => {
                   return (
                     <div
                       key={ep.id}
-                      onClick={() => {
-                        setSelectedEpisode(ep.episode_number);
-                        setIsPlayerOpen(true);
-                      }}
+                      onClick={() => navigate(getWatchTVUrl(tv.id, tv.name, selectedSeason, ep.episode_number))}
                       className={`p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 transition-all cursor-pointer group ${
                         isSelected
                           ? 'bg-red-950/20 border-l-4 border-l-[#e50914]'

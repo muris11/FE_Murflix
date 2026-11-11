@@ -1,19 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { Lock, Mail, AlertCircle, ArrowRight } from 'lucide-react';
+import { Lock, Mail, AlertCircle, ArrowRight, Sparkles, ShieldCheck } from 'lucide-react';
+import { apiClient } from '@/api/client';
+
+interface DemoConfig {
+  enabled: boolean;
+  email: string;
+  password?: string;
+  button_text?: string;
+}
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [demoConfig, setDemoConfig] = useState<DemoConfig | null>(null);
 
   const { login } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectParam = searchParams.get('redirect') || '/';
   const urlError = searchParams.get('error');
+
+  // Fetch dynamic demo account config from backend
+  useEffect(() => {
+    apiClient
+      .get<DemoConfig>('/config/demo-account')
+      .then((res) => {
+        if (res.data) {
+          setDemoConfig(res.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,35 +55,82 @@ export const LoginPage: React.FC = () => {
     }
   };
 
+  const handleDemoLogin = async () => {
+    if (!demoConfig?.email) return;
+    setError(null);
+    setIsSubmitting(true);
+    setEmail(demoConfig.email);
+    if (demoConfig.password) {
+      setPassword(demoConfig.password);
+    }
+
+    try {
+      const res = await login(demoConfig.email, demoConfig.password || '');
+      if (!res.success) {
+        setError(res.error || 'Gagal masuk dengan akun demo. Hubungi Admin.');
+      } else {
+        navigate(redirectParam);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Gagal masuk dengan akun demo');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="relative min-h-screen flex items-center justify-center p-4 bg-black overflow-hidden">
-      {/* Background Poster Collage with Blur */}
+      
+      {/* Genuine Netflix Movie Posters Collage Background with Vignette */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-25 filter blur-sm scale-105"
+        className="absolute inset-0 bg-cover bg-center opacity-30 filter scale-105"
         style={{
           backgroundImage:
             'url("https://assets.nflxext.com/ffe/siteui/vlv3/ab4b0b22-2ddf-4d48-ae88-c201ae02a9e3/c545bf86-53d9-482d-8869-ecb52a781b22/ID-en-20231030-popsignuptwoweeks-perspective_alpha_website_large.jpg")',
         }}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/60" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/85 to-black/75" />
+      <div className="absolute inset-0 bg-radial-gradient from-transparent via-black/50 to-black" />
 
       {/* Login Card */}
-      <div className="relative z-10 w-full max-w-md bg-[#141414]/90 backdrop-blur-xl border border-gray-800 rounded-2xl p-8 sm:p-10 shadow-2xl shadow-black">
+      <div className="relative z-10 w-full max-w-md bg-[#121215]/95 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 sm:p-10 shadow-2xl shadow-black ring-1 ring-white/5">
         
         {/* Brand Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-7">
           <Link to="/" className="inline-block">
-            <span className="text-3xl sm:text-4xl font-black text-[#e50914] tracking-wider drop-shadow-md">
+            <span className="text-3xl sm:text-4xl font-black text-[#e50914] tracking-wider drop-shadow-[0_2px_12px_rgba(229,9,20,0.6)]">
               MURFLIX
             </span>
           </Link>
-          <h2 className="text-xl font-bold text-white mt-3">Masuk ke Akun Anda</h2>
-          <p className="text-xs text-gray-400 mt-1">Layanan private streaming film, serial & drama pendek</p>
+          <h2 className="text-xl sm:text-2xl font-black text-white mt-3 tracking-tight">Masuk ke Akun Anda</h2>
+          <p className="text-xs text-zinc-400 mt-1">Layanan streaming film & serial TV berkualitas tinggi</p>
         </div>
+
+        {/* 1-Click Demo Login Button (Dynamic from Admin Settings) */}
+        {demoConfig?.enabled && demoConfig?.email && (
+          <div className="mb-6 space-y-3">
+            <button
+              type="button"
+              onClick={handleDemoLogin}
+              disabled={isSubmitting}
+              className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-extrabold text-sm flex items-center justify-center space-x-2.5 shadow-xl shadow-red-900/40 transition-all hover:scale-[1.02] active:scale-95 border border-amber-400/30 group"
+            >
+              <Sparkles className="w-4 h-4 text-amber-200 group-hover:rotate-12 transition-transform" />
+              <span>{demoConfig.button_text || 'Masuk dengan Akun Demo (1-Click)'}</span>
+            </button>
+
+            <div className="relative flex items-center justify-center">
+              <div className="w-full border-t border-zinc-800" />
+              <span className="absolute bg-[#121215] px-3 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                Atau Masuk Manual
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Error Alert */}
         {(error || urlError === 'account_disabled') && (
-          <div className="mb-6 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 flex items-start space-x-3 text-red-400 text-xs sm:text-sm">
+          <div className="mb-5 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 flex items-start space-x-3 text-red-400 text-xs sm:text-sm animate-fadeIn">
             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
             <div>
               {urlError === 'account_disabled'
@@ -72,10 +140,10 @@ export const LoginPage: React.FC = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Email */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-2">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-300 mb-1.5">
               Email
             </label>
             <div className="relative">
@@ -85,15 +153,15 @@ export const LoginPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="nama@email.com"
-                className="w-full bg-gray-900 border border-gray-700 text-white placeholder-gray-500 rounded-xl px-4 py-3 pl-11 text-sm focus:outline-none focus:border-[#e50914] focus:ring-1 focus:ring-[#e50914] transition-colors"
+                className="w-full bg-zinc-900/90 border border-zinc-700 text-white placeholder-zinc-500 rounded-xl px-4 py-3 pl-11 text-sm focus:outline-none focus:border-[#e50914] focus:ring-1 focus:ring-[#e50914] transition-colors"
               />
-              <Mail className="w-5 h-5 text-gray-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Mail className="w-5 h-5 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
             </div>
           </div>
 
           {/* Password */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-2">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-300 mb-1.5">
               Password
             </label>
             <div className="relative">
@@ -103,9 +171,9 @@ export const LoginPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-gray-900 border border-gray-700 text-white placeholder-gray-500 rounded-xl px-4 py-3 pl-11 text-sm focus:outline-none focus:border-[#e50914] focus:ring-1 focus:ring-[#e50914] transition-colors"
+                className="w-full bg-zinc-900/90 border border-zinc-700 text-white placeholder-zinc-500 rounded-xl px-4 py-3 pl-11 text-sm focus:outline-none focus:border-[#e50914] focus:ring-1 focus:ring-[#e50914] transition-colors"
               />
-              <Lock className="w-5 h-5 text-gray-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Lock className="w-5 h-5 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
             </div>
           </div>
 
@@ -113,7 +181,7 @@ export const LoginPage: React.FC = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3.5 px-4 rounded-xl bg-[#e50914] hover:bg-red-700 text-white font-bold text-sm flex items-center justify-center space-x-2 shadow-lg shadow-red-600/30 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+            className="w-full py-3.5 px-4 rounded-xl bg-[#e50914] hover:bg-red-700 text-white font-extrabold text-sm flex items-center justify-center space-x-2 shadow-lg shadow-red-600/30 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 mt-2"
           >
             {isSubmitting ? (
               <span>Memproses...</span>
@@ -126,15 +194,13 @@ export const LoginPage: React.FC = () => {
           </button>
         </form>
 
-        {/* Information Notice */}
-        <div className="mt-8 pt-6 border-t border-gray-800/80 text-center text-xs text-gray-500 space-y-2">
+        {/* Footer Notice */}
+        <div className="mt-7 pt-5 border-t border-zinc-800 text-center text-xs text-zinc-500 space-y-1">
           <p>
-            Akun Murflix dibuat secara khusus oleh Admin. Jika belum memiliki akun atau masa langganan habis, silakan hubungi pengelola.
+            Akun Murflix dikelola secara privat oleh Administrator.
           </p>
-          <p className="text-[11px] text-gray-600">Default Super Admin: <code className="text-gray-400">admin@murflix.com</code></p>
         </div>
       </div>
     </div>
   );
 };
-
