@@ -99,3 +99,4 @@ export interface TrackVisitorRequest {
   screen_resolution?: string;
   session_id?: string;
 }
+

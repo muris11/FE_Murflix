@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Bell, Film, Tv, Heart, Shield, LogOut, User as UserIcon, Menu, X, Settings, Users, ChevronDown } from 'lucide-react';
+import { Search, Film, Tv, Heart, Shield, LogOut, User as UserIcon, Menu, X, Settings, Users, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAvatarUrl } from '@/utils/avatarConverter';
 import { MurflixLogo } from './MurflixLogo';
+import { NotificationDropdown } from './NotificationDropdown';
 
 export const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -94,13 +95,8 @@ export const Navbar: React.FC = () => {
               <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
             </form>
 
-            {/* Notification Bell (Netflix 1:1 Badge) */}
-            <div className="relative cursor-pointer p-1.5 text-zinc-300 hover:text-white transition-colors">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-0 right-0 w-4 h-4 rounded-full bg-[#e50914] text-white text-[9px] font-black flex items-center justify-center shadow-md">
-                3
-              </span>
-            </div>
+            {/* Notification Dropdown (Functional with Real Alerts) */}
+            <NotificationDropdown />
 
             {/* Profile Dropdown */}
             {isAuthenticated ? (

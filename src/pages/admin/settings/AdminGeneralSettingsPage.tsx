@@ -153,3 +153,4 @@ export const AdminGeneralSettingsPage: React.FC = () => {
     </AdminSettingsLayout>
   );
 };
+
