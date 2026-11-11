@@ -104,7 +104,7 @@ export const BrowsePage: React.FC = () => {
               {isTV ? 'Katalog Serial TV' : 'Katalog Film'}
             </h1>
             <p className="text-xs sm:text-sm text-zinc-400 mt-0.5">
-              Halaman {currentPage} dari {totalPages.toLocaleString()} - Menampilkan 20 judul per halaman (Super Ringan)
+              Halaman {currentPage} dari {totalPages.toLocaleString()} - Menampilkan 20 judul per halaman
             </p>
           </div>
         </div>
