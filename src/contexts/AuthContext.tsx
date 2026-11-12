@@ -31,7 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await profilesApi.getProfiles();
       setProfiles(data || []);
 
-      // If active profile is not set or not in list, set to first profile
+      // Only restore active profile if it was previously saved and still exists
       const savedActive = localStorage.getItem('murflix_active_profile');
       let foundActive: UserProfile | null = null;
       if (savedActive) {
@@ -41,9 +41,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch {
           foundActive = null;
         }
-      }
-      if (!foundActive && data.length > 0) {
-        foundActive = data[0];
       }
       setActiveProfile(foundActive);
       if (foundActive) {
@@ -93,6 +90,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await authApi.login(email, password);
       localStorage.setItem('murflix_token', res.token);
       localStorage.setItem('murflix_user', JSON.stringify(res.user));
+      // Fresh login requires profile selection (1:1 Netflix flow)
+      localStorage.removeItem('murflix_active_profile');
+      setActiveProfile(null);
       setUser(res.user);
       await refreshProfiles();
       return { success: true };
@@ -107,6 +107,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await authApi.demoLogin();
       localStorage.setItem('murflix_token', res.token);
       localStorage.setItem('murflix_user', JSON.stringify(res.user));
+      // Fresh demo login requires profile selection (1:1 Netflix flow)
+      localStorage.removeItem('murflix_active_profile');
+      setActiveProfile(null);
       setUser(res.user);
       await refreshProfiles();
       return { success: true };

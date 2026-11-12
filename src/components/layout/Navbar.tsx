@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Film, Tv, Heart, Shield, LogOut, User as UserIcon, Menu, X, Settings, Users, ChevronDown, Lock } from 'lucide-react';
+import { Search, Film, Tv, Heart, Shield, LogOut, User as UserIcon, Menu, X, Settings, Users, ChevronDown, Lock, Edit2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAvatarUrl } from '@/utils/avatarConverter';
 import { UserProfile } from '@/types/profile';
@@ -190,11 +190,20 @@ export const Navbar: React.FC = () => {
                     {/* Manage Profiles & Account Settings */}
                     <div className="py-1">
                       <Link
+                        to="/profiles"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center space-x-2.5 px-4 py-2 text-xs text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
+                      >
+                        <Users className="w-4 h-4 text-zinc-400" />
+                        <span>Ganti Profil</span>
+                      </Link>
+
+                      <Link
                         to="/profiles?manage=true"
                         onClick={() => setIsProfileOpen(false)}
                         className="flex items-center space-x-2.5 px-4 py-2 text-xs text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
                       >
-                        <Users className="w-4 h-4 text-red-500" />
+                        <Edit2 className="w-4 h-4 text-red-500" />
                         <span>Kelola Profil</span>
                       </Link>
 

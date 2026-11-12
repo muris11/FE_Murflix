@@ -40,7 +40,7 @@ const PageLoadingFallback: React.FC = () => (
 
 // Route Guards
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, isSubscriptionValid, isLoading, isAdmin } = useAuth();
+  const { isAuthenticated, isSubscriptionValid, isLoading, isAdmin, activeProfile } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
@@ -52,11 +52,19 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   }
 
   if (!isAuthenticated) {
-    return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
+    return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`} replace />;
   }
 
   if (!isAdmin && !isSubscriptionValid) {
     return <Navigate to="/subscription-expired" replace />;
+  }
+
+  // Enforce profile selection first (1:1 Netflix flow)
+  if (!activeProfile && location.pathname !== '/profiles') {
+    const dest = location.pathname !== '/'
+      ? `/profiles?redirect=${encodeURIComponent(location.pathname + location.search)}`
+      : '/profiles';
+    return <Navigate to={dest} replace />;
   }
 
   return <>{children}</>;
@@ -85,7 +93,7 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 const RootRoute: React.FC = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, activeProfile } = useAuth();
 
   if (isLoading) {
     return (
@@ -96,6 +104,9 @@ const RootRoute: React.FC = () => {
   }
 
   if (isAuthenticated) {
+    if (!activeProfile) {
+      return <Navigate to="/profiles" replace />;
+    }
     return (
       <ProtectedRoute>
         <HomePage />

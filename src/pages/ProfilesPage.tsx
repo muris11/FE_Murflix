@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, Edit2, Check, Trash2, Upload, X, ArrowLeft, Lock } from 'lucide-react';
+import { Plus, Edit2, Check, Trash2, Upload, X, ArrowLeft, Lock, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { profilesApi } from '@/api/profiles';
 import { UserProfile, NETFLIX_AVATAR_PRESETS } from '@/types/profile';
@@ -12,13 +12,15 @@ import { ConfirmModal } from '@/components/common/ConfirmModal';
 export const ProfilesPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { profiles, activeProfile, selectProfile, refreshProfiles } = useAuth();
+  const redirectTarget = searchParams.get('redirect') || '/';
+  const { profiles, activeProfile, selectProfile, refreshProfiles, logout } = useAuth();
 
   const [isManaging, setIsManaging] = useState(searchParams.get('manage') === 'true');
   const [modalMode, setModalMode] = useState<'create' | 'edit' | null>(null);
   const [editingProfile, setEditingProfile] = useState<UserProfile | null>(null);
   const [pinModalProfile, setPinModalProfile] = useState<UserProfile | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isProfilesLoading, setIsProfilesLoading] = useState(true);
 
   // Form states
   const [profileName, setProfileName] = useState('');
@@ -33,7 +35,10 @@ export const ProfilesPage: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    refreshProfiles();
+    setIsProfilesLoading(true);
+    refreshProfiles().finally(() => {
+      setIsProfilesLoading(false);
+    });
   }, [refreshProfiles]);
 
   const handleSelect = (profile: UserProfile) => {
@@ -49,14 +54,14 @@ export const ProfilesPage: React.FC = () => {
     }
 
     selectProfile(profile);
-    navigate('/');
+    navigate(redirectTarget);
   };
 
   const handlePinSuccess = () => {
     if (pinModalProfile) {
       selectProfile(pinModalProfile);
       setPinModalProfile(null);
-      navigate('/');
+      navigate(redirectTarget);
     }
   };
 
@@ -204,13 +209,21 @@ export const ProfilesPage: React.FC = () => {
         <div className="flex items-center space-x-4">
           <MurflixLogo size="md" />
         </div>
-        {activeProfile && (
+        {activeProfile ? (
           <button
-            onClick={() => navigate('/')}
-            className="flex items-center space-x-1.5 text-xs text-gray-400 hover:text-white transition-colors"
+            onClick={() => navigate(redirectTarget)}
+            className="flex items-center space-x-1.5 text-xs text-gray-400 hover:text-white transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Kembali ke Beranda</span>
+          </button>
+        ) : (
+          <button
+            onClick={logout}
+            className="flex items-center space-x-1.5 text-xs text-zinc-400 hover:text-red-400 transition-colors cursor-pointer"
+          >
+            <LogOut className="w-3.5 h-3.5 mr-1" />
+            <span>Keluar Akun</span>
           </button>
         )}
       </header>
@@ -223,7 +236,7 @@ export const ProfilesPage: React.FC = () => {
 
         {/* Profiles Grid */}
         <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 md:gap-8 lg:gap-10 2xl:gap-14 max-w-6xl">
-          {profiles.length === 0 ? (
+          {isProfilesLoading ? (
             Array.from({ length: 4 }).map((_, idx) => (
               <div key={idx} className="flex flex-col items-center space-y-3 animate-pulse">
                 <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-44 lg:h-44 rounded-2xl bg-zinc-800 border-2 border-white/10 shadow-2xl" />

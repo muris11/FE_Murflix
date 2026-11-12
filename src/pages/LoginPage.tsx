@@ -47,7 +47,10 @@ export const LoginPage: React.FC = () => {
       if (!res.success) {
         setError(res.error || 'Email atau password salah');
       } else {
-        navigate(redirectParam);
+        const dest = redirectParam && redirectParam !== '/'
+          ? `/profiles?redirect=${encodeURIComponent(redirectParam)}`
+          : '/profiles';
+        navigate(dest);
       }
     } catch (err: any) {
       setError(err.message || 'Terjadi kesalahan saat masuk');
@@ -60,11 +63,16 @@ export const LoginPage: React.FC = () => {
     setError(null);
     setIsSubmitting(true);
 
+    const getProfileDest = () =>
+      redirectParam && redirectParam !== '/'
+        ? `/profiles?redirect=${encodeURIComponent(redirectParam)}`
+        : '/profiles';
+
     try {
       // 1. Coba endpoint demo login langsung (bypass mismatch password)
       const res = await loginDemo();
       if (res.success) {
-        navigate(redirectParam);
+        navigate(getProfileDest());
         return;
       }
 
@@ -74,7 +82,7 @@ export const LoginPage: React.FC = () => {
         setPassword(demoConfig.password);
         const fallbackRes = await login(demoConfig.email, demoConfig.password);
         if (fallbackRes.success) {
-          navigate(redirectParam);
+          navigate(getProfileDest());
           return;
         }
       }
