@@ -33,5 +33,14 @@ export const publicApi = {
     const res = await publicClient.get<{ plans: SubscriptionPlan[] }>('/plans');
     return res.data.plans;
   },
+
+  getWhatsAppConfig: async () => {
+    const res = await publicClient.get<{
+      enabled: boolean;
+      number: string;
+      message_template: string;
+    }>('/config/whatsapp');
+    return res.data;
+  },
 };
 

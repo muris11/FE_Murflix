@@ -55,11 +55,11 @@ export const AdminDashboardPage: React.FC = () => {
   }
 
   const statCards = [
-    { label: 'Total Pengguna', value: stats?.total_users || 0, icon: Users },
-    { label: 'Pelanggan Aktif', value: stats?.active_users || 0, icon: UserCheck },
-    { label: 'Langganan Berakhir', value: stats?.expired_users || 0, icon: UserX },
-    { label: 'Administrator', value: stats?.admin_users || 0, icon: Shield },
-    { label: 'Paket Langganan', value: stats?.total_plans || 0, icon: Tag },
+    { label: 'Total Pengguna', value: stats?.total_users || 0, icon: Users, desc: 'Akun terdaftar di sistem' },
+    { label: 'Pelanggan Aktif', value: stats?.active_users || 0, icon: UserCheck, desc: 'Akses tayangan aktif' },
+    { label: 'Langganan Berakhir', value: stats?.expired_users || 0, icon: UserX, desc: 'Perlu perpanjangan' },
+    { label: 'Administrator', value: stats?.admin_users || 0, icon: Shield, desc: 'Hak akses konsol penuh' },
+    { label: 'Paket Langganan', value: stats?.total_plans || 0, icon: Tag, desc: 'Tier paket aktif' },
   ];
 
   return (
@@ -70,21 +70,21 @@ export const AdminDashboardPage: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">Konsol Overview</h1>
           <p className="text-xs text-zinc-400 mt-1">
-            Ringkasan status pengguna, paket langganan, dan pemantauan operasional Murflix.
+            Ringkasan status pengguna, paket langganan, dan pemantauan operasional Murflix secara real-time.
           </p>
         </div>
 
         <div className="flex items-center space-x-2.5">
           <Link
             to="/admin/users/create"
-            className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-lg bg-[#e50914] hover:bg-red-700 text-white font-semibold text-xs transition-colors"
+            className="inline-flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-[#e50914] hover:bg-red-700 text-white font-semibold text-xs transition-colors shadow-md shadow-red-600/30"
           >
             <Plus className="w-4 h-4" />
             <span>Tambah Pengguna</span>
           </Link>
           <Link
             to="/admin/settings/servers"
-            className="p-2 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white transition-colors border border-zinc-700/60"
+            className="p-2 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white transition-colors border border-zinc-700/60"
             title="Pengaturan Sistem"
           >
             <Settings className="w-4 h-4" />
@@ -97,19 +97,27 @@ export const AdminDashboardPage: React.FC = () => {
         {statCards.map((card, idx) => {
           const Icon = card.icon;
           return (
-            <div key={idx} className="bg-[#121215] border border-zinc-800/80 rounded-xl p-4 space-y-2">
+            <div
+              key={idx}
+              className="bg-[#121215] border border-zinc-800/80 rounded-2xl p-4 sm:p-5 space-y-3 hover:border-zinc-700/80 transition-all shadow-sm"
+            >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-zinc-400">{card.label}</span>
-                <Icon className="w-4 h-4 text-zinc-500" />
+                <div className="w-8 h-8 rounded-xl bg-zinc-800/60 border border-zinc-700/50 flex items-center justify-center text-zinc-300">
+                  <Icon className="w-4 h-4" />
+                </div>
               </div>
-              <p className="text-2xl sm:text-3xl font-bold text-white tracking-tight">{card.value}</p>
+              <div>
+                <p className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">{card.value}</p>
+                <p className="text-[11px] text-zinc-500 mt-1">{card.desc}</p>
+              </div>
             </div>
           );
         })}
       </div>
 
       {/* Visitor Intelligence Overview Card */}
-      <div className="bg-[#121215] border border-zinc-800/80 rounded-2xl p-5 sm:p-6 space-y-5">
+      <div className="bg-[#121215] border border-zinc-800/80 rounded-2xl p-5 sm:p-6 space-y-5 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-zinc-800/80">
           <div>
             <h2 className="text-base font-semibold text-white">
@@ -123,14 +131,14 @@ export const AdminDashboardPage: React.FC = () => {
           <div className="flex items-center space-x-2.5 flex-shrink-0">
             <Link
               to="/admin/analytics"
-              className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700/60 transition-colors"
+              className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700/60 transition-colors"
             >
               <Navigation className="w-3.5 h-3.5 text-zinc-400" />
               <span>Buka Peta Radar</span>
             </Link>
             <Link
               to="/admin/analytics/logs"
-              className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700/60 transition-colors"
+              className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700/60 transition-colors"
             >
               <Eye className="w-3.5 h-3.5 text-zinc-400" />
               <span>Log Lengkap</span>
@@ -140,36 +148,39 @@ export const AdminDashboardPage: React.FC = () => {
 
         {/* Live Visitor Metrics Row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-          <div className="border border-zinc-800/80 rounded-xl p-3.5 bg-[#0e0e11] space-y-1">
+          <div className="border border-zinc-800/80 rounded-xl p-4 bg-[#0a0a0c] space-y-1">
             <span className="text-xs font-medium text-zinc-400 block">Pengunjung Aktif</span>
-            <p className="text-2xl font-bold text-white tracking-tight">{analytics?.active_visitors ?? 0}</p>
+            <p className="text-2xl font-extrabold text-white tracking-tight">{analytics?.active_visitors ?? 0}</p>
             <span className="text-[11px] text-zinc-500 block">5 menit terakhir</span>
           </div>
 
-          <div className="border border-zinc-800/80 rounded-xl p-3.5 bg-[#0e0e11] space-y-1">
+          <div className="border border-zinc-800/80 rounded-xl p-4 bg-[#0a0a0c] space-y-1">
             <span className="text-xs font-medium text-zinc-400 block">Kunjungan Hari Ini</span>
-            <p className="text-2xl font-bold text-white tracking-tight">{analytics?.visits_today ?? 0}</p>
+            <p className="text-2xl font-extrabold text-white tracking-tight">{analytics?.visits_today ?? 0}</p>
             <span className="text-[11px] text-zinc-500 block">Total akumulasi: {analytics?.total_visits ?? 0}</span>
           </div>
 
-          <div className="border border-zinc-800/80 rounded-xl p-3.5 bg-[#0e0e11] space-y-1">
+          <div className="border border-zinc-800/80 rounded-xl p-4 bg-[#0a0a0c] space-y-1">
             <span className="text-xs font-medium text-zinc-400 block">IP Unik</span>
-            <p className="text-2xl font-bold text-white tracking-tight">{analytics?.unique_ips_today ?? 0}</p>
+            <p className="text-2xl font-extrabold text-white tracking-tight">{analytics?.unique_ips_today ?? 0}</p>
             <span className="text-[11px] text-zinc-500 block">Total IP unik: {analytics?.unique_ips ?? 0}</span>
           </div>
 
-          <div className="border border-zinc-800/80 rounded-xl p-3.5 bg-[#0e0e11] space-y-1">
+          <div className="border border-zinc-800/80 rounded-xl p-4 bg-[#0a0a0c] space-y-1">
             <span className="text-xs font-medium text-zinc-400 block">Koordinat Terpetakan</span>
-            <p className="text-2xl font-bold text-white tracking-tight">{analytics?.recent_visitors?.length ?? 0}</p>
+            <p className="text-2xl font-extrabold text-white tracking-tight">{analytics?.recent_visitors?.length ?? 0}</p>
             <span className="text-[11px] text-zinc-500 block">Titik GPS aktif</span>
           </div>
         </div>
       </div>
 
       {/* Recent Users Table */}
-      <div className="bg-[#121215] border border-zinc-800/80 rounded-2xl p-5 space-y-4">
+      <div className="bg-[#121215] border border-zinc-800/80 rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm">
         <div className="flex items-center justify-between pb-3 border-b border-zinc-800/80">
-          <h2 className="text-sm font-semibold text-white">Pengguna Terbaru</h2>
+          <div>
+            <h2 className="text-sm font-semibold text-white">Pengguna Terbaru</h2>
+            <p className="text-xs text-zinc-400 mt-0.5">Daftar pengguna yang baru mendaftar atau diperbarui</p>
+          </div>
           <Link to="/admin/users" className="text-xs text-zinc-400 hover:text-white flex items-center space-x-1 transition-colors">
             <span>Lihat Semua</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -178,30 +189,35 @@ export const AdminDashboardPage: React.FC = () => {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-zinc-300">
-            <thead className="text-[11px] text-zinc-500 uppercase tracking-wider border-b border-zinc-800/80">
+            <thead className="text-[11px] text-zinc-400 uppercase tracking-wider bg-zinc-900/60 border-y border-zinc-800/80">
               <tr>
-                <th className="py-2.5 px-3">Pengguna</th>
-                <th className="py-2.5 px-3">Peran (Role)</th>
-                <th className="py-2.5 px-3">Status Langganan</th>
-                <th className="py-2.5 px-3">Masa Berlaku</th>
-                <th className="py-2.5 px-3 text-right">Aksi</th>
+                <th className="py-3 px-4">Pengguna</th>
+                <th className="py-3 px-4">Peran (Role)</th>
+                <th className="py-3 px-4">Status Langganan</th>
+                <th className="py-3 px-4">Masa Berlaku</th>
+                <th className="py-3 px-4 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-800/60 font-sans">
               {recentUsers.map((u) => (
-                <tr key={u.id} className="hover:bg-zinc-800/40 transition-colors">
-                  <td className="py-3 px-3">
-                    <div>
-                      <p className="font-semibold text-white">{u.full_name || 'Tanpa Nama'}</p>
-                      <p className="text-[11px] text-zinc-400">{u.email}</p>
+                <tr key={u.id} className="hover:bg-zinc-800/30 transition-colors">
+                  <td className="py-3 px-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700/60 text-zinc-200 font-bold text-[11px] flex items-center justify-center flex-shrink-0">
+                        {(u.full_name || u.email || 'U')[0].toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-white truncate">{u.full_name || 'Tanpa Nama'}</p>
+                        <p className="text-[11px] text-zinc-400 truncate">{u.email}</p>
+                      </div>
                     </div>
                   </td>
-                  <td className="py-3 px-3">
+                  <td className="py-3 px-4">
                     <span className={`font-semibold ${u.role === 'admin' ? 'text-purple-400' : 'text-zinc-400'}`}>
                       {u.role === 'admin' ? 'Admin' : 'Pengguna'}
                     </span>
                   </td>
-                  <td className="py-3 px-3">
+                  <td className="py-3 px-4">
                     <span className={`font-medium ${
                       u.role === 'admin' || u.subscription_status === 'forever'
                         ? 'text-blue-400'
@@ -212,7 +228,7 @@ export const AdminDashboardPage: React.FC = () => {
                       {u.role === 'admin' ? 'Akses Permanen' : u.subscription_status === 'forever' ? 'Selamanya' : u.subscription_status === 'active' ? 'Aktif' : 'Kedaluwarsa'}
                     </span>
                   </td>
-                  <td className="py-3 px-3 text-zinc-400 font-mono text-[11px]">
+                  <td className="py-3 px-4 text-zinc-400 font-mono text-[11px]">
                     {u.subscription_expires_at
                       ? new Date(u.subscription_expires_at).toLocaleDateString('id-ID', {
                           day: 'numeric',
@@ -221,12 +237,13 @@ export const AdminDashboardPage: React.FC = () => {
                         })
                       : 'Permanen'}
                   </td>
-                  <td className="py-3 px-3 text-right">
+                  <td className="py-3 px-4 text-right">
                     <Link
                       to={`/admin/users/${u.id}/edit`}
-                      className="text-xs text-zinc-400 hover:text-white font-medium transition-colors"
+                      className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-xs text-zinc-300 hover:text-white font-medium border border-zinc-700/60 transition-colors"
                     >
-                      Kelola
+                      <span>Kelola</span>
+                      <ArrowRight className="w-3 h-3 text-zinc-500" />
                     </Link>
                   </td>
                 </tr>

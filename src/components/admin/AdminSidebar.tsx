@@ -15,6 +15,7 @@ import {
   UserCheck,
   Sliders,
   UserPlus,
+  MessageCircle,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { MurflixLogo } from '@/components/layout/MurflixLogo';
@@ -128,6 +129,11 @@ export const AdminSidebar: React.FC<{ onItemClick?: () => void }> = ({ onItemCli
               label: 'Akun Demo',
               path: '/admin/settings/demo',
               icon: UserCheck,
+            },
+            {
+              label: 'Integrasi WhatsApp',
+              path: '/admin/settings/whatsapp',
+              icon: MessageCircle,
             },
             {
               label: 'Konfigurasi Umum',

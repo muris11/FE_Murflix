@@ -46,14 +46,22 @@ export const AdminGeneralSettingsPage: React.FC = () => {
     setErrorMessage(null);
 
     try {
-      await adminApi.updateSetting({
-        key: 'sansekai_base_url',
-        value: settings['sansekai_base_url'] || 'https://api.sansekai.my.id/api',
-        description: 'Base URL API Sansekai (DramaBox & ReelShort)',
-        is_secret: false,
-      });
+      await Promise.all([
+        adminApi.updateSetting({
+          key: 'sansekai_base_url',
+          value: settings['sansekai_base_url'] || 'https://api.sansekai.my.id/api',
+          description: 'Base URL API Sansekai (DramaBox & ReelShort)',
+          is_secret: false,
+        }),
+        adminApi.updateSetting({
+          key: 'visitor_log_retention_hours',
+          value: settings['visitor_log_retention_hours'] || '12',
+          description: 'Masa simpan log pengunjung sebelum dibersihkan otomatis (jam)',
+          is_secret: false,
+        }),
+      ]);
 
-      setSuccessMessage('Konfigurasi umum berhasil diperbarui!');
+      setSuccessMessage('Konfigurasi umum dan retensi log berhasil diperbarui!');
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (err: any) {
       setErrorMessage(err.message || 'Gagal menyimpan konfigurasi');
@@ -122,6 +130,30 @@ export const AdminGeneralSettingsPage: React.FC = () => {
 
         {/* Form Card */}
         <form onSubmit={handleSave} className="bg-[#141416] border border-zinc-800/80 rounded-2xl p-6 space-y-6">
+          
+          {/* Visitor Log Auto Retention */}
+          <div className="space-y-2 pb-6 border-b border-zinc-800/80">
+            <label className="text-xs font-bold text-white flex items-center space-x-2">
+              <Activity className="w-4 h-4 text-emerald-400" />
+              <span>Pembersihan Otomatis Log Pengunjung (Auto Retention Purge)</span>
+            </label>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Sistem backend Murflix akan menjalankan proses pembersihan sampah log secara periodik di background tanpa membebani server dan database.
+            </p>
+            <select
+              value={settings['visitor_log_retention_hours'] || '12'}
+              onChange={(e) => handleChange('visitor_log_retention_hours', e.target.value)}
+              className="w-full bg-black/50 border border-zinc-800 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-red-500 transition-colors font-sans"
+            >
+              <option value="12">Hapus otomatis per 12 Jam (Rekomendasi - Database Selalu Ringan & Bersih)</option>
+              <option value="24">Hapus otomatis per 24 Jam (1 Hari)</option>
+              <option value="72">Hapus otomatis per 3 Hari</option>
+              <option value="168">Hapus otomatis per 7 Hari (1 Minggu)</option>
+              <option value="720">Hapus otomatis per 30 Hari (1 Bulan)</option>
+              <option value="0">Nonaktifkan Pembersihan Otomatis (Simpan Selamanya)</option>
+            </select>
+          </div>
+
           <div className="space-y-2">
             <label className="text-xs font-bold text-white flex items-center space-x-2">
               <Sliders className="w-4 h-4 text-red-500" />

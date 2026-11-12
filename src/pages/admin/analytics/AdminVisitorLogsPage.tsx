@@ -35,7 +35,9 @@ export const AdminVisitorLogsPage: React.FC = () => {
   const [selectedDevice, setSelectedDevice] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [showDeleteAllModal, setShowDeleteAllModal] = useState<boolean>(false);
+  const [showCleanModal, setShowCleanModal] = useState<boolean>(false);
+  const [cleanOlderHours, setCleanOlderHours] = useState<number>(12);
   const [selectedDetail, setSelectedDetail] = useState<VisitorLog | null>(null);
 
   const fetchLogs = async () => {
@@ -67,15 +69,31 @@ export const AdminVisitorLogsPage: React.FC = () => {
     fetchLogs();
   };
 
-  const executeDeleteOldLogs = async () => {
+  const executeDeleteAllLogs = async () => {
     setIsDeleting(true);
     try {
-      await adminApi.deleteVisitorLogs(30);
-      setShowDeleteModal(false);
+      await adminApi.deleteAllVisitorLogs();
+      setShowDeleteAllModal(false);
+      setLogs([]);
+      setTotal(0);
       fetchLogs();
     } catch (err) {
-      console.error('Failed to delete visitor logs:', err);
-      setShowDeleteModal(false);
+      console.error('Failed to delete all visitor logs:', err);
+      setShowDeleteAllModal(false);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const executeCleanOldLogs = async () => {
+    setIsDeleting(true);
+    try {
+      await adminApi.deleteVisitorLogs({ hours: cleanOlderHours });
+      setShowCleanModal(false);
+      fetchLogs();
+    } catch (err) {
+      console.error('Failed to clean visitor logs:', err);
+      setShowCleanModal(false);
     } finally {
       setIsDeleting(false);
     }
@@ -111,7 +129,16 @@ export const AdminVisitorLogsPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            to="/admin/settings/general"
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-emerald-950/40 text-emerald-400 hover:bg-emerald-900/50 text-xs font-medium border border-emerald-800/50 transition-colors"
+            title="Pengaturan Otomatis Pembersihan Log"
+          >
+            <Clock className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Auto-Clean Aktif</span>
+          </Link>
+
           <Link
             to="/admin/analytics"
             className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700/60 transition-colors"
@@ -119,14 +146,25 @@ export const AdminVisitorLogsPage: React.FC = () => {
             <ArrowLeft className="w-3.5 h-3.5 text-zinc-400" />
             <span>Peta Geolocation</span>
           </Link>
+
           <button
-            onClick={() => setShowDeleteModal(true)}
+            onClick={() => setShowCleanModal(true)}
             disabled={isDeleting}
-            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-red-400 text-xs font-medium border border-zinc-700/60 transition-colors"
-            title="Bersihkan log lebih dari 30 hari"
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white text-xs font-medium border border-zinc-700/60 transition-colors"
+            title="Bersihkan log berdasarkan durasi tertentu"
           >
-            <Trash2 className="w-3.5 h-3.5" />
+            <Clock className="w-3.5 h-3.5 text-zinc-400" />
             <span>Bersihkan Log Lama</span>
+          </button>
+
+          <button
+            onClick={() => setShowDeleteAllModal(true)}
+            disabled={isDeleting}
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 text-red-300 hover:text-white text-xs font-medium border border-red-800/60 transition-colors"
+            title="Hapus seluruh log pengunjung dari database"
+          >
+            <Trash2 className="w-3.5 h-3.5 text-red-400" />
+            <span>Hapus Semua Log</span>
           </button>
         </div>
       </div>
@@ -478,18 +516,65 @@ export const AdminVisitorLogsPage: React.FC = () => {
           </div>
         </div>
       )}
-      {/* Confirm Modal */}
+      {/* Delete All Confirmation Modal */}
       <ConfirmModal
-        isOpen={showDeleteModal}
-        title="Bersihkan Log Lama?"
-        message="Log kunjungan yang lebih lama dari 30 hari akan dihapus permanen dari basis data."
-        confirmText="Hapus Log"
+        isOpen={showDeleteAllModal}
+        title="Hapus Seluruh Log Pengunjung?"
+        message="PERINGATAN: Seluruh riwayat log kunjungan dan deteksi IP pengunjung akan dihapus bersih tanpa sisa dari database. Tindakan ini tidak dapat dibatalkan."
+        confirmText="Hapus Semua Log"
         cancelText="Batal"
         variant="danger"
         isLoading={isDeleting}
-        onConfirm={executeDeleteOldLogs}
-        onClose={() => setShowDeleteModal(false)}
+        onConfirm={executeDeleteAllLogs}
+        onClose={() => setShowDeleteAllModal(false)}
       />
+
+      {/* Clean Old Logs Modal */}
+      {showCleanModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-md bg-[#121215] border border-zinc-800 rounded-2xl p-6 shadow-2xl space-y-5">
+            <div>
+              <h3 className="text-base font-bold text-white tracking-tight">Bersihkan Log Lama</h3>
+              <p className="text-xs text-zinc-400 mt-1">
+                Pilih rentang waktu log yang ingin dihapus untuk menghemat ruang penyimpanan database.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-zinc-300">Hapus log yang lebih lama dari:</label>
+              <select
+                value={cleanOlderHours}
+                onChange={(e) => setCleanOlderHours(Number(e.target.value))}
+                className="w-full bg-[#0a0a0c] border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-red-500 font-sans"
+              >
+                <option value={12}>12 Jam Terakhir</option>
+                <option value={24}>24 Jam (1 Hari)</option>
+                <option value={72}>3 Hari</option>
+                <option value={168}>7 Hari (1 Minggu)</option>
+                <option value={720}>30 Hari (1 Bulan)</option>
+              </select>
+            </div>
+
+            <div className="pt-3 border-t border-zinc-800/80 flex items-center justify-end space-x-2.5">
+              <button
+                type="button"
+                onClick={() => setShowCleanModal(false)}
+                className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-medium text-zinc-300 transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={executeCleanOldLogs}
+                className="px-5 py-2 rounded-xl bg-[#e50914] hover:bg-red-700 text-white font-semibold text-xs transition-colors disabled:opacity-50"
+              >
+                {isDeleting ? 'Membersihkan...' : 'Bersihkan Sekarang'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -30,6 +30,7 @@ const AdminVisitorLogsPage = lazy(() => import('@/pages/admin/analytics/AdminVis
 const AdminServersSettingsPage = lazy(() => import('@/pages/admin/settings/AdminServersSettingsPage').then((m) => ({ default: m.AdminServersSettingsPage })));
 const AdminTmdbSettingsPage = lazy(() => import('@/pages/admin/settings/AdminTmdbSettingsPage').then((m) => ({ default: m.AdminTmdbSettingsPage })));
 const AdminDemoSettingsPage = lazy(() => import('@/pages/admin/settings/AdminDemoSettingsPage').then((m) => ({ default: m.AdminDemoSettingsPage })));
+const AdminWhatsAppSettingsPage = lazy(() => import('@/pages/admin/settings/AdminWhatsAppSettingsPage').then((m) => ({ default: m.AdminWhatsAppSettingsPage })));
 const AdminGeneralSettingsPage = lazy(() => import('@/pages/admin/settings/AdminGeneralSettingsPage').then((m) => ({ default: m.AdminGeneralSettingsPage })));
 
 const PageLoadingFallback: React.FC = () => (
@@ -308,6 +309,14 @@ export const AppRoutes: React.FC = () => {
           element={
             <AdminRoute>
               <AdminDemoSettingsPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/settings/whatsapp"
+          element={
+            <AdminRoute>
+              <AdminWhatsAppSettingsPage />
             </AdminRoute>
           }
         />

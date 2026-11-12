@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Tv, Key, UserCheck, Sliders, ChevronRight } from 'lucide-react';
+import { Tv, Key, UserCheck, Sliders, ChevronRight, MessageCircle } from 'lucide-react';
 
 interface AdminSettingsLayoutProps {
   children: React.ReactNode;
@@ -30,6 +30,11 @@ export const AdminSettingsLayout: React.FC<AdminSettingsLayoutProps> = ({
       to: '/admin/settings/demo',
       label: 'Akun Demo',
       icon: UserCheck,
+    },
+    {
+      to: '/admin/settings/whatsapp',
+      label: 'Integrasi WhatsApp',
+      icon: MessageCircle,
     },
     {
       to: '/admin/settings/general',

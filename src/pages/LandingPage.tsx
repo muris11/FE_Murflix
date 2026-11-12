@@ -40,6 +40,11 @@ export const LandingPage: React.FC = () => {
   const [popularMovies, setPopularMovies] = useState<MediaItem[]>([]);
   const [popularTV, setPopularTV] = useState<MediaItem[]>([]);
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [whatsappConfig, setWhatsappConfig] = useState<{
+    enabled: boolean;
+    number: string;
+    message_template: string;
+  } | null>(null);
   const [activeCatalogTab, setActiveCatalogTab] = useState<'trending' | 'movies' | 'tv'>('trending');
   const [activeFaqIndex, setActiveFaqIndex] = useState<number | null>(0);
   const [featuredItem, setFeaturedItem] = useState<MediaItem | null>(null);
@@ -81,11 +86,12 @@ export const LandingPage: React.FC = () => {
   useEffect(() => {
     const loadPublicData = async () => {
       try {
-        const [trendRes, movRes, tvRes, planRes] = await Promise.allSettled([
+        const [trendRes, movRes, tvRes, planRes, waRes] = await Promise.allSettled([
           publicApi.getTrending(),
           publicApi.getPopularMovies(),
           publicApi.getPopularTV(),
           publicApi.getPlans(),
+          publicApi.getWhatsAppConfig(),
         ]);
 
         if (trendRes.status === 'fulfilled' && trendRes.value.results) {
@@ -102,6 +108,9 @@ export const LandingPage: React.FC = () => {
         }
         if (planRes.status === 'fulfilled' && planRes.value) {
           setPlans(planRes.value);
+        }
+        if (waRes.status === 'fulfilled' && waRes.value) {
+          setWhatsappConfig(waRes.value);
         }
       } catch (err) {
         console.error('Failed to load landing data:', err);
@@ -121,6 +130,39 @@ export const LandingPage: React.FC = () => {
 
   const handleAuthRedirect = (targetPath = '/') => {
     navigate(`/login?redirect=${encodeURIComponent(targetPath)}`);
+  };
+
+  const handleSelectPlan = (plan: {
+    name: string;
+    price: number;
+    duration_unit: string;
+    duration_value: number;
+    description?: string;
+  }) => {
+    if (whatsappConfig && whatsappConfig.enabled && whatsappConfig.number) {
+      const cleanNumber = whatsappConfig.number.replace(/[^0-9]/g, '');
+      const durationText =
+        plan.duration_unit === 'forever' || plan.duration_value >= 999
+          ? 'Selamanya'
+          : `${plan.duration_value} ${
+              plan.duration_unit === 'months' ? 'Bulan' : plan.duration_unit === 'years' ? 'Tahun' : plan.duration_unit
+            }`;
+      const priceText = `Rp ${plan.price.toLocaleString('id-ID')}`;
+
+      let msg =
+        whatsappConfig.message_template ||
+        'Halo Admin Murflix, saya ingin berlangganan paket *{plan_name}* seharga *{price}* ({duration}). Mohon info cara pembayarannya. Terima kasih.';
+      msg = msg
+        .replace(/{plan_name}/gi, plan.name)
+        .replace(/{price}/gi, priceText)
+        .replace(/{duration}/gi, durationText);
+
+      const waUrl = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(msg)}`;
+      window.open(waUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    handleAuthRedirect('/login');
   };
 
   const getCatalogItems = () => {
@@ -767,7 +809,7 @@ export const LandingPage: React.FC = () => {
                 </div>
 
                 <button
-                  onClick={() => handleAuthRedirect('/login')}
+                  onClick={() => handleSelectPlan(plan)}
                   className={`mt-10 w-full py-3.5 rounded-full font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 ${
                     isFeatured
                       ? 'bg-[#e50914] hover:bg-red-700 text-white shadow-lg shadow-red-600/40 hover:scale-105'

@@ -13,6 +13,10 @@ import {
   ArrowRight,
   ExternalLink,
   RefreshCw,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  Move,
 } from 'lucide-react';
 
 export const AdminAnalyticsPage: React.FC = () => {
@@ -21,6 +25,61 @@ export const AdminAnalyticsPage: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedVisitor, setSelectedVisitor] = useState<VisitorCoordinate | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+
+  // Interactive Map Zoom & Pan State
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+  const handleZoomIn = () => {
+    setZoom((prev) => Math.min(4, Math.round((prev + 0.3) * 10) / 10));
+  };
+
+  const handleZoomOut = () => {
+    setZoom((prev) => {
+      const next = Math.max(1, Math.round((prev - 0.3) * 10) / 10);
+      if (next === 1) setPan({ x: 0, y: 0 });
+      return next;
+    });
+  };
+
+  const handleResetZoom = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (zoom <= 1) return;
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || zoom <= 1) return;
+    const maxPan = 160 * (zoom - 1);
+    const newX = Math.max(-maxPan, Math.min(maxPan, e.clientX - dragStart.x));
+    const newY = Math.max(-maxPan, Math.min(maxPan, e.clientY - dragStart.y));
+    setPan({ x: newX, y: newY });
+  };
+
+  const handleMouseUp = () => setIsDragging(false);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (zoom <= 1 || e.touches.length === 0) return;
+    setIsDragging(true);
+    setDragStart({ x: e.touches[0].clientX - pan.x, y: e.touches[0].clientY - pan.y });
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || zoom <= 1 || e.touches.length === 0) return;
+    const maxPan = 160 * (zoom - 1);
+    const newX = Math.max(-maxPan, Math.min(maxPan, e.touches[0].clientX - dragStart.x));
+    const newY = Math.max(-maxPan, Math.min(maxPan, e.touches[0].clientY - dragStart.y));
+    setPan({ x: newX, y: newY });
+  };
+
+  const handleTouchEnd = () => setIsDragging(false);
 
   const fetchOverview = async (showLoading = false) => {
     if (showLoading) setIsLoading(true);
@@ -186,58 +245,128 @@ export const AdminAnalyticsPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Accurate World Map Canvas */}
-          <div className="relative w-full aspect-[2/1] bg-[#09090b] rounded-xl border border-zinc-800/80 overflow-hidden">
-            
-            {/* Real World Vector SVG Image */}
-            <img
-              src="/world-map.svg"
-              alt="World Map"
-              className="absolute inset-0 w-full h-full object-fill opacity-35 select-none pointer-events-none"
-            />
+          {/* Accurate World Map Canvas with Interactive Zoom & Pan */}
+          <div
+            className={`relative w-full aspect-[2/1] bg-[#09090b] rounded-xl border border-zinc-800/80 overflow-hidden select-none ${
+              zoom > 1 ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-default'
+            }`}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
+            {/* Zoom Controls Overlay */}
+            <div className="absolute top-3 right-3 z-30 flex items-center space-x-1.5 bg-[#121215]/90 backdrop-blur-md border border-zinc-700/80 rounded-xl p-1 shadow-xl">
+              <button
+                type="button"
+                onClick={handleZoomIn}
+                disabled={zoom >= 4}
+                className="p-1.5 rounded-lg text-zinc-300 hover:text-white hover:bg-zinc-800 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                title="Perbesar Peta (Zoom In)"
+                aria-label="Perbesar Peta"
+              >
+                <ZoomIn className="w-4 h-4" />
+              </button>
 
-            {/* Subtle Grid Coordinates Overlay */}
-            <div className="absolute inset-0 pointer-events-none opacity-10">
-              <div className="w-full h-full grid grid-cols-12 grid-rows-6">
-                {Array.from({ length: 72 }).map((_, i) => (
-                  <div key={i} className="border-r border-b border-zinc-600" />
-                ))}
-              </div>
-            </div>
+              <span className="text-[11px] font-mono font-semibold text-zinc-200 px-1 min-w-[42px] text-center">
+                {Math.round(zoom * 100)}%
+              </span>
 
-            {/* Plotted Visitor Pinpoints */}
-            {data?.recent_visitors?.map((visitor) => {
-              const pos = coordsToSvg(visitor.latitude, visitor.longitude);
-              const isSelected = selectedVisitor?.id === visitor.id;
+              <button
+                type="button"
+                onClick={handleZoomOut}
+                disabled={zoom <= 1}
+                className="p-1.5 rounded-lg text-zinc-300 hover:text-white hover:bg-zinc-800 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                title="Perkecil Peta (Zoom Out)"
+                aria-label="Perkecil Peta"
+              >
+                <ZoomOut className="w-4 h-4" />
+              </button>
 
-              return (
+              {zoom > 1 && (
                 <button
                   type="button"
-                  key={visitor.id}
-                  onClick={() => setSelectedVisitor(visitor)}
-                  style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
-                  className="absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10 p-1 group focus:outline-none"
-                  title={`${visitor.city}, ${visitor.country} (${visitor.ip_address})`}
+                  onClick={handleResetZoom}
+                  className="p-1.5 rounded-lg text-zinc-400 hover:text-amber-400 hover:bg-zinc-800 transition-colors ml-0.5 border-l border-zinc-700"
+                  title="Kembalikan Ukuran Asal (Reset)"
+                  aria-label="Reset Zoom"
                 >
-                  <span
-                    className={`block w-2.5 h-2.5 rounded-full border transition-all ${
-                      isSelected
-                        ? 'bg-amber-400 border-white scale-125 ring-2 ring-amber-400/50'
-                        : 'bg-red-600 border-white/80 group-hover:scale-125'
-                    }`}
-                  />
-                  
-                  {/* Tooltip on Hover */}
-                  <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-max max-w-[220px] bg-zinc-900 text-white text-[10px] rounded px-2 py-1 shadow-lg border border-zinc-700 pointer-events-none z-30 font-sans">
-                    <p className="font-semibold text-zinc-100">{visitor.city || 'Kota'}, {visitor.country}</p>
-                    <p className="text-zinc-400 font-mono text-[9px]">{visitor.ip_address}</p>
-                  </div>
+                  <RotateCcw className="w-3.5 h-3.5" />
                 </button>
-              );
-            })}
+              )}
+            </div>
+
+            {/* Drag Hint when Zoomed */}
+            {zoom > 1 && (
+              <div className="absolute top-3 left-3 z-30 flex items-center space-x-1.5 bg-black/70 backdrop-blur-sm border border-zinc-700/60 rounded-lg px-2.5 py-1 text-[10px] text-zinc-300 font-medium pointer-events-none">
+                <Move className="w-3 h-3 text-amber-400" />
+                <span>Geser untuk melihat area lain</span>
+              </div>
+            )}
+
+            {/* Inner Pan/Zoom Content Layer */}
+            <div
+              className="absolute inset-0 w-full h-full"
+              style={{
+                transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
+                transformOrigin: 'center center',
+                transition: isDragging ? 'none' : 'transform 0.15s ease-out',
+              }}
+            >
+              {/* Real World Vector SVG Image */}
+              <img
+                src="/world-map.svg"
+                alt="World Map"
+                className="absolute inset-0 w-full h-full object-fill opacity-35 select-none pointer-events-none"
+                draggable={false}
+              />
+
+              {/* Subtle Grid Coordinates Overlay */}
+              <div className="absolute inset-0 pointer-events-none opacity-10">
+                <div className="w-full h-full grid grid-cols-12 grid-rows-6">
+                  {Array.from({ length: 72 }).map((_, i) => (
+                    <div key={i} className="border-r border-b border-zinc-600" />
+                  ))}
+                </div>
+              </div>
+
+              {/* Plotted Visitor Pinpoints */}
+              {data?.recent_visitors?.map((visitor) => {
+                const pos = coordsToSvg(visitor.latitude, visitor.longitude);
+                const isSelected = selectedVisitor?.id === visitor.id;
+
+                return (
+                  <button
+                    type="button"
+                    key={visitor.id}
+                    onClick={() => setSelectedVisitor(visitor)}
+                    style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+                    className="absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10 p-1 group focus:outline-none"
+                    title={`${visitor.city}, ${visitor.country} (${visitor.ip_address})`}
+                  >
+                    <span
+                      className={`block w-2.5 h-2.5 rounded-full border transition-all ${
+                        isSelected
+                          ? 'bg-amber-400 border-white scale-125 ring-2 ring-amber-400/50'
+                          : 'bg-red-600 border-white/80 group-hover:scale-125'
+                      }`}
+                    />
+                    
+                    {/* Tooltip on Hover */}
+                    <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-max max-w-[220px] bg-zinc-900 text-white text-[10px] rounded px-2 py-1 shadow-lg border border-zinc-700 pointer-events-none z-30 font-sans">
+                      <p className="font-semibold text-zinc-100">{visitor.city || 'Kota'}, {visitor.country}</p>
+                      <p className="text-zinc-400 font-mono text-[9px]">{visitor.ip_address}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
 
             {/* Coordinates Summary */}
-            <div className="absolute bottom-2.5 left-2.5 bg-black/70 border border-zinc-800 rounded px-2.5 py-1 text-[11px] text-zinc-400 font-mono">
+            <div className="absolute bottom-2.5 left-2.5 bg-black/70 border border-zinc-800 rounded px-2.5 py-1 text-[11px] text-zinc-400 font-mono z-20">
               Koordinat terdeteksi: {data?.recent_visitors?.length || 0}
             </div>
           </div>

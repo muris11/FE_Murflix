@@ -81,10 +81,23 @@ export const adminApi = {
     return res.data;
   },
 
-  deleteVisitorLogs: async (days = 30) => {
-    const res = await apiClient.delete<{ message: string }>('/admin/analytics/logs', {
-      params: { days },
+  deleteVisitorLogs: async (opts?: number | { days?: number; hours?: number; all?: boolean }) => {
+    let params: Record<string, any> = {};
+    if (typeof opts === 'number') {
+      params = { days: opts };
+    } else if (opts) {
+      params = opts;
+    } else {
+      params = { days: 30 };
+    }
+    const res = await apiClient.delete<{ message: string; affected?: number }>('/admin/analytics/logs', {
+      params,
     });
+    return res.data;
+  },
+
+  deleteAllVisitorLogs: async () => {
+    const res = await apiClient.delete<{ message: string }>('/admin/analytics/logs/all');
     return res.data;
   },
 
