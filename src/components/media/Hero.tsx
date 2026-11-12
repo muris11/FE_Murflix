@@ -143,7 +143,7 @@ export const Hero: React.FC<HeroProps> = ({ item }) => {
 
       {/* Bottom-Right Badges */}
       <div className="absolute bottom-12 sm:bottom-16 right-4 sm:right-8 md:right-12 lg:right-16 z-20 hidden md:flex items-center space-x-2.5">
-        <div className="flex items-center px-3 py-1.5 rounded-full bg-black/75 backdrop-blur-md border border-red-500/30 text-white text-xs font-bold shadow-lg">
+        <div className="flex items-center px-3 py-1.5 rounded-full bg-black/90 border border-red-500/30 text-white text-xs font-bold shadow-lg">
           <span>Baru Ditambahkan</span>
         </div>
         <div className="flex items-center px-2.5 py-1 rounded-md bg-[#e50914] text-white text-xs font-black tracking-wider uppercase shadow-lg">

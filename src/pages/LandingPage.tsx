@@ -73,7 +73,7 @@ export const LandingPage: React.FC = () => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 40);
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -313,7 +313,7 @@ export const LandingPage: React.FC = () => {
       {/* --------------------------------------------------------------------- */}
       {/* 3. Live Catalog Showcase (Movies & TV Series Tabs)                    */}
       {/* --------------------------------------------------------------------- */}
-      <section id="katalog" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <section id="katalog" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto [content-visibility:auto] [contain-intrinsic-size:0_750px]">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12">
           <div>
             <div className="text-xs font-bold uppercase tracking-widest text-red-500 mb-2">
@@ -367,8 +367,8 @@ export const LandingPage: React.FC = () => {
           {getCatalogItems().map((item) => {
             const title = item.title || item.name || 'Untitled';
             const poster = item.poster_path
-              ? getTMDBImageUrl(item.poster_path, 'w500')
-              : 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=500&q=80';
+              ? getTMDBImageUrl(item.poster_path, 'w342')
+              : 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=342&q=80';
             const year = (item.release_date || item.first_air_date || '').split('-')[0];
             const rating = item.vote_average ? item.vote_average.toFixed(1) : null;
             const isTV = item.media_type === 'tv' || !!item.first_air_date;
@@ -377,7 +377,7 @@ export const LandingPage: React.FC = () => {
               <div
                 key={item.id}
                 onClick={() => handleItemClick(item)}
-                className="group relative rounded-xl sm:rounded-2xl overflow-hidden bg-zinc-950 border border-white/10 hover:border-red-500/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-red-600/20 cursor-pointer flex flex-col"
+                className="group relative rounded-xl sm:rounded-2xl overflow-hidden bg-zinc-950 border border-white/10 hover:border-red-500/50 transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-2xl hover:shadow-red-600/20 cursor-pointer flex flex-col transform-gpu will-change-transform"
               >
                 {/* Poster Container */}
                 <div className="relative aspect-[2/3] w-full overflow-hidden bg-zinc-900">
@@ -385,24 +385,25 @@ export const LandingPage: React.FC = () => {
                     src={poster}
                     alt={title}
                     loading="lazy"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    decoding="async"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
 
                   {/* Rating Badge */}
                   {rating && (
-                    <div className="absolute top-2.5 right-2.5 px-2 py-1 rounded-md bg-black/75 backdrop-blur-md border border-white/10 flex items-center space-x-1 text-[11px] font-bold text-amber-400">
+                    <div className="absolute top-2.5 right-2.5 px-2 py-1 rounded-md bg-black/90 border border-white/10 flex items-center space-x-1 text-[11px] font-bold text-amber-400 shadow-md">
                       <Star className="w-3 h-3 fill-current text-amber-400" />
                       <span>{rating}</span>
                     </div>
                   )}
 
                   {/* Media Type Pill */}
-                  <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-[10px] font-bold uppercase tracking-wider text-gray-300 border border-white/10">
+                  <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md bg-black/90 text-[10px] font-bold uppercase tracking-wider text-gray-300 border border-white/10 shadow-md">
                     {isTV ? 'Serial TV' : 'Film'}
                   </div>
 
                   {/* Hover Overlay with Login Prompt */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-end p-4 text-center">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-end p-4 text-center pointer-events-none">
                     <div className="w-10 h-10 rounded-full bg-[#e50914] text-white flex items-center justify-center mb-2 shadow-lg shadow-red-600/50">
                       <Play className="w-5 h-5 fill-current ml-0.5" />
                     </div>
@@ -443,7 +444,7 @@ export const LandingPage: React.FC = () => {
       {/* --------------------------------------------------------------------- */}
       {/* 4. Bento Grid of Features (Apple-Style Innovation Cards)              */}
       {/* --------------------------------------------------------------------- */}
-      <section id="fitur" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/5">
+      <section id="fitur" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/5 [content-visibility:auto] [contain-intrinsic-size:0_600px]">
         <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
           <div className="text-xs font-bold uppercase tracking-widest text-red-500 mb-2">
             Inovasi Tanpa Kompromi
@@ -537,7 +538,7 @@ export const LandingPage: React.FC = () => {
       {/* --------------------------------------------------------------------- */}
       {/* 4.5. Multi-Server Streaming Infrastructure (Zero Ads & 11 Servers)    */}
       {/* --------------------------------------------------------------------- */}
-      <section id="server" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/5">
+      <section id="server" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/5 [content-visibility:auto] [contain-intrinsic-size:0_600px]">
         <div className="text-center max-w-3xl mx-auto mb-14">
           <div className="text-xs font-bold uppercase tracking-widest text-red-500 mb-2">
             Infrastruktur &amp; Pemutar Video
@@ -603,7 +604,7 @@ export const LandingPage: React.FC = () => {
       {/* --------------------------------------------------------------------- */}
       {/* 5. Supported Devices (Apple Style Hardware Lineup)                    */}
       {/* --------------------------------------------------------------------- */}
-      <section id="perangkat" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/5">
+      <section id="perangkat" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/5 [content-visibility:auto] [contain-intrinsic-size:0_600px]">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="text-xs font-bold uppercase tracking-widest text-red-500 mb-2">
             Kompatibilitas Luas
@@ -666,7 +667,7 @@ export const LandingPage: React.FC = () => {
       {/* --------------------------------------------------------------------- */}
       {/* 6. Pricing Plans Showcase                                             */}
       {/* --------------------------------------------------------------------- */}
-      <section id="paket" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/5">
+      <section id="paket" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/5 [content-visibility:auto] [contain-intrinsic-size:0_600px]">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="text-xs font-bold uppercase tracking-widest text-red-500 mb-2">
             Pilihan Paket Berlangganan
@@ -784,7 +785,7 @@ export const LandingPage: React.FC = () => {
       {/* --------------------------------------------------------------------- */}
       {/* 7. Tentang Murflix (Comprehensive Vision & Trust Section)             */}
       {/* --------------------------------------------------------------------- */}
-      <section id="tentang" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/5">
+      <section id="tentang" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/5 [content-visibility:auto] [contain-intrinsic-size:0_600px]">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 sm:gap-16 items-center">
           <div>
             <div className="text-xs font-bold uppercase tracking-widest text-red-500 mb-2">
@@ -857,7 +858,7 @@ export const LandingPage: React.FC = () => {
       {/* --------------------------------------------------------------------- */}
       {/* 8. FAQ Section (Apple-Style Accordion)                                */}
       {/* --------------------------------------------------------------------- */}
-      <section id="faq" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto border-t border-white/5">
+      <section id="faq" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto border-t border-white/5 [content-visibility:auto] [contain-intrinsic-size:0_600px]">
         <div className="text-center mb-16">
           <div className="text-xs font-bold uppercase tracking-widest text-red-500 mb-2">
             Pertanyaan Umum

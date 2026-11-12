@@ -56,3 +56,9 @@ input:-webkit-autofill:active {
   caret-color: #ffffff !important;
   transition: background-color 5000s ease-in-out 0s;
 }
+
+/* Image rendering & scroll optimization */
+img {
+  content-visibility: auto;
+}
+

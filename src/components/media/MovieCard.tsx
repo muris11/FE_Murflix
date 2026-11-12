@@ -63,7 +63,7 @@ export const MovieCard: React.FC<MovieCardProps> = ({ item, className = '' }) =>
 
   return (
     <>
-      <div className={`group relative rounded-xl overflow-hidden bg-[#18181b] border border-white/5 transition-all duration-300 hover:scale-[1.04] hover:z-30 hover:shadow-2xl hover:shadow-red-950/40 hover:border-red-600/50 ${className || 'w-full'}`}>
+      <div className={`group relative rounded-xl overflow-hidden bg-[#18181b] border border-white/5 transition-[transform,border-color,box-shadow] duration-200 hover:scale-[1.04] hover:z-30 hover:shadow-2xl hover:shadow-red-950/40 hover:border-red-600/50 transform-gpu will-change-transform ${className || 'w-full'}`}>
         
         {/* Poster Container */}
         <Link to={detailPath} className="block relative aspect-[2/3] w-full overflow-hidden bg-gradient-to-b from-zinc-900 to-black">
@@ -75,19 +75,19 @@ export const MovieCard: React.FC<MovieCardProps> = ({ item, className = '' }) =>
             onError={handleImageError}
             decoding="async"
             loading="lazy"
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 transform-gpu"
           />
 
           {/* Top-Left: Rating Badge */}
           {rating && (
-            <div className="absolute top-2.5 left-2.5 z-20 flex items-center space-x-1 px-2 py-0.5 rounded-md bg-black/80 backdrop-blur-md text-[11px] font-bold text-amber-400 border border-amber-500/30 shadow-md">
+            <div className="absolute top-2.5 left-2.5 z-20 flex items-center space-x-1 px-2 py-0.5 rounded-md bg-black/90 text-[11px] font-bold text-amber-400 border border-amber-500/30 shadow-md">
               <Star className="w-3 h-3 fill-amber-400" />
               <span>{rating}</span>
             </div>
           )}
 
           {/* Top-Right: Type Badge */}
-          <div className="absolute top-2.5 right-2.5 z-20 flex items-center space-x-1 px-1.5 py-0.5 rounded-md bg-black/80 backdrop-blur-md text-[10px] font-bold uppercase tracking-wider text-gray-300 border border-white/10 shadow-md">
+          <div className="absolute top-2.5 right-2.5 z-20 flex items-center space-x-1 px-1.5 py-0.5 rounded-md bg-black/90 text-[10px] font-bold uppercase tracking-wider text-gray-300 border border-white/10 shadow-md">
             {mediaType === 'tv' ? (
               <>
                 <Tv className="w-3 h-3 text-blue-400" />
