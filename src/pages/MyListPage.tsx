@@ -1,29 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { watchlistApi, WatchlistRecord } from '@/api/watchlist';
+import { useAuth } from '@/contexts/AuthContext';
 import { MovieCard } from '@/components/media/MovieCard';
 import { MovieCardSkeleton } from '@/components/media/MovieCardSkeleton';
 import { Heart } from 'lucide-react';
 
 export const MyListPage: React.FC = () => {
+  const { activeProfile } = useAuth();
   const [items, setItems] = useState<WatchlistRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    setIsLoading(true);
     watchlistApi
-      .getWatchlist()
+      .getWatchlist(activeProfile?.id)
       .then((data) => setItems(data || []))
       .catch((err) => console.error(err))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [activeProfile?.id]);
 
   return (
-    <div className="min-h-screen bg-[#141414] pt-24 pb-20 px-4 sm:px-8 md:px-12 lg:px-16 w-full space-y-8">
+    <div className="min-h-screen bg-[#141414] pt-24 pb-20 px-4 sm:px-8 md:px-12 lg:px-16 2xl:px-20 max-w-[2400px] mx-auto w-full space-y-8">
       <div className="flex items-center space-x-3 border-b border-gray-800 pb-4">
         <Heart className="w-8 h-8 text-pink-500 fill-current" />
         <div>
-          <h1 className="text-2xl sm:text-4xl font-extrabold text-white">Daftar Tontonan Saya</h1>
+          <h1 className="text-2xl sm:text-4xl font-extrabold text-white">
+            Daftar Tontonan {activeProfile ? `[${activeProfile.name}]` : 'Saya'}
+          </h1>
           <p className="text-xs sm:text-sm text-gray-400 mt-1">
-            Film dan serial yang Anda simpan untuk ditonton nanti
+            Film dan serial yang Anda simpan khusus untuk profil {activeProfile?.name || 'ini'}
           </p>
         </div>
       </div>

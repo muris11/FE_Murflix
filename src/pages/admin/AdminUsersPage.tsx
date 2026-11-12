@@ -10,6 +10,8 @@ export const AdminUsersPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [deleteModalId, setDeleteModalId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchUsers = useCallback(async () => {
     setIsLoading(true);
@@ -29,12 +31,16 @@ export const AdminUsersPage: React.FC = () => {
 
   const handleDelete = async () => {
     if (!deleteModalId) return;
+    setIsDeleting(true);
+    setDeleteError(null);
     try {
       await adminApi.deleteUser(deleteModalId);
       setDeleteModalId(null);
       fetchUsers();
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Gagal menghapus user');
+      setDeleteError(err.response?.data?.error || 'Gagal menghapus user');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -189,19 +195,32 @@ export const AdminUsersPage: React.FC = () => {
               <p className="text-xs text-gray-400 mt-1">
                 Apakah Anda yakin ingin menghapus pengguna ini? Tindakan ini tidak dapat dibatalkan.
               </p>
+              {deleteError && (
+                <p className="text-xs text-red-400 font-medium mt-2 bg-red-950/40 p-2 rounded-lg border border-red-800/60">
+                  {deleteError}
+                </p>
+              )}
             </div>
             <div className="flex space-x-3 pt-2">
               <button
-                onClick={() => setDeleteModalId(null)}
-                className="flex-1 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-semibold text-xs"
+                onClick={() => {
+                  setDeleteModalId(null);
+                  setDeleteError(null);
+                }}
+                disabled={isDeleting}
+                className="flex-1 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-semibold text-xs cursor-pointer"
               >
                 Batal
               </button>
               <button
                 onClick={handleDelete}
-                className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-xs shadow-lg shadow-red-600/30"
+                disabled={isDeleting}
+                className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-xs shadow-lg shadow-red-600/30 flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50"
               >
-                Ya, Hapus
+                {isDeleting ? (
+                  <span className="inline-block w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : null}
+                <span>Ya, Hapus</span>
               </button>
             </div>
           </div>

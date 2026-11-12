@@ -196,7 +196,7 @@ export const MovieDetailPage: React.FC = () => {
       </div>
 
       {/* Main Info */}
-      <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 relative z-20 -mt-28 sm:-mt-44 flex flex-col md:flex-row gap-8">
+      <div className="w-full max-w-[2400px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 2xl:px-20 relative z-20 -mt-28 sm:-mt-44 flex flex-col md:flex-row gap-8">
         
         {/* Snug Poster Container (Zero gap, 2:3 ratio) */}
         <div className="flex-shrink-0 w-44 sm:w-60 md:w-68 mx-auto md:mx-0 self-start">
@@ -322,7 +322,7 @@ export const MovieDetailPage: React.FC = () => {
 
       {/* Franchise / Collection Section (Full Width, Aligned with Page) */}
       {movie.belongs_to_collection && (
-        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 mt-12">
+        <div className="w-full max-w-[2400px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 2xl:px-20 mt-12">
           <CollectionSection
             collectionId={movie.belongs_to_collection.id}
             currentMovieId={movie.id}
@@ -332,7 +332,7 @@ export const MovieDetailPage: React.FC = () => {
 
       {/* Similar & Recommendations */}
       {((movie.recommendations?.results?.length ?? 0) > 0 || (movie.similar?.results?.length ?? 0) > 0) && (
-        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 mt-12 space-y-10">
+        <div className="w-full max-w-[2400px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 2xl:px-20 mt-12 space-y-10">
           {(movie.recommendations?.results?.length ?? 0) > 0 && (
             <MovieRow title="Rekomendasi Serupa" items={movie.recommendations?.results || []} />
           )}

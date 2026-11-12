@@ -5,7 +5,7 @@ import { ExternalLink, Shield, Server, Layers } from 'lucide-react';
 export const Footer: React.FC = () => {
   return (
     <footer className="bg-[#0a0a0c] border-t border-zinc-800/80 text-zinc-400 pt-10 pb-28 md:py-12 mt-12">
-      <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 space-y-8">
+      <div className="w-full max-w-[2400px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 2xl:px-20 space-y-8">
         
         {/* Navigation & Categories Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 text-xs sm:text-sm">

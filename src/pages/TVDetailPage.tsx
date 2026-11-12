@@ -128,7 +128,7 @@ export const TVDetailPage: React.FC = () => {
         </div>
 
         {/* 1:1 Main Info Skeleton */}
-        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 relative z-20 -mt-28 sm:-mt-44 flex flex-col md:flex-row gap-8 animate-pulse">
+        <div className="w-full max-w-[2400px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 2xl:px-20 relative z-20 -mt-28 sm:-mt-44 flex flex-col md:flex-row gap-8 animate-pulse">
           {/* 1:1 Poster Skeleton */}
           <div className="flex-shrink-0 w-44 sm:w-60 md:w-68 mx-auto md:mx-0 self-start">
             <div className="aspect-[2/3] w-full rounded-2xl bg-zinc-800 border border-white/10 shadow-2xl" />
@@ -263,7 +263,7 @@ export const TVDetailPage: React.FC = () => {
       </div>
 
       {/* Main Info */}
-      <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 relative z-20 -mt-28 sm:-mt-44 flex flex-col md:flex-row gap-8">
+      <div className="w-full max-w-[2400px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 2xl:px-20 relative z-20 -mt-28 sm:-mt-44 flex flex-col md:flex-row gap-8">
         
         {/* Snug Poster Container */}
         <div className="flex-shrink-0 w-44 sm:w-60 md:w-68 mx-auto md:mx-0 self-start">
@@ -595,7 +595,7 @@ export const TVDetailPage: React.FC = () => {
       </div>
 
       {/* Similar & Recommendations Rows */}
-      <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 mt-16 space-y-10">
+      <div className="w-full max-w-[2400px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 2xl:px-20 mt-16 space-y-10">
         {recommendations.length > 0 ? (
           <MovieRow title="Rekomendasi Serial TV Serupa" items={recommendations} />
         ) : fallbackTV.length > 0 ? (

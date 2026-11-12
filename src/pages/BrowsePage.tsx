@@ -120,7 +120,7 @@ export const BrowsePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#141414] pt-24 pb-20 px-4 sm:px-8 md:px-12 lg:px-16 w-full space-y-8">
+    <div className="min-h-screen bg-[#141414] pt-24 pb-20 px-4 sm:px-8 md:px-12 lg:px-16 2xl:px-20 max-w-[2400px] mx-auto w-full space-y-8">
       
       {/* Header Banner */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-zinc-800 pb-5">

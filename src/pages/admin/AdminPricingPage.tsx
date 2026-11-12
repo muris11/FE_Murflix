@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { adminApi } from '@/api/admin';
 import { SubscriptionPlan, SubscriptionDurationUnit } from '@/types/auth';
 import { Tag, Plus, Edit2, Trash2, Check, X, AlertCircle } from 'lucide-react';
+import { ConfirmModal } from '@/components/common/ConfirmModal';
 
 export const AdminPricingPage: React.FC = () => {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState<SubscriptionPlan | null>(null);
+  const [planToDelete, setPlanToDelete] = useState<SubscriptionPlan | null>(null);
+  const [modalError, setModalError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -64,6 +67,7 @@ export const AdminPricingPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setModalError(null);
     try {
       if (editingPlan) {
         await adminApi.updatePlan(editingPlan.id, formData);
@@ -73,17 +77,19 @@ export const AdminPricingPage: React.FC = () => {
       setIsModalOpen(false);
       fetchPlans();
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Gagal menyimpan paket');
+      setModalError(err.response?.data?.error || 'Gagal menyimpan paket');
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm('Yakin ingin menghapus paket langganan ini?')) return;
+  const executeDeletePlan = async () => {
+    if (!planToDelete) return;
     try {
-      await adminApi.deletePlan(id);
+      await adminApi.deletePlan(planToDelete.id);
+      setPlanToDelete(null);
       fetchPlans();
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Gagal menghapus paket');
+      console.error('Failed to delete plan:', err);
+      setPlanToDelete(null);
     }
   };
 
@@ -152,7 +158,7 @@ export const AdminPricingPage: React.FC = () => {
                   <span>Ubah</span>
                 </button>
                 <button
-                  onClick={() => handleDelete(plan.id)}
+                  onClick={() => setPlanToDelete(plan)}
                   className="p-1.5 rounded-lg bg-gray-800 hover:bg-red-600 hover:text-white text-gray-400 transition-colors"
                   title="Hapus"
                 >
@@ -256,6 +262,13 @@ export const AdminPricingPage: React.FC = () => {
                 </label>
               </div>
 
+              {modalError && (
+                <div className="p-3 rounded-xl bg-red-950/40 border border-red-800/60 text-red-300 text-xs flex items-center space-x-2">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0 text-red-400" />
+                  <span>{modalError}</span>
+                </div>
+              )}
+
               <div className="flex justify-end space-x-3 pt-4 border-t border-gray-800">
                 <button
                   type="button"
@@ -275,6 +288,17 @@ export const AdminPricingPage: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Confirm Delete Plan Modal */}
+      <ConfirmModal
+        isOpen={!!planToDelete}
+        title={planToDelete ? `Hapus Paket "${planToDelete.name}"?` : 'Hapus Paket?'}
+        message="Paket langganan ini akan dihapus dari pilihan paket admin."
+        confirmText="Hapus Paket"
+        cancelText="Batal"
+        variant="danger"
+        onConfirm={executeDeletePlan}
+        onClose={() => setPlanToDelete(null)}
+      />
     </div>
   );
 };

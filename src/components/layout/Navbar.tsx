@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Film, Tv, Heart, Shield, LogOut, User as UserIcon, Menu, X, Settings, Users, ChevronDown } from 'lucide-react';
+import { Search, Film, Tv, Heart, Shield, LogOut, User as UserIcon, Menu, X, Settings, Users, ChevronDown, Lock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAvatarUrl } from '@/utils/avatarConverter';
+import { UserProfile } from '@/types/profile';
 import { MurflixLogo } from './MurflixLogo';
 import { NotificationDropdown } from './NotificationDropdown';
+import { ProfilePinModal } from '@/components/profile/ProfilePinModal';
 
 export const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [pinModalProfile, setPinModalProfile] = useState<UserProfile | null>(null);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -50,7 +53,7 @@ export const Navbar: React.FC = () => {
         isScrolled ? 'bg-[#141414]/95 backdrop-blur-md shadow-lg shadow-black/40 border-b border-white/5' : 'bg-gradient-to-b from-black/85 via-black/40 to-transparent'
       }`}
     >
-      <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16">
+      <div className="w-full max-w-[2400px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 2xl:px-20">
         <div className="flex items-center justify-between h-16 sm:h-20">
           
           {/* Logo & Navigation */}
@@ -142,7 +145,7 @@ export const Navbar: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Quick Switch Profiles (Netflix Style) */}
+                    {/* Quick Switch Profiles (Netflix Style with PIN Lock Support) */}
                     {profiles.length > 1 && (
                       <div className="py-2 border-b border-gray-800">
                         <p className="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">
@@ -154,22 +157,31 @@ export const Navbar: React.FC = () => {
                             <button
                               key={p.id}
                               onClick={() => {
-                                selectProfile(p);
                                 setIsProfileOpen(false);
+                                if (p.has_pin) {
+                                  setPinModalProfile(p);
+                                } else {
+                                  selectProfile(p);
+                                }
                               }}
-                              className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-800 transition-colors text-left"
+                              className="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-800 transition-colors text-left group cursor-pointer"
                             >
-                              <img
-                                src={getAvatarUrl(p.avatar_url)}
-                                alt={p.name}
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = '/avatars/avatar-red.svg';
-                                }}
-                                className="w-6 h-6 rounded-md object-cover flex-shrink-0"
-                              />
-                              <span className="text-xs text-gray-300 hover:text-white truncate font-medium">
-                                {p.name}
-                              </span>
+                              <div className="flex items-center space-x-3 min-w-0">
+                                <img
+                                  src={getAvatarUrl(p.avatar_url)}
+                                  alt={p.name}
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = '/avatars/avatar-red.svg';
+                                  }}
+                                  className="w-6 h-6 rounded-md object-cover flex-shrink-0"
+                                />
+                                <span className="text-xs text-gray-300 group-hover:text-white truncate font-medium">
+                                  {p.name}
+                                </span>
+                              </div>
+                              {p.has_pin && (
+                                <Lock className="w-3.5 h-3.5 text-zinc-500 group-hover:text-white flex-shrink-0 ml-2" />
+                              )}
                             </button>
                           ))}
                       </div>
@@ -248,6 +260,19 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Profile PIN Verification Modal */}
+      <ProfilePinModal
+        isOpen={!!pinModalProfile}
+        profile={pinModalProfile}
+        onSuccess={() => {
+          if (pinModalProfile) {
+            selectProfile(pinModalProfile);
+            setPinModalProfile(null);
+          }
+        }}
+        onClose={() => setPinModalProfile(null)}
+      />
     </nav>
   );
 };

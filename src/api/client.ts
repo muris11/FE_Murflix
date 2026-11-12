@@ -15,6 +15,15 @@ apiClient.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  const activeProfile = localStorage.getItem('murflix_active_profile');
+  if (activeProfile) {
+    try {
+      const parsed = JSON.parse(activeProfile);
+      if (parsed?.id) {
+        config.headers['X-Profile-ID'] = parsed.id;
+      }
+    } catch {}
+  }
   return config;
 });
 

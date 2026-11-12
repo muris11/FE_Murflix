@@ -7,17 +7,27 @@ export const profilesApi = {
     return res.data.profiles || [];
   },
 
-  createProfile: async (data: { name: string; avatar_url?: string; is_kids?: boolean }): Promise<UserProfile> => {
+  createProfile: async (data: {
+    name: string;
+    avatar_url?: string;
+    is_kids?: boolean;
+    pin?: string;
+  }): Promise<UserProfile> => {
     const res = await apiClient.post<{ message: string; profile: UserProfile }>('/profiles', data);
     return res.data.profile;
   },
 
   updateProfile: async (
     id: string,
-    data: { name?: string; avatar_url?: string; is_kids?: boolean }
+    data: { name?: string; avatar_url?: string; is_kids?: boolean; pin?: string }
   ): Promise<UserProfile> => {
     const res = await apiClient.put<{ message: string; profile: UserProfile }>(`/profiles/${id}`, data);
     return res.data.profile;
+  },
+
+  verifyPin: async (id: string, pin: string): Promise<boolean> => {
+    const res = await apiClient.post<{ valid: boolean }>(`/profiles/${id}/verify-pin`, { pin });
+    return res.data.valid;
   },
 
   deleteProfile: async (id: string): Promise<void> => {

@@ -14,7 +14,7 @@ export const Hero: React.FC<HeroProps> = ({ item }) => {
 
   if (!item) {
     return (
-      <div className="relative w-full h-[68vh] sm:h-[80vh] md:h-[88vh] overflow-hidden bg-[#141414] animate-pulse">
+      <div className="relative w-full h-[68vh] sm:h-[80vh] md:h-[88vh] overflow-hidden bg-[#141414] animate-shimmer">
         {/* Cinematic Gradient Overlays */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/60 to-zinc-900/40" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#141414]/95 via-[#141414]/60 to-transparent w-full md:w-3/5" />
@@ -23,15 +23,15 @@ export const Hero: React.FC<HeroProps> = ({ item }) => {
         {/* 1:1 Content Box Skeleton */}
         <div className="absolute bottom-12 sm:bottom-16 md:bottom-20 left-0 right-0 px-4 sm:px-8 md:px-12 lg:px-16 space-y-4 z-20">
           {/* Title Skeleton */}
-          <div className="h-9 sm:h-14 md:h-16 lg:h-20 bg-zinc-800/90 rounded-2xl w-3/4 max-w-2xl" />
+          <div className="h-9 sm:h-14 md:h-16 lg:h-20 bg-zinc-800/80 rounded-2xl w-3/4 max-w-2xl" />
 
           {/* Metadata Badges Skeleton */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <div className="w-14 h-5 rounded bg-zinc-800/90" />
-            <div className="w-12 h-5 rounded bg-zinc-800/90" />
-            <div className="w-14 h-5 rounded bg-amber-500/20 border border-amber-500/30" />
-            <div className="w-10 h-5 rounded bg-zinc-800/90" />
-            <div className="w-16 h-5 rounded bg-zinc-800/90" />
+            <div className="w-14 h-5 rounded bg-zinc-800/80" />
+            <div className="w-12 h-5 rounded bg-zinc-800/80" />
+            <div className="w-14 h-5 rounded bg-zinc-800/80" />
+            <div className="w-10 h-5 rounded bg-zinc-800/80" />
+            <div className="w-16 h-5 rounded bg-zinc-800/80" />
           </div>
 
           {/* Overview Lines Skeleton */}
@@ -41,10 +41,10 @@ export const Hero: React.FC<HeroProps> = ({ item }) => {
             <div className="h-4 bg-zinc-800/60 rounded w-2/3" />
           </div>
 
-          {/* Action Buttons Skeleton */}
-          <div className="flex flex-wrap items-center gap-3 pt-2">
-            <div className="w-32 sm:w-36 h-12 rounded-full bg-zinc-200/90 shadow-xl" />
-            <div className="w-48 sm:w-56 h-12 rounded-full bg-zinc-800/80 border border-white/5" />
+          {/* Action Buttons Skeleton (Side-by-side on mobile) */}
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-3 pt-2 w-full max-w-sm sm:max-w-none">
+            <div className="w-full sm:w-36 h-11 rounded-full bg-zinc-700/80" />
+            <div className="w-full sm:w-44 h-11 rounded-full bg-zinc-800/80 border border-white/5" />
           </div>
         </div>
 

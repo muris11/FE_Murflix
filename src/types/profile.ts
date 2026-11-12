@@ -4,6 +4,7 @@ export interface UserProfile {
   name: string;
   avatar_url: string;
   is_kids: boolean;
+  has_pin?: boolean;
   created_at: string;
   updated_at: string;
 }

@@ -134,7 +134,7 @@ export const SearchPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#141414] pt-24 pb-28 px-4 sm:px-8 md:px-12 lg:px-16 w-full space-y-10">
+    <div className="min-h-screen bg-[#141414] pt-24 pb-28 px-4 sm:px-8 md:px-12 lg:px-16 2xl:px-20 max-w-[2400px] mx-auto w-full space-y-10">
       
       {/* Search Input Hero Bar */}
       <div className="max-w-3xl mx-auto space-y-4">

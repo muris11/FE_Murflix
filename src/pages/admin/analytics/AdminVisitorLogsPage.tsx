@@ -23,6 +23,8 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 
+import { ConfirmModal } from '@/components/common/ConfirmModal';
+
 export const AdminVisitorLogsPage: React.FC = () => {
   const [logs, setLogs] = useState<VisitorLog[]>([]);
   const [total, setTotal] = useState<number>(0);
@@ -33,6 +35,7 @@ export const AdminVisitorLogsPage: React.FC = () => {
   const [selectedDevice, setSelectedDevice] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [selectedDetail, setSelectedDetail] = useState<VisitorLog | null>(null);
 
   const fetchLogs = async () => {
@@ -64,17 +67,17 @@ export const AdminVisitorLogsPage: React.FC = () => {
     fetchLogs();
   };
 
-  const handleDeleteOldLogs = async () => {
-    if (window.confirm('Hapus log kunjungan yang lebih lama dari 30 hari?')) {
-      setIsDeleting(true);
-      try {
-        await adminApi.deleteVisitorLogs(30);
-        fetchLogs();
-      } catch (err) {
-        alert('Gagal menghapus log');
-      } finally {
-        setIsDeleting(false);
-      }
+  const executeDeleteOldLogs = async () => {
+    setIsDeleting(true);
+    try {
+      await adminApi.deleteVisitorLogs(30);
+      setShowDeleteModal(false);
+      fetchLogs();
+    } catch (err) {
+      console.error('Failed to delete visitor logs:', err);
+      setShowDeleteModal(false);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -117,7 +120,7 @@ export const AdminVisitorLogsPage: React.FC = () => {
             <span>Peta Geolocation</span>
           </Link>
           <button
-            onClick={handleDeleteOldLogs}
+            onClick={() => setShowDeleteModal(true)}
             disabled={isDeleting}
             className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-red-400 text-xs font-medium border border-zinc-700/60 transition-colors"
             title="Bersihkan log lebih dari 30 hari"
@@ -475,6 +478,18 @@ export const AdminVisitorLogsPage: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Bersihkan Log Lama?"
+        message="Log kunjungan yang lebih lama dari 30 hari akan dihapus permanen dari basis data."
+        confirmText="Hapus Log"
+        cancelText="Batal"
+        variant="danger"
+        isLoading={isDeleting}
+        onConfirm={executeDeleteOldLogs}
+        onClose={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 };

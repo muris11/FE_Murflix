@@ -59,7 +59,7 @@ export const HomePage: React.FC = () => {
       <Hero item={featured} />
 
       {/* Row Sections (Full Width Seamless Netflix Layout) */}
-      <div className="relative z-20 -mt-10 sm:-mt-16 md:-mt-20 space-y-8 sm:space-y-12 w-full px-4 sm:px-8 md:px-12 lg:px-16">
+      <div className="relative z-20 -mt-10 sm:-mt-16 md:-mt-20 space-y-8 sm:space-y-12 w-full max-w-[2400px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 2xl:px-20">
         <MovieRow title="Sedang Trending Minggu Ini" items={trending} isLoading={isLoading} />
         <MovieRow title="Film Terpopuler" items={popularMovies} isLoading={isLoading} />
         <MovieRow title="Serial TV Paling Banyak Ditonton" items={popularTV} isLoading={isLoading} />

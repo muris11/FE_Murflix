@@ -13,8 +13,10 @@ export interface WatchlistRecord {
 }
 
 export const watchlistApi = {
-  getWatchlist: async () => {
-    const res = await apiClient.get<{ items: WatchlistRecord[] }>('/watchlist');
+  getWatchlist: async (profileId?: string) => {
+    const res = await apiClient.get<{ items: WatchlistRecord[] }>('/watchlist', {
+      params: profileId ? { profile_id: profileId } : undefined,
+    });
     return res.data.items;
   },
 
@@ -25,18 +27,23 @@ export const watchlistApi = {
     poster_path?: string | null;
     backdrop_path?: string | null;
     vote_average?: number;
+    profile_id?: string;
   }) => {
     const res = await apiClient.post<{ message: string; item: WatchlistRecord }>('/watchlist', item);
     return res.data.item;
   },
 
-  remove: async (mediaType: string, tmdbId: number) => {
-    const res = await apiClient.delete<{ message: string }>(`/watchlist/${mediaType}/${tmdbId}`);
+  remove: async (mediaType: string, tmdbId: number, profileId?: string) => {
+    const res = await apiClient.delete<{ message: string }>(`/watchlist/${mediaType}/${tmdbId}`, {
+      params: profileId ? { profile_id: profileId } : undefined,
+    });
     return res.data;
   },
 
-  check: async (mediaType: string, tmdbId: number) => {
-    const res = await apiClient.get<{ in_watchlist: boolean }>(`/watchlist/check/${mediaType}/${tmdbId}`);
+  check: async (mediaType: string, tmdbId: number, profileId?: string) => {
+    const res = await apiClient.get<{ in_watchlist: boolean }>(`/watchlist/check/${mediaType}/${tmdbId}`, {
+      params: profileId ? { profile_id: profileId } : undefined,
+    });
     return res.data.in_watchlist;
   },
 };

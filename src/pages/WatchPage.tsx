@@ -224,7 +224,7 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
         </div>
 
         {/* 1:1 Main 2-Column Cinema Layout Skeleton */}
-        <div className="w-full px-2 sm:px-4 md:px-8 lg:px-12 pt-4 sm:pt-6">
+        <div className="w-full max-w-[2400px] mx-auto px-2 sm:px-4 md:px-8 lg:px-12 2xl:px-20 pt-4 sm:pt-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Left Column: Player & Controls & Metadata */}
             <div className="lg:col-span-8 xl:col-span-9 space-y-4">
@@ -375,7 +375,7 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
       </div>
 
       {/* Main 2-Column Cinema Layout (Layarkaca21 / Netflix Style) */}
-      <div className="w-full px-2 sm:px-4 md:px-8 lg:px-12 pt-4 sm:pt-6">
+      <div className="w-full max-w-[2400px] mx-auto px-2 sm:px-4 md:px-8 lg:px-12 2xl:px-20 pt-4 sm:pt-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           
           {/* Left Column: Player & Controls & Metadata (8 or 9 cols on desktop) */}

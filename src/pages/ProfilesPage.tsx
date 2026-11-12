@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, Edit2, Check, Trash2, Upload, X, ArrowLeft } from 'lucide-react';
+import { Plus, Edit2, Check, Trash2, Upload, X, ArrowLeft, Lock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { profilesApi } from '@/api/profiles';
 import { UserProfile, NETFLIX_AVATAR_PRESETS } from '@/types/profile';
 import { uploadAvatarImage, getAvatarUrl } from '@/utils/avatarConverter';
 import { MurflixLogo } from '@/components/layout/MurflixLogo';
+import { ProfilePinModal } from '@/components/profile/ProfilePinModal';
+import { ConfirmModal } from '@/components/common/ConfirmModal';
 
 export const ProfilesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -15,11 +17,15 @@ export const ProfilesPage: React.FC = () => {
   const [isManaging, setIsManaging] = useState(searchParams.get('manage') === 'true');
   const [modalMode, setModalMode] = useState<'create' | 'edit' | null>(null);
   const [editingProfile, setEditingProfile] = useState<UserProfile | null>(null);
+  const [pinModalProfile, setPinModalProfile] = useState<UserProfile | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Form states
   const [profileName, setProfileName] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState('/avatars/avatar-red.svg');
   const [isKids, setIsKids] = useState(false);
+  const [enablePin, setEnablePin] = useState(false);
+  const [profilePin, setProfilePin] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,8 +41,23 @@ export const ProfilesPage: React.FC = () => {
       openEditModal(profile);
       return;
     }
+
+    // If profile is PIN locked and not already active, trigger PIN prompt
+    if (profile.has_pin && activeProfile?.id !== profile.id) {
+      setPinModalProfile(profile);
+      return;
+    }
+
     selectProfile(profile);
     navigate('/');
+  };
+
+  const handlePinSuccess = () => {
+    if (pinModalProfile) {
+      selectProfile(pinModalProfile);
+      setPinModalProfile(null);
+      navigate('/');
+    }
   };
 
   const openCreateModal = () => {
@@ -44,6 +65,8 @@ export const ProfilesPage: React.FC = () => {
     setProfileName('');
     setSelectedAvatar('/avatars/avatar-blue.svg');
     setIsKids(false);
+    setEnablePin(false);
+    setProfilePin('');
     setEditingProfile(null);
     setModalMode('create');
   };
@@ -53,6 +76,8 @@ export const ProfilesPage: React.FC = () => {
     setProfileName(profile.name);
     setSelectedAvatar(profile.avatar_url || '/avatars/avatar-red.svg');
     setIsKids(profile.is_kids);
+    setEnablePin(!!profile.has_pin);
+    setProfilePin('');
     setEditingProfile(profile);
     setModalMode('edit');
   };
@@ -60,6 +85,8 @@ export const ProfilesPage: React.FC = () => {
   const closeModal = () => {
     setModalMode(null);
     setEditingProfile(null);
+    setEnablePin(false);
+    setProfilePin('');
     setError(null);
   };
 
@@ -94,6 +121,16 @@ export const ProfilesPage: React.FC = () => {
       return;
     }
 
+    if (enablePin && profilePin && profilePin.length !== 4) {
+      setError('PIN harus berupa 4 digit angka');
+      return;
+    }
+
+    if (enablePin && modalMode === 'create' && !profilePin) {
+      setError('PIN 4 digit wajib diisi jika kunci profil diaktifkan');
+      return;
+    }
+
     setError(null);
     setIsSubmitting(true);
 
@@ -103,15 +140,33 @@ export const ProfilesPage: React.FC = () => {
           name: profileName.trim(),
           avatar_url: selectedAvatar,
           is_kids: isKids,
+          pin: enablePin ? profilePin : '',
         });
         await refreshProfiles();
         selectProfile(created);
         closeModal();
       } else if (modalMode === 'edit' && editingProfile) {
+        let pinPayload: string | undefined = undefined;
+        if (enablePin) {
+          if (profilePin) {
+            pinPayload = profilePin;
+          } else if (!editingProfile.has_pin) {
+            setError('PIN 4 digit wajib diisi');
+            setIsSubmitting(false);
+            return;
+          }
+        } else {
+          // If unchecking PIN, clear it by sending empty string
+          if (editingProfile.has_pin) {
+            pinPayload = '';
+          }
+        }
+
         const updated = await profilesApi.updateProfile(editingProfile.id, {
           name: profileName.trim(),
           avatar_url: selectedAvatar,
           is_kids: isKids,
+          ...(pinPayload !== undefined ? { pin: pinPayload } : {}),
         });
         await refreshProfiles();
         if (activeProfile?.id === editingProfile.id) {
@@ -126,19 +181,17 @@ export const ProfilesPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async () => {
+  const executeDelete = async () => {
     if (!editingProfile) return;
-    if (!window.confirm(`Hapus profil "${editingProfile.name}"? Riwayat tontonan profil ini akan hilang.`)) {
-      return;
-    }
-
     setIsSubmitting(true);
     try {
       await profilesApi.deleteProfile(editingProfile.id);
       await refreshProfiles();
+      setShowDeleteConfirm(false);
       closeModal();
     } catch (err: any) {
       setError(err.response?.data?.error || err.message || 'Gagal menghapus profil');
+      setShowDeleteConfirm(false);
     } finally {
       setIsSubmitting(false);
     }
@@ -163,17 +216,17 @@ export const ProfilesPage: React.FC = () => {
       </header>
 
       {/* Main Profiles Center Container */}
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-12 max-w-5xl mx-auto w-full text-center">
-        <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white mb-10 animate-fadeIn">
+      <main className="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:py-12 md:py-16 max-w-7xl 2xl:max-w-[1600px] mx-auto w-full text-center my-auto">
+        <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white mb-8 sm:mb-12 animate-fadeIn">
           {isManaging ? 'Kelola Profil' : 'Siapa yang Sedang Menonton?'}
         </h1>
 
         {/* Profiles Grid */}
-        <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
+        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 md:gap-8 lg:gap-10 2xl:gap-14 max-w-6xl">
           {profiles.length === 0 ? (
             Array.from({ length: 4 }).map((_, idx) => (
               <div key={idx} className="flex flex-col items-center space-y-3 animate-pulse">
-                <div className="w-24 h-24 sm:w-36 sm:h-36 rounded-2xl bg-zinc-800 border-2 border-white/10 shadow-2xl" />
+                <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-44 lg:h-44 rounded-2xl bg-zinc-800 border-2 border-white/10 shadow-2xl" />
                 <div className="w-20 h-4 bg-zinc-800 rounded-md" />
               </div>
             ))
@@ -188,7 +241,7 @@ export const ProfilesPage: React.FC = () => {
                 className="group flex flex-col items-center cursor-pointer transition-transform duration-300 hover:scale-105"
               >
                 {/* Avatar Wrapper */}
-                <div className="relative w-24 h-24 sm:w-36 sm:h-36 rounded-2xl overflow-hidden bg-zinc-900 border-2 border-transparent group-hover:border-white shadow-2xl transition-all duration-300">
+                <div className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-44 lg:h-44 xl:w-48 xl:h-48 rounded-2xl overflow-hidden bg-zinc-900 border-2 border-transparent group-hover:border-white shadow-2xl transition-all duration-300">
                   <img
                     src={getAvatarUrl(p.avatar_url)}
                     alt={p.name}
@@ -201,6 +254,16 @@ export const ProfilesPage: React.FC = () => {
                   {/* Active Indicator Border */}
                   {isActive && !isManaging && (
                     <div className="absolute inset-0 ring-4 ring-red-600 rounded-2xl pointer-events-none" />
+                  )}
+
+                  {/* Lock Indicator (Netflix Style PIN Lock) */}
+                  {p.has_pin && !isManaging && (
+                    <div
+                      className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/80 border border-white/20 text-white flex items-center justify-center shadow-lg"
+                      title="Profil Diproteksi PIN"
+                    >
+                      <Lock className="w-3 h-3 text-white" />
+                    </div>
                   )}
 
                   {/* Manage Overlay with Pencil */}
@@ -220,10 +283,13 @@ export const ProfilesPage: React.FC = () => {
                   )}
                 </div>
 
-                {/* Profile Name */}
-                <span className="mt-3 text-sm sm:text-base font-semibold text-gray-400 group-hover:text-white transition-colors truncate max-w-[120px] sm:max-w-[150px]">
-                  {p.name}
-                </span>
+                {/* Profile Name & Lock Status */}
+                <div className="mt-3 flex items-center space-x-1.5 max-w-[120px] sm:max-w-[160px] justify-center">
+                  <span className="text-sm sm:text-base font-semibold text-gray-400 group-hover:text-white transition-colors truncate">
+                    {p.name}
+                  </span>
+                  {p.has_pin && <Lock className="w-3.5 h-3.5 text-zinc-500 flex-shrink-0" />}
+                </div>
               </div>
             );
           }))}
@@ -233,7 +299,7 @@ export const ProfilesPage: React.FC = () => {
             onClick={openCreateModal}
             className="group flex flex-col items-center cursor-pointer transition-transform duration-300 hover:scale-105"
           >
-            <div className="w-24 h-24 sm:w-36 sm:h-36 rounded-2xl border-2 border-dashed border-zinc-700 group-hover:border-white group-hover:bg-zinc-800/60 flex items-center justify-center text-zinc-500 group-hover:text-white transition-all duration-300 shadow-xl">
+            <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-44 lg:h-44 xl:w-48 xl:h-48 rounded-2xl border-2 border-dashed border-zinc-700 group-hover:border-white group-hover:bg-zinc-800/60 flex items-center justify-center text-zinc-500 group-hover:text-white transition-all duration-300 shadow-xl">
               <Plus className="w-10 h-10 sm:w-14 sm:h-14 stroke-1" />
             </div>
             <span className="mt-3 text-sm sm:text-base font-semibold text-gray-400 group-hover:text-white transition-colors">
@@ -387,11 +453,54 @@ export const ProfilesPage: React.FC = () => {
                   id="is_kids_toggle"
                   checked={isKids}
                   onChange={(e) => setIsKids(e.target.checked)}
-                  className="w-5 h-5 rounded border-zinc-700 bg-zinc-900 text-red-600 focus:ring-red-600"
+                  className="w-5 h-5 rounded border-zinc-700 bg-zinc-900 text-red-600 focus:ring-red-600 cursor-pointer"
                 />
                 <label htmlFor="is_kids_toggle" className="text-xs sm:text-sm text-gray-300 cursor-pointer font-medium">
                   Profil Anak? (Hanya menampilkan tontonan ramah keluarga &amp; anak)
                 </label>
+              </div>
+
+              {/* Profile PIN Lock Configuration (Netflix 1:1) */}
+              <div className="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2.5">
+                    <Lock className="w-4 h-4 text-red-500" />
+                    <div className="text-left">
+                      <span className="block text-xs font-bold text-white">Kunci Profil (PIN 4-Digit)</span>
+                      <span className="text-[11px] text-zinc-400">Butuh PIN untuk mengakses profil ini</span>
+                    </div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    id="enable_pin_toggle"
+                    checked={enablePin}
+                    onChange={(e) => {
+                      setEnablePin(e.target.checked);
+                      if (!e.target.checked) setProfilePin('');
+                    }}
+                    className="w-5 h-5 rounded border-zinc-700 bg-zinc-900 text-red-600 focus:ring-red-600 cursor-pointer"
+                  />
+                </div>
+
+                {enablePin && (
+                  <div className="pt-2 border-t border-zinc-800/80 space-y-2 text-left animate-fadeIn">
+                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-zinc-300">
+                      {editingProfile?.has_pin ? 'Ubah PIN 4 Digit (Kosongkan jika tetap)' : 'Buat PIN 4 Digit'}
+                    </label>
+                    <input
+                      type="password"
+                      inputMode="numeric"
+                      maxLength={4}
+                      value={profilePin}
+                      onChange={(e) => setProfilePin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                      placeholder={editingProfile?.has_pin ? 'PIN Aktif (Isi untuk ganti)' : 'Misal: 1234'}
+                      className="w-40 bg-black border border-zinc-700 text-white font-mono text-center tracking-widest text-lg rounded-xl px-3 py-2 focus:outline-none focus:border-red-500"
+                    />
+                    <p className="text-[10px] text-zinc-500 leading-relaxed">
+                      Profil ini hanya bisa dibuka oleh orang yang mengetahui 4-digit PIN tersebut.
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Modal Buttons */}
@@ -399,9 +508,9 @@ export const ProfilesPage: React.FC = () => {
                 {modalMode === 'edit' ? (
                   <button
                     type="button"
-                    onClick={handleDelete}
+                    onClick={() => setShowDeleteConfirm(true)}
                     disabled={isSubmitting}
-                    className="inline-flex items-center space-x-1.5 text-xs text-red-500 hover:text-red-400 font-semibold transition-colors disabled:opacity-50"
+                    className="inline-flex items-center space-x-1.5 text-xs text-red-500 hover:text-red-400 font-semibold transition-colors disabled:opacity-50 cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
                     <span>Hapus Profil</span>
@@ -414,14 +523,14 @@ export const ProfilesPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={closeModal}
-                    className="px-5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-gray-300 text-xs font-bold transition-colors"
+                    className="px-5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-gray-300 text-xs font-bold transition-colors cursor-pointer"
                   >
                     Batal
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting || isUploading}
-                    className="px-6 py-2.5 rounded-xl bg-[#e50914] hover:bg-red-700 text-white text-xs font-bold shadow-lg shadow-red-600/30 transition-all hover:scale-105 disabled:opacity-50"
+                    className="px-6 py-2.5 rounded-xl bg-[#e50914] hover:bg-red-700 text-white text-xs font-bold shadow-lg shadow-red-600/30 transition-all hover:scale-105 disabled:opacity-50 cursor-pointer"
                   >
                     {isSubmitting ? 'Menyimpan...' : 'Simpan'}
                   </button>
@@ -431,6 +540,27 @@ export const ProfilesPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Netflix 1:1 PIN Prompt Modal */}
+      <ProfilePinModal
+        isOpen={!!pinModalProfile}
+        profile={pinModalProfile}
+        onSuccess={handlePinSuccess}
+        onClose={() => setPinModalProfile(null)}
+      />
+
+      {/* Custom Confirmation Modal for Deleting Profile */}
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        title={`Hapus Profil "${editingProfile?.name}"?`}
+        message="Riwayat tontonan dan daftar saya pada profil ini akan terhapus secara permanen."
+        confirmText="Hapus Profil"
+        cancelText="Batal"
+        variant="danger"
+        isLoading={isSubmitting}
+        onConfirm={executeDelete}
+        onClose={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 };

@@ -3,6 +3,7 @@ import { adminApi } from '@/api/admin';
 import { StreamingServer } from '@/types/tmdb';
 import { DEFAULT_STREAMING_SERVERS, formatEmbedUrl } from '@/constants/streamingServers';
 import { AdminSettingsLayout } from './AdminSettingsLayout';
+import { ConfirmModal } from '@/components/common/ConfirmModal';
 import {
   Save,
   CheckCircle2,
@@ -44,6 +45,8 @@ export const AdminServersSettingsPage: React.FC = () => {
   const [showRawJson, setShowRawJson] = useState(false);
   const [rawJsonText, setRawJsonText] = useState('');
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
+  const [serverToDeleteIndex, setServerToDeleteIndex] = useState<number | null>(null);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   useEffect(() => {
     adminApi
@@ -140,14 +143,13 @@ export const AdminServersSettingsPage: React.FC = () => {
     saveServersToBackend(updatedList);
   };
 
-  const handleDeleteServer = (index: number) => {
-    const target = servers[index];
-    if (window.confirm(`Yakin ingin menghapus server "${target.name}"?`)) {
-      const updated = servers.filter((_, i) => i !== index);
-      setServers(updated);
-      setRawJsonText(JSON.stringify(updated, null, 2));
-      saveServersToBackend(updated);
-    }
+  const executeDeleteServer = () => {
+    if (serverToDeleteIndex === null) return;
+    const updated = servers.filter((_, i) => i !== serverToDeleteIndex);
+    setServers(updated);
+    setRawJsonText(JSON.stringify(updated, null, 2));
+    saveServersToBackend(updated);
+    setServerToDeleteIndex(null);
   };
 
   const handleMoveServer = (index: number, direction: 'up' | 'down') => {
@@ -163,12 +165,11 @@ export const AdminServersSettingsPage: React.FC = () => {
     saveServersToBackend(updated);
   };
 
-  const handleResetToDefaults = () => {
-    if (window.confirm('Reset daftar server ke 11 default server (termasuk 8 Ad-Free servers: EmbedWave, VidCore, Stellar, YapGrid, dll)?')) {
-      setServers(DEFAULT_STREAMING_SERVERS);
-      setRawJsonText(JSON.stringify(DEFAULT_STREAMING_SERVERS, null, 2));
-      saveServersToBackend(DEFAULT_STREAMING_SERVERS);
-    }
+  const executeResetToDefaults = () => {
+    setServers(DEFAULT_STREAMING_SERVERS);
+    setRawJsonText(JSON.stringify(DEFAULT_STREAMING_SERVERS, null, 2));
+    saveServersToBackend(DEFAULT_STREAMING_SERVERS);
+    setShowResetConfirm(false);
   };
 
   const handleSaveRawJson = () => {
@@ -218,7 +219,7 @@ export const AdminServersSettingsPage: React.FC = () => {
             <span>{showRawJson ? 'Tutup Editor JSON' : 'Editor Raw JSON'}</span>
           </button>
           <button
-            onClick={handleResetToDefaults}
+            onClick={() => setShowResetConfirm(true)}
             className="flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold border border-zinc-700 transition-colors"
           >
             <RotateCcw className="w-4 h-4" />
@@ -430,7 +431,7 @@ export const AdminServersSettingsPage: React.FC = () => {
 
                   {/* Delete */}
                   <button
-                    onClick={() => handleDeleteServer(index)}
+                    onClick={() => setServerToDeleteIndex(index)}
                     className="p-2 rounded-xl text-zinc-400 hover:text-red-400 hover:bg-zinc-800 transition-colors"
                     title="Hapus Server"
                   >
@@ -548,6 +549,29 @@ export const AdminServersSettingsPage: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Confirm Delete Server Modal */}
+      <ConfirmModal
+        isOpen={serverToDeleteIndex !== null}
+        title={serverToDeleteIndex !== null ? `Hapus Server "${servers[serverToDeleteIndex]?.name}"?` : 'Hapus Server?'}
+        message="Server streaming ini akan dihapus dari daftar server aktif."
+        confirmText="Hapus Server"
+        cancelText="Batal"
+        variant="danger"
+        onConfirm={executeDeleteServer}
+        onClose={() => setServerToDeleteIndex(null)}
+      />
+
+      {/* Confirm Reset Default Modal */}
+      <ConfirmModal
+        isOpen={showResetConfirm}
+        title="Reset ke Server Bawaan?"
+        message="Daftar server akan dikembalikan ke 11 default server resmi (termasuk 8 server ad-free berkecepatan tinggi)."
+        confirmText="Reset Sekarang"
+        cancelText="Batal"
+        variant="warning"
+        onConfirm={executeResetToDefaults}
+        onClose={() => setShowResetConfirm(false)}
+      />
     </AdminSettingsLayout>
   );
 };
