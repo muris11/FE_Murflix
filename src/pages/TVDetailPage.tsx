@@ -314,21 +314,21 @@ export const TVDetailPage: React.FC = () => {
           </div>
 
           {/* Action Buttons (1:1 Netflix Direct Cinema Watch) */}
-          <div className="flex flex-wrap items-center gap-4 pt-4">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-4 pt-4 w-full">
             <button
               onClick={() => navigate(getWatchTVUrl(tv.id, tv.name, selectedSeason, selectedEpisode))}
-              className="flex items-center space-x-2 px-8 py-3.5 rounded-full bg-[#e50914] hover:bg-red-700 text-white font-extrabold text-sm sm:text-base shadow-2xl shadow-red-950/60 transition-transform hover:scale-105 active:scale-95"
+              className="w-full sm:w-auto flex items-center justify-center space-x-1.5 sm:space-x-2 px-3 sm:px-8 py-3 rounded-full bg-[#e50914] hover:bg-red-700 text-white font-extrabold text-xs sm:text-base shadow-lg shadow-red-950/60 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
             >
-              <Play className="w-5 h-5 fill-white ml-0.5" />
-              <span>Nonton S{selectedSeason}:E{selectedEpisode}</span>
+              <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-white ml-0.5 flex-shrink-0" />
+              <span className="truncate">Nonton S{selectedSeason}:E{selectedEpisode}</span>
             </button>
 
             <button
               onClick={toggleWatchlist}
-              className="flex items-center space-x-2 px-6 py-3.5 rounded-full bg-zinc-800/80 hover:bg-zinc-700 text-white font-semibold text-sm border border-white/10 transition-colors"
+              className="w-full sm:w-auto flex items-center justify-center space-x-1.5 sm:space-x-2 px-3 sm:px-6 py-3 rounded-full bg-zinc-800/90 hover:bg-zinc-700 text-white font-semibold text-xs sm:text-sm border border-white/10 transition-colors cursor-pointer"
             >
-              {isInList ? <Check className="w-4 h-4 text-emerald-400" /> : <Plus className="w-4 h-4" />}
-              <span>{isInList ? 'Di Daftar Saya' : 'Tambah ke Daftar'}</span>
+              {isInList ? <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" /> : <Plus className="w-4 h-4 flex-shrink-0" />}
+              <span className="truncate">{isInList ? 'Di Daftar' : 'Daftar Saya'}</span>
             </button>
           </div>
 

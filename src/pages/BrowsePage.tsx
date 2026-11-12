@@ -136,8 +136,8 @@ export const BrowsePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Filters Bar: Custom Netflix-Style Dropdowns */}
-        <div className="flex flex-wrap items-center gap-3">
+        {/* Filters Bar: Responsive Side-by-Side on mobile, flex on desktop */}
+        <div className="grid grid-cols-2 sm:flex sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
           {/* Custom Genre Dropdown */}
           <CustomDropdown
             value={currentGenre}
@@ -146,7 +146,7 @@ export const BrowsePage: React.FC = () => {
               { value: '', label: 'Semua Genre' },
               ...genres.map((g) => ({ value: String(g.id), label: g.name })),
             ]}
-            className="w-44"
+            className="w-full sm:w-44"
           />
 
           {/* Custom Sort Dropdown */}
@@ -161,7 +161,7 @@ export const BrowsePage: React.FC = () => {
                 label: 'Rilis Terbaru',
               },
             ]}
-            className="w-48"
+            className="w-full sm:w-48"
           />
         </div>
       </div>

@@ -86,7 +86,7 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
           isOpen
             ? 'border-red-500/80 ring-2 ring-red-500/30'
             : 'border-zinc-700/80 hover:border-zinc-500'
-        } ${isSmall ? 'px-3 py-1.5 text-xs font-semibold' : 'px-4 py-2.5 text-xs sm:text-sm font-semibold'} ${
+        } ${isSmall ? 'px-3 py-1.5 text-xs font-semibold' : 'px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold'} ${
           disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
         }`}
       >

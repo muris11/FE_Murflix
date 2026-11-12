@@ -122,21 +122,21 @@ export const Hero: React.FC<HeroProps> = ({ item }) => {
         </p>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-3 pt-2">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-3 pt-2 w-full max-w-sm sm:max-w-none">
           <Link
             to={watchPath}
-            className="flex items-center space-x-2 px-7 py-3 rounded-full bg-white hover:bg-zinc-200 text-black font-extrabold text-sm sm:text-base shadow-2xl transition-transform hover:scale-105 active:scale-95"
+            className="w-full sm:w-auto flex items-center justify-center space-x-1.5 sm:space-x-2 px-3 sm:px-7 py-2.5 sm:py-3 rounded-full bg-white hover:bg-zinc-200 text-black font-extrabold text-xs sm:text-base shadow-2xl transition-transform hover:scale-105 active:scale-95"
           >
-            <Play className="w-5 h-5 fill-black" />
+            <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-black flex-shrink-0" />
             <span>Putar</span>
           </Link>
 
           <Link
             to={detailPath}
-            className="flex items-center space-x-2 px-6 py-3 rounded-full bg-zinc-700/60 hover:bg-zinc-700/80 backdrop-blur-md text-white font-bold text-sm sm:text-base border border-white/10 transition-colors"
+            className="w-full sm:w-auto flex items-center justify-center space-x-1.5 sm:space-x-2 px-3 sm:px-6 py-2.5 sm:py-3 rounded-full bg-zinc-700/80 hover:bg-zinc-700 text-white font-bold text-xs sm:text-base border border-white/10 transition-colors"
           >
-            <Info className="w-5 h-5" />
-            <span>Informasi Selengkapnya</span>
+            <Info className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+            <span className="truncate">Selengkapnya</span>
           </Link>
         </div>
       </div>
