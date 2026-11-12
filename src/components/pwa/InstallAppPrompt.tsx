@@ -20,9 +20,9 @@ export const triggerPWAInstallPrompt = async () => {
   } else {
     alert(
       'Petunjuk Pemasangan:\n\n' +
-      '• Android / Chrome: Buka menu peramban (titik tiga) lalu pilih "Tambahkan ke Layar Utama" atau "Install Aplikasi".\n' +
-      '• iPhone / Safari: Ketuk tombol Bagikan (Share) di bilah bawah lalu pilih "Tambahkan ke Layar Utama".\n' +
-      '• Laptop / PC: Klik ikon "Install" di bilah alamat URL peramban Anda.'
+      '1. Android / Chrome: Buka menu peramban lalu pilih "Tambahkan ke Layar Utama" atau "Install Aplikasi".\n' +
+      '2. iPhone / Safari: Ketuk tombol Bagikan (Share) di bilah bawah lalu pilih "Tambahkan ke Layar Utama".\n' +
+      '3. Laptop / PC: Klik ikon "Install" di bilah alamat URL peramban Anda.'
     );
   }
 };
