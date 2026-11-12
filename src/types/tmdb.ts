@@ -12,6 +12,8 @@ export interface MediaItem {
   vote_count?: number;
   popularity?: number;
   genre_ids?: number[];
+  original_language?: string;
+  status?: string;
 }
 
 export interface TMDBResponse<T> {

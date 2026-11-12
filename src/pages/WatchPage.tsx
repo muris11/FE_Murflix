@@ -19,6 +19,12 @@ import {
   Share2,
   Info,
   Clock,
+  User,
+  Users,
+  Clapperboard,
+  Globe,
+  Layers,
+  Award,
 } from 'lucide-react';
 import { moviesApi } from '@/api/movies';
 import { watchlistApi } from '@/api/watchlist';
@@ -35,6 +41,8 @@ import {
 } from '@/utils/slug';
 import { MurflixLogo } from '@/components/layout/MurflixLogo';
 import { CustomDropdown } from '@/components/ui/CustomDropdown';
+import { PersonModal } from '@/components/media/PersonModal';
+import { WatchProvidersBadge } from '@/components/media/WatchProvidersBadge';
 import { DEFAULT_STREAMING_SERVERS, formatEmbedUrl } from '@/constants/streamingServers';
 
 interface WatchPageProps {
@@ -66,6 +74,7 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
   const [isLightsOff, setIsLightsOff] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [isInList, setIsInList] = useState(false);
+  const [selectedPersonId, setSelectedPersonId] = useState<number | null>(null);
 
   // Episode Sidebar Batch state for TV shows with many episodes (e.g. 120 episodes)
   const [currentBatchPage, setCurrentBatchPage] = useState<number>(() => Math.ceil(currentEpisode / 20) || 1);
@@ -116,7 +125,7 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
           const recs = data?.recommendations?.results?.length
             ? data.recommendations.results
             : (data as any)?.similar?.results || [];
-          setRelatedItems(recs.slice(0, 12));
+          setRelatedItems(recs.slice(0, 18));
         })
         .catch((err) => console.error(err))
         .finally(() => setIsLoading(false));
@@ -125,6 +134,10 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
         .getTVDetails(id)
         .then((data) => {
           setTv(data);
+          const recs = data?.recommendations?.results?.length
+            ? data.recommendations.results
+            : (data as any)?.similar?.results || [];
+          setRelatedItems(recs.slice(0, 18));
         })
         .catch((err) => console.error(err))
         .finally(() => setIsLoading(false));
@@ -176,6 +189,13 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
     if (h === 0) return `${m}m`;
     if (m === 0) return `${h}j`;
     return `${h}j ${m}m`;
+  };
+
+  const formatVoteCount = (count?: number) => {
+    if (!count) return null;
+    if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M suara`;
+    if (count >= 1000) return `${(count / 1000).toFixed(1)}rb suara`;
+    return `${count} suara`;
   };
 
   const handleSelectEpisode = (epNum: number) => {
@@ -250,14 +270,24 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
   const backupServers = servers.slice(5);
   const isBackupActive = backupServers.some((s) => s.id === activeServer);
 
+  // Cast & Crew Extraction
+  const castList = (mediaType === 'movie' ? movie?.credits?.cast : tv?.credits?.cast)?.slice(0, 10) || [];
+  const directors = (mediaType === 'movie' ? movie?.credits?.crew : tv?.credits?.crew)
+    ?.filter((c) => c.job === 'Director')
+    .map((c) => c.name) || [];
+  const writers = (mediaType === 'movie' ? movie?.credits?.crew : tv?.credits?.crew)
+    ?.filter((c) => c.department === 'Writing' || c.job === 'Screenplay' || c.job === 'Writer')
+    .slice(0, 3)
+    .map((c) => c.name) || [];
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#0f0f12] text-white pb-20 animate-pulse">
         {/* Cinema Header Skeleton */}
-        <div className="bg-[#141418] border-b border-white/10 px-3 sm:px-6 lg:px-8 py-3 sticky top-0 z-40 shadow-md">
+        <div className="bg-[#121216] border-b border-zinc-800/80 px-4 sm:px-8 lg:px-12 py-3 sticky top-0 z-40 shadow-md">
           <div className="w-full flex items-center justify-between gap-3">
-            <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
-              <div className="w-24 h-6 bg-red-600/30 rounded flex-shrink-0" />
+            <div className="flex items-center space-x-3 min-w-0">
+              <div className="w-24 h-7 bg-red-600/30 rounded flex-shrink-0" />
               <div className="w-20 h-8 rounded-xl bg-zinc-800 border border-zinc-700 flex-shrink-0" />
               <div className="h-5 bg-zinc-800 rounded w-48 sm:w-64" />
             </div>
@@ -268,47 +298,142 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
           </div>
         </div>
 
-        {/* Dynamic 1:1 Layout Skeleton */}
-        {mediaType === 'movie' ? (
-          <div className="w-full max-w-6xl 2xl:max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-6">
-            <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl flex items-center justify-center">
-              <div className="w-12 h-12 rounded-full border-4 border-red-600 border-t-transparent animate-spin" />
-            </div>
-            <div className="p-4 rounded-2xl bg-[#151518] border border-white/10 h-16" />
-            <div className="p-6 rounded-2xl bg-[#151518] border border-white/10 space-y-4">
-              <div className="h-7 bg-zinc-800 rounded w-1/3" />
-              <div className="h-4 bg-zinc-800 rounded w-full" />
-              <div className="h-4 bg-zinc-800 rounded w-4/5" />
-            </div>
+        {/* Dynamic Full Width Skeleton */}
+        <div className="w-full max-w-[2100px] 2xl:max-w-[2400px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-12 pt-4 sm:pt-6 space-y-6">
+          <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full border-4 border-red-600 border-t-transparent animate-spin" />
           </div>
-        ) : (
-          <div className="w-full max-w-[2400px] mx-auto px-2 sm:px-4 md:px-8 lg:px-12 2xl:px-20 pt-4 sm:pt-6">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              <div className="lg:col-span-8 xl:col-span-9 space-y-4">
-                <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl flex items-center justify-center">
-                  <div className="w-12 h-12 rounded-full border-4 border-red-600 border-t-transparent animate-spin" />
-                </div>
-                <div className="p-4 rounded-2xl bg-[#151518] border border-white/10 h-16" />
-                <div className="p-6 rounded-2xl bg-[#151518] border border-white/10 space-y-4">
-                  <div className="h-7 bg-zinc-800 rounded w-1/3" />
-                  <div className="h-4 bg-zinc-800 rounded w-full" />
-                </div>
-              </div>
-              <div className="lg:col-span-4 xl:col-span-3 space-y-4">
-                <div className="rounded-2xl bg-[#151518] border border-white/10 p-4 h-96" />
+          <div className="p-4 rounded-2xl bg-[#151518] border border-white/10 h-16" />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-8 xl:col-span-9 space-y-4">
+              <div className="p-6 rounded-2xl bg-[#151518] border border-white/10 space-y-4">
+                <div className="h-7 bg-zinc-800 rounded w-1/3" />
+                <div className="h-4 bg-zinc-800 rounded w-full" />
+                <div className="h-4 bg-zinc-800 rounded w-4/5" />
               </div>
             </div>
+            <div className="lg:col-span-4 xl:col-span-3 space-y-4">
+              <div className="p-6 rounded-2xl bg-[#151518] border border-white/10 h-64" />
+            </div>
           </div>
-        )}
+        </div>
       </div>
     );
   }
 
   const detailPath = id ? (mediaType === 'movie' ? getMovieUrl(id, title) : getTVUrl(id, title)) : '/';
 
+  // Sub-Player Toolbar Component
+  const renderPlayerToolbar = () => (
+    <div className="p-3 sm:p-4 rounded-2xl bg-[#141418] border border-zinc-800/80 space-y-3 shadow-xl">
+      {/* MOBILE VIEW (md:hidden): Custom Dropdown + Refresh */}
+      <div className="md:hidden flex items-center justify-between gap-2.5">
+        <CustomDropdown
+          value={activeServer}
+          onChange={(val) => setActiveServer(val)}
+          icon={<Server className="w-4 h-4" />}
+          options={servers.map((s) => ({
+            value: s.id,
+            label: `Server ${s.name}`,
+            description: s.description,
+          }))}
+          className="flex-1 min-w-0"
+        />
+
+        <button
+          type="button"
+          onClick={() => setPlayerKey((k) => k + 1)}
+          className="px-3.5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 text-zinc-200 text-xs font-semibold flex items-center space-x-1.5 transition-colors border border-zinc-700 flex-shrink-0"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          <span className="text-xs">Refresh</span>
+        </button>
+      </div>
+
+      {/* DESKTOP VIEW (hidden md:flex): Sleek Server Selector Bar */}
+      <div className="hidden md:flex items-center justify-between gap-3">
+        <div className="flex items-center space-x-2 flex-wrap gap-y-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5 mr-1 font-mono">
+            <Server className="w-3.5 h-3.5 text-[#e50914]" />
+            Server:
+          </span>
+          {primaryServers.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => setActiveServer(s.id)}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                activeServer === s.id
+                  ? 'bg-[#e50914] text-white shadow-md shadow-red-600/30'
+                  : 'bg-zinc-800/90 text-zinc-300 hover:bg-zinc-700 hover:text-white border border-zinc-700/60'
+              }`}
+            >
+              {s.name}
+            </button>
+          ))}
+
+          {backupServers.length > 0 && (
+            <CustomDropdown
+              size="sm"
+              value={isBackupActive ? activeServer : ''}
+              placeholder={isBackupActive ? `Server: ${currentServer?.name}` : `Server Cadangan (${backupServers.length})`}
+              onChange={(val) => setActiveServer(String(val))}
+              options={backupServers.map((s) => ({
+                value: s.id,
+                label: s.name,
+                description: s.description,
+              }))}
+              className="w-48"
+            />
+          )}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setPlayerKey((k) => k + 1)}
+          className="px-4 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold flex items-center space-x-1.5 transition-colors border border-zinc-700 flex-shrink-0 shadow-sm"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          <span>Refresh Player</span>
+        </button>
+      </div>
+
+      {/* TV Symmetrical Prev / Next Controls */}
+      {mediaType === 'tv' && (
+        <div className="flex items-center justify-between pt-2.5 border-t border-zinc-800/80 text-xs">
+          <button
+            type="button"
+            onClick={handlePrevEpisode}
+            disabled={currentSeason === 1 && currentEpisode === 1}
+            className="px-3 sm:px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 text-zinc-200 disabled:opacity-30 disabled:hover:bg-zinc-800 transition-colors font-semibold flex items-center space-x-1.5 border border-zinc-700/80 shadow-sm"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Episode Sebelumnya</span>
+            <span className="sm:hidden">Prev Ep</span>
+          </button>
+
+          <div className="text-center font-mono text-zinc-300 text-xs font-semibold px-2">
+            <span>S{currentSeason} : Episode {currentEpisode}</span>
+            <span className="text-zinc-500 font-normal"> / {episodesList.length}</span>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleNextEpisode}
+            className="px-3 sm:px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 text-zinc-200 hover:text-white transition-colors font-semibold flex items-center space-x-1.5 border border-zinc-700/80 shadow-sm"
+          >
+            <span className="hidden sm:inline">Episode Berikutnya</span>
+            <span className="sm:hidden">Next Ep</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
   // Render Episode List Component for TV Shows
   const renderEpisodeList = (isMobileView = false) => (
-    <div className={`rounded-2xl bg-[#151518] border border-white/10 p-3.5 sm:p-4 space-y-3.5 shadow-xl ${isMobileView ? 'mt-4' : ''}`}>
+    <div className={`rounded-2xl bg-[#141418] border border-zinc-800/80 p-4 space-y-3.5 shadow-xl ${isMobileView ? 'mt-4' : ''}`}>
       <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
         <div className="flex items-center space-x-2">
           <Tv className="w-4 h-4 text-[#e50914]" />
@@ -357,7 +482,7 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
       )}
 
       {/* Scrollable Episodes */}
-      <div className="space-y-2 max-h-[580px] overflow-y-auto pr-1">
+      <div className="space-y-2 max-h-[620px] overflow-y-auto pr-1">
         {visibleEpisodes.length > 0 ? (
           visibleEpisodes.map((ep) => {
             const isPlaying = ep.episode_number === currentEpisode;
@@ -434,223 +559,82 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
     </div>
   );
 
-  // Sub-Player Toolbar Component
-  const renderPlayerToolbar = () => (
-    <div className="p-3 sm:p-4 rounded-2xl bg-[#151518] border border-white/10 space-y-3 shadow-lg">
-      {/* MOBILE VIEW (md:hidden): Custom Dropdown + Refresh */}
-      <div className="md:hidden flex items-center justify-between gap-2.5">
-        <CustomDropdown
-          value={activeServer}
-          onChange={(val) => setActiveServer(val)}
-          icon={<Server className="w-4 h-4" />}
-          options={servers.map((s) => ({
-            value: s.id,
-            label: `Server ${s.name}`,
-            description: s.description,
-          }))}
-          className="flex-1 min-w-0"
-        />
+  // Cast Avatars Component
+  const renderCastSection = () => {
+    if (castList.length === 0) return null;
+    return (
+      <div className="space-y-3 pt-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Users className="w-4 h-4 text-[#e50914]" />
+            <h3 className="text-sm sm:text-base font-bold text-white">Pemeran Utama</h3>
+          </div>
+          <span className="text-[11px] text-zinc-500">Klik aktor untuk melihat profil & karya</span>
+        </div>
 
-        <button
-          type="button"
-          onClick={() => setPlayerKey((k) => k + 1)}
-          className="px-3.5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 text-zinc-200 text-xs font-semibold flex items-center space-x-1.5 transition-colors border border-zinc-700 flex-shrink-0"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-          <span className="text-xs">Refresh</span>
-        </button>
-      </div>
-
-      {/* DESKTOP VIEW (hidden md:flex): Sleek Server Selector Bar */}
-      <div className="hidden md:flex items-center justify-between gap-3">
-        <div className="flex items-center space-x-2 flex-wrap gap-y-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5 mr-1 font-mono">
-            <Server className="w-3.5 h-3.5 text-[#e50914]" />
-            Server:
-          </span>
-          {primaryServers.map((s) => (
+        <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-none">
+          {castList.map((cast) => (
             <button
-              key={s.id}
+              key={cast.id}
               type="button"
-              onClick={() => setActiveServer(s.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                activeServer === s.id
-                  ? 'bg-[#e50914] text-white shadow-md shadow-red-600/30'
-                  : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white border border-zinc-700/60'
-              }`}
+              onClick={() => setSelectedPersonId(cast.id)}
+              className="flex-shrink-0 w-20 sm:w-24 text-center space-y-1.5 group focus:outline-none cursor-pointer"
             >
-              {s.name}
+              <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full overflow-hidden bg-zinc-800 border-2 border-transparent group-hover:border-[#e50914] shadow-md group-hover:scale-105 transition-all">
+                {cast.profile_path ? (
+                  <img
+                    src={getTMDBImageUrl(cast.profile_path, 'w185')}
+                    alt={cast.name}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = getDirectTMDBUrl(cast.profile_path, 'w185');
+                    }}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-zinc-500">
+                    <User className="w-8 h-8" />
+                  </div>
+                )}
+              </div>
+              <div className="px-1">
+                <p className="text-xs font-semibold text-zinc-200 group-hover:text-[#e50914] truncate transition-colors">
+                  {cast.name}
+                </p>
+                <p className="text-[10px] text-zinc-400 truncate mt-0.5">
+                  {cast.character}
+                </p>
+              </div>
             </button>
           ))}
-
-          {backupServers.length > 0 && (
-            <CustomDropdown
-              size="sm"
-              value={isBackupActive ? activeServer : ''}
-              placeholder={isBackupActive ? `Server: ${currentServer?.name}` : `Server Lainnya (${backupServers.length})`}
-              onChange={(val) => setActiveServer(String(val))}
-              options={backupServers.map((s) => ({
-                value: s.id,
-                label: s.name,
-                description: s.description,
-              }))}
-              className="w-44"
-            />
-          )}
         </div>
-
-        <button
-          type="button"
-          onClick={() => setPlayerKey((k) => k + 1)}
-          className="px-3.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold flex items-center space-x-1.5 transition-colors border border-zinc-700 flex-shrink-0"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-          <span>Refresh Player</span>
-        </button>
-      </div>
-
-      {/* TV Symmetrical Prev / Next Controls */}
-      {mediaType === 'tv' && (
-        <div className="flex items-center justify-between pt-2.5 border-t border-zinc-800 text-xs">
-          <button
-            type="button"
-            onClick={handlePrevEpisode}
-            disabled={currentSeason === 1 && currentEpisode === 1}
-            className="px-3 sm:px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 text-zinc-200 disabled:opacity-30 disabled:hover:bg-zinc-800 transition-colors font-semibold flex items-center space-x-1.5 border border-zinc-700/80 shadow-sm"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Episode Sebelumnya</span>
-            <span className="sm:hidden">Prev Ep</span>
-          </button>
-
-          <div className="text-center font-mono text-zinc-300 text-xs font-semibold px-2">
-            <span>S{currentSeason} : Episode {currentEpisode}</span>
-            <span className="text-zinc-500 font-normal"> / {episodesList.length}</span>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleNextEpisode}
-            className="px-3 sm:px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 text-zinc-200 hover:text-white transition-colors font-semibold flex items-center space-x-1.5 border border-zinc-700/80 shadow-sm"
-          >
-            <span className="hidden sm:inline">Episode Berikutnya</span>
-            <span className="sm:hidden">Next Ep</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-    </div>
-  );
-
-  // Metadata Card Component
-  const renderMetadataCard = () => {
-    const voteAverage = mediaType === 'movie' ? movie?.vote_average : tv?.vote_average;
-    const runtime = mediaType === 'movie' ? formatRuntime(movie?.runtime) : null;
-    const tagline = mediaType === 'movie' ? movie?.tagline : tv?.tagline;
-    const genres = mediaType === 'movie' ? movie?.genres : tv?.genres;
-    const overview = mediaType === 'tv'
-      ? currentEpisodeData?.overview || tv?.overview
-      : movie?.overview;
-
-    return (
-      <div className="p-4 sm:p-6 rounded-2xl bg-[#151518] border border-white/10 space-y-4 shadow-lg">
-        {/* Title & Top Meta */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-800 pb-3">
-          <div className="space-y-1 min-w-0">
-            <h2 className="text-lg sm:text-2xl font-black text-white truncate">
-              {title}
-              {mediaType === 'tv' && currentEpisodeData?.name && (
-                <span className="text-zinc-400 font-semibold text-sm sm:text-lg ml-2">
-                  - {currentEpisodeData.name}
-                </span>
-              )}
-            </h2>
-            {tagline && <p className="text-xs italic text-zinc-400">"{tagline}"</p>}
-          </div>
-
-          <div className="flex items-center space-x-2.5 text-xs flex-wrap gap-y-1">
-            {voteAverage && voteAverage > 0 && (
-              <div className="flex items-center space-x-1 text-amber-400 font-bold">
-                <Star className="w-3.5 h-3.5 fill-current" />
-                <span>{voteAverage.toFixed(1)}</span>
-              </div>
-            )}
-            {releaseYear && (
-              <span className="flex items-center space-x-1 text-zinc-300">
-                <Calendar className="w-3.5 h-3.5 text-zinc-400" />
-                <span>{releaseYear}</span>
-              </span>
-            )}
-            {runtime && (
-              <span className="flex items-center space-x-1 text-zinc-300">
-                <Clock className="w-3.5 h-3.5 text-zinc-400" />
-                <span>{runtime}</span>
-              </span>
-            )}
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-zinc-800 border border-zinc-700 text-zinc-300">
-              Full HD 1080p
-            </span>
-            <span className="text-[#e50914] font-bold uppercase text-xs">
-              {mediaType === 'tv' ? 'Serial TV' : 'Film'}
-            </span>
-          </div>
-        </div>
-
-        {/* Action Row & Genres */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-          <div className="flex flex-wrap gap-1.5">
-            {genres?.map((g) => (
-              <span
-                key={g.id}
-                className="px-2.5 py-1 rounded-full bg-zinc-800 text-[11px] font-medium text-zinc-300 border border-zinc-700/60"
-              >
-                {g.name}
-              </span>
-            ))}
-          </div>
-
-          <button
-            type="button"
-            onClick={toggleWatchlist}
-            className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 text-white font-semibold text-xs border border-zinc-700 transition-colors shadow-sm cursor-pointer"
-          >
-            {isInList ? (
-              <Check className="w-3.5 h-3.5 text-emerald-400" />
-            ) : (
-              <Plus className="w-3.5 h-3.5" />
-            )}
-            <span>{isInList ? 'Di Daftar Saya' : 'Tambah ke Daftar'}</span>
-          </button>
-        </div>
-
-        {/* Synopsis */}
-        <div className="space-y-1.5 pt-1">
-          <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Sinopsis</h4>
-          <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-            {overview || 'Tidak ada sinopsis rinci.'}
-          </p>
-        </div>
-
-        {/* Notice */}
-        <p className="text-[11px] text-zinc-500 flex items-center gap-1.5 pt-1">
-          <Info className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
-          <span>Petunjuk: Jika pemutaran video lambat atau error, ganti pilihan server pemutar di atas.</span>
-        </p>
       </div>
     );
   };
 
+  // Detailed Metadata & Sidebar Components
+  const voteAverage = mediaType === 'movie' ? movie?.vote_average : tv?.vote_average;
+  const voteCount = mediaType === 'movie' ? movie?.vote_count : tv?.vote_count;
+  const runtime = mediaType === 'movie' ? formatRuntime(movie?.runtime) : null;
+  const tagline = mediaType === 'movie' ? movie?.tagline : tv?.tagline;
+  const genres = mediaType === 'movie' ? movie?.genres : tv?.genres;
+  const overview = mediaType === 'tv'
+    ? currentEpisodeData?.overview || tv?.overview
+    : movie?.overview;
+  const status = mediaType === 'movie' ? movie?.status : tv?.status;
+  const providersData = mediaType === 'movie' ? movie?.['watch/providers'] : tv?.['watch/providers'];
+
   return (
     <div
       className={`min-h-screen transition-colors duration-500 pb-20 ${
-        isLightsOff ? 'bg-black text-white' : 'bg-[#0f0f12] text-white'
+        isLightsOff ? 'bg-black text-white' : 'bg-[#0a0a0d] text-white'
       }`}
     >
-      {/* Dedicated Cinema Header (Clean 1:1, Zero Tooltip Collision) */}
-      <div className="bg-[#121216] border-b border-zinc-800/80 px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3 sticky top-0 z-40 shadow-lg">
+      {/* Cinema Header */}
+      <div className="bg-[#121216] border-b border-zinc-800/80 px-3 sm:px-6 lg:px-8 xl:px-12 py-2.5 sm:py-3 sticky top-0 z-40 shadow-lg">
         <div className="w-full flex items-center justify-between gap-3">
           {/* Left: Brand + Back Button + Media Title */}
-          <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
+          <div className="flex items-center space-x-2.5 sm:space-x-3.5 min-w-0">
             <Link to="/" className="flex-shrink-0 transition-transform hover:scale-105 active:scale-95">
               <MurflixLogo size="sm" />
             </Link>
@@ -706,127 +690,270 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType }) => {
         </div>
       </div>
 
-      {/* Main Content: Adaptive Cinema View */}
-      {mediaType === 'movie' ? (
-        /* MOVIE VIEW: Centered Theater Width (No Squishing, Full Immersive Cinema) */
-        <div className="w-full max-w-6xl 2xl:max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 sm:pt-6 space-y-5">
-          {/* Video Player */}
-          <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-black ring-1 ring-white/5">
-            {embedUrl ? (
-              <iframe
-                key={`${embedUrl}-${playerKey}`}
-                src={embedUrl}
-                title="Player"
-                className="w-full h-full border-0"
-                allowFullScreen
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              />
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center p-6 text-zinc-400 space-y-2">
-                <AlertCircle className="w-12 h-12 text-[#e50914]" />
-                <p className="text-sm">Video tidak dapat dimuat. Silakan ganti server di bawah.</p>
+      {/* Main Cinema Container (Expansive Widescreen Theater Experience) */}
+      <div className="w-full max-w-[2100px] 2xl:max-w-[2400px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-12 pt-3 sm:pt-4 space-y-5">
+        
+        {/* Cinema Video Player (Full Width in Theater) */}
+        <div className="relative w-full aspect-video bg-black rounded-2xl sm:rounded-3xl overflow-hidden border border-zinc-800 shadow-2xl shadow-black ring-1 ring-white/5">
+          {embedUrl ? (
+            <iframe
+              key={`${embedUrl}-${playerKey}`}
+              src={embedUrl}
+              title="Player"
+              className="w-full h-full border-0"
+              allowFullScreen
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center p-6 text-zinc-400 space-y-2">
+              <AlertCircle className="w-12 h-12 text-[#e50914]" />
+              <p className="text-sm">Video tidak dapat dimuat. Silakan ganti server di bawah.</p>
+            </div>
+          )}
+        </div>
+
+        {/* Player Toolbar */}
+        {renderPlayerToolbar()}
+
+        {/* Comprehensive Cinema Metadata & Sidebar Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          
+          {/* Main Info Column: 8 or 9 Cols */}
+          <div className="lg:col-span-8 xl:col-span-9 space-y-5">
+            {/* Primary Details Card */}
+            <div className="p-4 sm:p-6 rounded-2xl bg-[#141418] border border-zinc-800/80 space-y-4 shadow-lg">
+              {/* Title & Top Badges */}
+              <div className="space-y-2 border-b border-zinc-800/80 pb-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="space-y-1 min-w-0">
+                    <h2 className="text-xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
+                      {title}
+                      {mediaType === 'tv' && currentEpisodeData?.name && (
+                        <span className="text-zinc-400 font-semibold text-base sm:text-xl lg:text-2xl ml-2">
+                          - {currentEpisodeData.name}
+                        </span>
+                      )}
+                    </h2>
+                    {tagline && <p className="text-xs sm:text-sm italic text-zinc-400">"{tagline}"</p>}
+                  </div>
+
+                  {/* Watchlist Toggle */}
+                  <button
+                    type="button"
+                    onClick={toggleWatchlist}
+                    className="flex items-center space-x-1.5 px-4 py-2 rounded-full bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 text-white font-semibold text-xs border border-zinc-700 transition-colors shadow-sm cursor-pointer flex-shrink-0"
+                  >
+                    {isInList ? (
+                      <Check className="w-4 h-4 text-emerald-400" />
+                    ) : (
+                      <Plus className="w-4 h-4" />
+                    )}
+                    <span>{isInList ? 'Di Daftar Saya' : 'Tambah ke Daftar'}</span>
+                  </button>
+                </div>
+
+                {/* Badges Bar */}
+                <div className="flex items-center space-x-3 text-xs flex-wrap gap-y-2 pt-1">
+                  {voteAverage && voteAverage > 0 && (
+                    <div className="flex items-center space-x-1 text-amber-400 font-bold">
+                      <Star className="w-4 h-4 fill-current" />
+                      <span>{voteAverage.toFixed(1)}</span>
+                      {voteCount && (
+                        <span className="text-zinc-500 font-normal text-[11px]">({formatVoteCount(voteCount)})</span>
+                      )}
+                    </div>
+                  )}
+
+                  {releaseYear && (
+                    <span className="flex items-center space-x-1 text-zinc-300">
+                      <Calendar className="w-3.5 h-3.5 text-zinc-400" />
+                      <span>{releaseYear}</span>
+                    </span>
+                  )}
+
+                  {runtime && (
+                    <span className="flex items-center space-x-1 text-zinc-300">
+                      <Clock className="w-3.5 h-3.5 text-zinc-400" />
+                      <span>{runtime}</span>
+                    </span>
+                  )}
+
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-zinc-800 border border-zinc-700 text-zinc-300">
+                    4K Ultra HD
+                  </span>
+
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-zinc-800 border border-zinc-700 text-zinc-300">
+                    Dolby Atmos
+                  </span>
+
+                  <span className="text-[#e50914] font-bold uppercase text-xs">
+                    {mediaType === 'tv' ? 'Serial TV' : 'Film'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Synopsis */}
+              <div className="space-y-1.5">
+                <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider font-mono">Sinopsis</h4>
+                <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+                  {overview || 'Tidak ada deskripsi rinci untuk judul ini.'}
+                </p>
+              </div>
+
+              {/* Cast Avatars */}
+              {renderCastSection()}
+            </div>
+
+            {/* Mobile TV Only: Episode Section directly below info */}
+            {mediaType === 'tv' && (
+              <div className="lg:hidden">
+                {renderEpisodeList(true)}
               </div>
             )}
           </div>
 
-          {/* Player Toolbar */}
-          {renderPlayerToolbar()}
-
-          {/* Movie Metadata */}
-          {renderMetadataCard()}
-
-          {/* Related Movies Grid (Netflix Style Below Movie Info) */}
-          {relatedItems.length > 0 && (
-            <div className="space-y-4 pt-4 border-t border-zinc-800">
-              <div className="flex items-center space-x-2">
-                <Film className="w-4 h-4 text-[#e50914]" />
-                <h3 className="text-base sm:text-lg font-bold text-white">Film Terkait Lainnya</h3>
+          {/* Right Column (4 or 3 Cols): Additional Information OR Desktop TV Episodes */}
+          <div className="lg:col-span-4 xl:col-span-3 space-y-4">
+            {mediaType === 'tv' ? (
+              /* TV Show: Episodes List in Sidebar */
+              <div className="hidden lg:block">
+                {renderEpisodeList(false)}
               </div>
+            ) : (
+              /* Movie: Complete Details Card */
+              <div className="p-4 sm:p-5 rounded-2xl bg-[#141418] border border-zinc-800/80 space-y-4 shadow-xl">
+                <div className="flex items-center space-x-2 border-b border-zinc-800 pb-3">
+                  <Clapperboard className="w-4 h-4 text-[#e50914]" />
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-white">Detail Film</h3>
+                </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
-                {relatedItems.map((item) => (
-                  <Link
-                    key={item.id}
-                    to={getWatchMovieUrl(item.id, item.title)}
-                    className="group block rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800/80 hover:border-zinc-700 transition-all hover:scale-[1.02] shadow-md"
-                  >
-                    <div className="aspect-[2/3] w-full bg-zinc-800 overflow-hidden relative">
-                      <img
-                        src={getTMDBImageUrl(item.poster_path, 'w342')}
-                        alt={item.title || ''}
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = getDirectTMDBUrl(item.poster_path, 'w342');
-                        }}
-                        decoding="async"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
-                      />
-                      {item.vote_average && (
-                        <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-sm text-[10px] font-bold text-amber-400 flex items-center space-x-0.5">
-                          <Star className="w-3 h-3 fill-current" />
-                          <span>{item.vote_average.toFixed(1)}</span>
-                        </div>
-                      )}
+                <div className="space-y-3 text-xs">
+                  {/* Directors */}
+                  {directors.length > 0 && (
+                    <div className="space-y-1">
+                      <span className="text-zinc-500 font-semibold block">Sutradara:</span>
+                      <span className="text-zinc-200 font-medium">{directors.join(', ')}</span>
                     </div>
-                    <div className="p-2 sm:p-2.5 space-y-1">
-                      <h4 className="text-xs font-bold text-white group-hover:text-[#e50914] truncate transition-colors">
-                        {item.title}
-                      </h4>
-                      <div className="flex items-center justify-between text-[10px] text-zinc-400 font-medium">
-                        <span>{(item.release_date || '').split('-')[0]}</span>
-                        <span className="text-zinc-500 font-bold uppercase text-[9px]">Film</span>
+                  )}
+
+                  {/* Writers */}
+                  {writers.length > 0 && (
+                    <div className="space-y-1">
+                      <span className="text-zinc-500 font-semibold block">Penulis Skenario:</span>
+                      <span className="text-zinc-200 font-medium">{writers.join(', ')}</span>
+                    </div>
+                  )}
+
+                  {/* Genres */}
+                  {genres && genres.length > 0 && (
+                    <div className="space-y-1.5">
+                      <span className="text-zinc-500 font-semibold block">Genre:</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {genres.map((g) => (
+                          <span
+                            key={g.id}
+                            className="px-2.5 py-0.5 rounded-full bg-zinc-800 text-[11px] font-medium text-zinc-300 border border-zinc-700/60"
+                          >
+                            {g.name}
+                          </span>
+                        ))}
                       </div>
                     </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      ) : (
-        /* TV SHOW VIEW: 2-Column Cinema Grid on Desktop, Natural Flow on Mobile */
-        <div className="w-full max-w-[2400px] mx-auto px-2 sm:px-4 md:px-8 lg:px-12 2xl:px-20 pt-3 sm:pt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Left Column: Player, Controls, Info, and Mobile Episode Drawer */}
-            <div className="lg:col-span-8 xl:col-span-9 space-y-4">
-              {/* Video Player */}
-              <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-black ring-1 ring-white/5">
-                {embedUrl ? (
-                  <iframe
-                    key={`${embedUrl}-${playerKey}`}
-                    src={embedUrl}
-                    title="Player"
-                    className="w-full h-full border-0"
-                    allowFullScreen
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  />
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center p-6 text-zinc-400 space-y-2">
-                    <AlertCircle className="w-12 h-12 text-[#e50914]" />
-                    <p className="text-sm">Video tidak dapat dimuat. Silakan ganti server di bawah.</p>
+                  )}
+
+                  {/* Status & Details */}
+                  {status && (
+                    <div className="flex justify-between items-center py-1 border-t border-zinc-800/80">
+                      <span className="text-zinc-500">Status:</span>
+                      <span className="text-zinc-200 font-medium">{status === 'Released' ? 'Dirilis' : status}</span>
+                    </div>
+                  )}
+
+                  {movie?.original_language && (
+                    <div className="flex justify-between items-center py-1 border-t border-zinc-800/80">
+                      <span className="text-zinc-500">Bahasa Asli:</span>
+                      <span className="text-zinc-200 font-medium uppercase">{movie.original_language}</span>
+                    </div>
+                  )}
+
+                  {/* Watch Providers */}
+                  {providersData && (
+                    <div className="pt-2 border-t border-zinc-800/80">
+                      <WatchProvidersBadge providersData={providersData} />
+                    </div>
+                  )}
+
+                  {/* Server notice */}
+                  <div className="pt-2 border-t border-zinc-800/80">
+                    <p className="text-[11px] text-zinc-500 flex items-start gap-1.5">
+                      <Info className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
+                      <span>Jika pemutaran lambat atau macet, ganti server pemutar di atas (EmbedWave / VidCore / VidLink).</span>
+                    </p>
                   </div>
-                )}
+                </div>
               </div>
-
-              {/* Player Toolbar with Symmetrical Prev / Next */}
-              {renderPlayerToolbar()}
-
-              {/* TV Metadata */}
-              {renderMetadataCard()}
-
-              {/* Mobile Only: Episode Section directly below info */}
-              <div className="lg:hidden">
-                {renderEpisodeList(true)}
-              </div>
-            </div>
-
-            {/* Right Column: Desktop Dedicated Episode Sidebar */}
-            <div className="hidden lg:block lg:col-span-4 xl:col-span-3 space-y-4">
-              {renderEpisodeList(false)}
-            </div>
+            )}
           </div>
         </div>
-      )}
+
+        {/* Related Media Section (Full Width Responsive Poster Grid) */}
+        {relatedItems.length > 0 && (
+          <div className="space-y-4 pt-4 border-t border-zinc-800/80">
+            <div className="flex items-center space-x-2">
+              <Film className="w-4 h-4 text-[#e50914]" />
+              <h3 className="text-base sm:text-lg font-bold text-white">
+                {mediaType === 'movie' ? 'Film Terkait Lainnya' : 'Serial Terkait Lainnya'}
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6 2xl:grid-cols-6 gap-3 sm:gap-4">
+              {relatedItems.map((item) => (
+                <Link
+                  key={item.id}
+                  to={mediaType === 'movie' ? getWatchMovieUrl(item.id, item.title) : getWatchTVUrl(item.id, item.name)}
+                  className="group block rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800/80 hover:border-zinc-700 transition-all hover:scale-[1.02] shadow-md"
+                >
+                  <div className="aspect-[2/3] w-full bg-zinc-800 overflow-hidden relative">
+                    <img
+                      src={getTMDBImageUrl(item.poster_path, 'w342')}
+                      alt={item.title || item.name || ''}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = getDirectTMDBUrl(item.poster_path, 'w342');
+                      }}
+                      decoding="async"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
+                    {item.vote_average && item.vote_average > 0 && (
+                      <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-sm text-[10px] font-bold text-amber-400 flex items-center space-x-0.5">
+                        <Star className="w-3 h-3 fill-current" />
+                        <span>{item.vote_average.toFixed(1)}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-2 sm:p-2.5 space-y-1">
+                    <h4 className="text-xs font-bold text-white group-hover:text-[#e50914] truncate transition-colors">
+                      {item.title || item.name}
+                    </h4>
+                    <div className="flex items-center justify-between text-[10px] text-zinc-400 font-medium">
+                      <span>{(item.release_date || item.first_air_date || '').split('-')[0]}</span>
+                      <span className="text-zinc-500 font-bold uppercase text-[9px]">
+                        {mediaType === 'movie' ? 'Film' : 'Serial'}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Person Detail Modal */}
+      <PersonModal
+        personId={selectedPersonId}
+        onClose={() => setSelectedPersonId(null)}
+      />
     </div>
   );
 };
