@@ -24,6 +24,10 @@ export const MovieRow: React.FC<MovieRowProps> = ({ title, items = [], isLoading
     }
   };
 
+  if (!isLoading && items.length === 0) {
+    return null;
+  }
+
   return (
     <div className="space-y-3 py-2 relative group/row [content-visibility:auto] [contain-intrinsic-size:0_320px]">
       {/* Row Header with red accent bar */}

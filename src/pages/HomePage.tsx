@@ -34,11 +34,14 @@ export const HomePage: React.FC = () => {
         ]);
 
         const trendingList = trendingRes.results || [];
+        const popMoviesList = popMoviesRes.results || [];
         setTrending(trendingList);
         if (trendingList.length > 0) {
           setFeatured(trendingList[0]);
+        } else if (popMoviesList.length > 0) {
+          setFeatured(popMoviesList[0]);
         }
-        setPopularMovies(popMoviesRes.results || []);
+        setPopularMovies(popMoviesList);
         setPopularTV(popTVRes.results || []);
         setTopRatedMovies(topMoviesRes.results || []);
         setTopRatedTV(topTVRes.results || []);
