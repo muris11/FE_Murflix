@@ -62,7 +62,7 @@ export const MovieCard: React.FC<MovieCardProps> = ({ item, className = '' }) =>
   };
 
   return (
-    <div className={`group/card relative rounded-xl overflow-hidden bg-[#18181b] border border-white/10 hover:border-red-500/80 hover:ring-1 hover:ring-red-500/40 transition-[transform,border-color] duration-200 hover:scale-[1.02] hover:z-20 transform-gpu will-change-transform ${className || 'w-full'}`}>
+    <div className={`group/card relative rounded-xl overflow-hidden bg-[#18181b] border border-white/10 hover:border-red-500/80 hover:ring-1 hover:ring-red-500/40 transition-[transform,border-color] duration-150 hover:scale-[1.02] hover:z-20 transform-gpu ${className || 'w-full'}`}>
       {/* Poster Media Container */}
       <div className="relative aspect-[2/3] w-full overflow-hidden bg-gradient-to-b from-zinc-900 to-black">
         {/* Main Card Click Target -> Detail Page */}

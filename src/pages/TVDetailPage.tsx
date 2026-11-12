@@ -293,7 +293,7 @@ export const TVDetailPage: React.FC = () => {
               </span>
             )}
             <span className="text-zinc-400 text-xs font-semibold">
-              {tv.number_of_seasons} Musim • {tv.number_of_episodes} Episode
+              {tv.number_of_seasons} Musim / {tv.number_of_episodes} Episode
             </span>
           </div>
 

@@ -362,8 +362,8 @@ export const LandingPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Movie / TV Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6">
+        {/* Movie / TV Grid (High-Performance GPU Optimized) */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6 [content-visibility:auto] [contain-intrinsic-size:0_650px] transform-gpu">
           {getCatalogItems().map((item) => {
             const title = item.title || item.name || 'Untitled';
             const poster = item.poster_path
@@ -377,7 +377,7 @@ export const LandingPage: React.FC = () => {
               <div
                 key={item.id}
                 onClick={() => handleItemClick(item)}
-                className="group relative rounded-xl sm:rounded-2xl overflow-hidden bg-zinc-950 border border-white/10 hover:border-red-500/50 transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-2xl hover:shadow-red-600/20 cursor-pointer flex flex-col transform-gpu will-change-transform"
+                className="group relative rounded-xl sm:rounded-2xl overflow-hidden bg-zinc-950 border border-white/10 hover:border-red-500/80 transition-[transform,border-color] duration-150 hover:scale-[1.02] cursor-pointer flex flex-col transform-gpu"
               >
                 {/* Poster Container */}
                 <div className="relative aspect-[2/3] w-full overflow-hidden bg-zinc-900">

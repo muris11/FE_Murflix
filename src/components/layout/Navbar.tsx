@@ -55,7 +55,7 @@ export const Navbar: React.FC = () => {
           
           {/* Logo & Navigation */}
           <div className="flex items-center space-x-6 sm:space-x-8">
-            <Link to="/" className="flex items-center transition-transform hover:scale-105 active:scale-95" title="Beranda Murflix">
+            <Link to="/" className="flex items-center transition-transform hover:scale-105 active:scale-95" aria-label="Beranda Murflix">
               <MurflixLogo size="md" />
             </Link>
 

@@ -184,8 +184,8 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
               {mediaType === 'tv'
                 ? currentEpisodeData?.name
                   ? `Episode ${currentEpisode}: "${currentEpisodeData.name}"`
-                  : `Musim ${currentSeason} • Episode ${currentEpisode}`
-                : subTitle || 'Kualitas HD • Multi Subtitle'}
+                  : `Musim ${currentSeason} / Episode ${currentEpisode}`
+                : subTitle || 'Kualitas HD / Multi Subtitle'}
             </p>
           </div>
 

@@ -99,8 +99,7 @@ export const NotificationDropdown: React.FC = () => {
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className="relative cursor-pointer p-2 rounded-xl text-zinc-300 hover:text-white hover:bg-zinc-800/60 transition-all focus:outline-none"
-        aria-label="Notifikasi"
-        title="Pemberitahuan & Update Konten"
+        aria-label="Pemberitahuan & Update Konten"
       >
         <Bell className="w-5 h-5 transition-transform hover:scale-110" />
 
@@ -119,9 +118,9 @@ export const NotificationDropdown: React.FC = () => {
         />
       )}
 
-      {/* Dropdown Popover (Centered & Full-Width Constrained on Mobile) */}
+      {/* Dropdown Popover (Centered on Mobile, Anchored on Desktop) */}
       {isOpen && (
-        <div className="fixed sm:absolute inset-x-3 sm:inset-x-auto sm:right-0 top-16 sm:top-full mt-2 sm:mt-2.5 max-w-sm sm:max-w-none sm:w-96 mx-auto sm:mx-0 rounded-2xl bg-[#141417] border border-zinc-800 shadow-2xl z-50 overflow-hidden animate-fadeIn">
+        <div className="fixed sm:absolute left-3 right-3 sm:left-auto sm:right-0 top-16 sm:top-full mt-2 sm:mt-2.5 max-w-sm sm:max-w-none sm:w-96 mx-auto sm:mx-0 rounded-2xl bg-[#141417] border border-zinc-800 shadow-2xl z-50 overflow-hidden animate-fadeIn">
           
           {/* Header */}
           <div className="p-4 border-b border-zinc-800/80 flex items-center justify-between bg-zinc-900/60">

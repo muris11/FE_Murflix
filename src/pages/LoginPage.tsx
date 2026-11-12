@@ -92,18 +92,18 @@ export const LoginPage: React.FC = () => {
       
       {/* Genuine Netflix Movie Posters Collage Background - Vivid & Clearly Visible */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-70 filter brightness-90 contrast-105 scale-105"
+        className="absolute inset-0 bg-cover bg-center opacity-85 filter brightness-100 contrast-105 scale-105"
         style={{
           backgroundImage:
             'url("/login-bg.jpg"), url("https://assets.nflxext.com/ffe/siteui/vlv3/d8132cba-0024-4b01-86f4-2bac9792e1dd/web/ID-en-20261102-TRIFECTA-perspective_ee5f8c9c-18bf-4e73-904a-5a39f3c2c007_large.jpg")',
         }}
       />
       {/* Cinematic Vignette Overlay - Balanced so posters pop while form remains legible */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/70 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/60 pointer-events-none" />
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.65) 100%)',
+          background: 'radial-gradient(circle at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.6) 100%)',
         }}
       />
 
@@ -183,7 +183,7 @@ export const LoginPage: React.FC = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Masukkan password akun"
                 className="w-full bg-zinc-900/90 border border-zinc-700 text-white placeholder-zinc-500 rounded-xl px-4 py-3 pl-11 text-sm focus:outline-none focus:border-[#e50914] focus:ring-1 focus:ring-[#e50914] transition-colors"
               />
               <Lock className="w-5 h-5 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
