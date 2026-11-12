@@ -109,6 +109,12 @@
   <body class="bg-[#141414] text-white">
     <div id="root"></div>
     <script>
+      window.deferredPWAInstallPrompt = null;
+      window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        window.deferredPWAInstallPrompt = e;
+        window.dispatchEvent(new CustomEvent('murflix-pwa-installable'));
+      });
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
           navigator.serviceWorker.register('/sw.js').catch(function(err) {
