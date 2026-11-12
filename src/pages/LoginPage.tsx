@@ -90,16 +90,22 @@ export const LoginPage: React.FC = () => {
   return (
     <div className="relative min-h-screen flex items-center justify-center p-4 bg-black overflow-hidden">
       
-      {/* Genuine Netflix Movie Posters Collage Background with Vignette */}
+      {/* Genuine Netflix Movie Posters Collage Background - Vivid & Clearly Visible */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-30 filter scale-105"
+        className="absolute inset-0 bg-cover bg-center opacity-70 filter brightness-90 contrast-105 scale-105"
         style={{
           backgroundImage:
-            'url("https://assets.nflxext.com/ffe/siteui/vlv3/d8132cba-0024-4b01-86f4-2bac9792e1dd/web/ID-en-20261102-TRIFECTA-perspective_ee5f8c9c-18bf-4e73-904a-5a39f3c2c007_large.jpg")',
+            'url("/login-bg.jpg"), url("https://assets.nflxext.com/ffe/siteui/vlv3/d8132cba-0024-4b01-86f4-2bac9792e1dd/web/ID-en-20261102-TRIFECTA-perspective_ee5f8c9c-18bf-4e73-904a-5a39f3c2c007_large.jpg")',
         }}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/85 to-black/75" />
-      <div className="absolute inset-0 bg-radial-gradient from-transparent via-black/50 to-black" />
+      {/* Cinematic Vignette Overlay - Balanced so posters pop while form remains legible */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/70 pointer-events-none" />
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.65) 100%)',
+        }}
+      />
 
       {/* Login Card */}
       <div className="relative z-10 w-full max-w-md bg-[#121215]/95 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 sm:p-10 shadow-2xl shadow-black ring-1 ring-white/5">
