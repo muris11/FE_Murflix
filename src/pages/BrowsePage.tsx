@@ -168,7 +168,7 @@ export const BrowsePage: React.FC = () => {
 
       {/* Grid Content */}
       {isLoading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-4 [content-visibility:auto] [contain-intrinsic-size:0_850px] transform-gpu">
           {Array.from({ length: 24 }).map((_, i) => (
             <MovieCardSkeleton key={i} />
           ))}
@@ -184,7 +184,7 @@ export const BrowsePage: React.FC = () => {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-4 [content-visibility:auto] [contain-intrinsic-size:0_850px] transform-gpu">
           {items.map((item) => (
             <MovieCard key={item.id} item={{ ...item, media_type: mediaType }} />
           ))}

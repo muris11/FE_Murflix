@@ -25,7 +25,7 @@ export const MovieRow: React.FC<MovieRowProps> = ({ title, items = [], isLoading
   };
 
   return (
-    <div className="space-y-3 py-2 relative group [content-visibility:auto] [contain-intrinsic-size:0_320px]">
+    <div className="space-y-3 py-2 relative group/row [content-visibility:auto] [contain-intrinsic-size:0_320px]">
       {/* Row Header with red accent bar */}
       <div className="flex items-center space-x-2.5">
         <div className="w-1.5 h-5 sm:h-6 bg-[#e50914] rounded-full shadow-[0_0_8px_rgba(229,9,20,0.6)]" />
@@ -38,7 +38,7 @@ export const MovieRow: React.FC<MovieRowProps> = ({ title, items = [], isLoading
         {/* Left Arrow Button */}
         <button
           onClick={() => scroll('left')}
-          className="absolute -left-3 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-black/80 hover:bg-[#e50914] text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-xl border border-white/10 hover:border-[#e50914] hover:scale-110 active:scale-95"
+          className="absolute -left-3 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-black/80 hover:bg-[#e50914] text-white flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity duration-200 shadow-xl border border-white/10 hover:border-[#e50914] hover:scale-110 active:scale-95 cursor-pointer"
           aria-label="Scroll Kiri"
         >
           <ChevronLeft className="w-6 h-6" />
@@ -47,7 +47,7 @@ export const MovieRow: React.FC<MovieRowProps> = ({ title, items = [], isLoading
         {/* Scrollable Container */}
         <div
           ref={rowRef}
-          className="flex space-x-3 sm:space-x-4 overflow-x-auto no-scrollbar scroll-smooth py-2 px-1"
+          className="flex space-x-3 sm:space-x-4 overflow-x-auto no-scrollbar scroll-smooth py-2 px-1 overscroll-x-contain transform-gpu"
         >
           {isLoading
             ? Array.from({ length: 6 }).map((_, i) => (
@@ -61,7 +61,7 @@ export const MovieRow: React.FC<MovieRowProps> = ({ title, items = [], isLoading
         {/* Right Arrow Button */}
         <button
           onClick={() => scroll('right')}
-          className="absolute -right-3 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-black/80 hover:bg-[#e50914] text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-xl border border-white/10 hover:border-[#e50914] hover:scale-110 active:scale-95"
+          className="absolute -right-3 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-black/80 hover:bg-[#e50914] text-white flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity duration-200 shadow-xl border border-white/10 hover:border-[#e50914] hover:scale-110 active:scale-95 cursor-pointer"
           aria-label="Scroll Kanan"
         >
           <ChevronRight className="w-6 h-6" />

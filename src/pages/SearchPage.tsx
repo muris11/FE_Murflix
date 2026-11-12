@@ -234,13 +234,13 @@ export const SearchPage: React.FC = () => {
 
           {/* Results Grid / Loading / Empty */}
           {isSearching ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-4 [content-visibility:auto] [contain-intrinsic-size:0_800px] transform-gpu">
               {Array.from({ length: 14 }).map((_, i) => (
                 <MovieCardSkeleton key={i} />
               ))}
             </div>
           ) : results.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-4 [content-visibility:auto] [contain-intrinsic-size:0_800px] transform-gpu">
               {results.map((item) => (
                 <MovieCard key={`${item.media_type || 'item'}-${item.id}`} item={item} />
               ))}
