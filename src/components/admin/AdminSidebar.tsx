@@ -163,10 +163,10 @@ export const AdminSidebar: React.FC<{ onItemClick?: () => void }> = ({ onItemCli
       <div className="flex-1 overflow-y-auto scrollbar-none">
         
         {/* Brand Header */}
-        <div className="px-5 py-4 border-b border-zinc-800/70 flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2.5" onClick={onItemClick}>
+        <div className="px-5 py-4 border-b border-zinc-800/80 flex items-center justify-between">
+          <Link to="/" className="flex items-center space-x-2.5 min-w-0" onClick={onItemClick} title="Ke Beranda Streaming">
             <MurflixLogo size="sm" />
-            <span className="text-[11px] font-semibold text-zinc-400 tracking-wider uppercase">
+            <span className="text-[10px] font-bold text-zinc-400 tracking-widest uppercase px-1.5 py-0.5 rounded border border-zinc-700 bg-zinc-800/60 flex-shrink-0">
               Konsol
             </span>
           </Link>

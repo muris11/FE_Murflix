@@ -97,8 +97,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
           </div>
 
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 text-[11px] text-zinc-400 font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20" />
+            <div className="text-[11px] text-zinc-400 font-medium font-mono">
               <span className="text-zinc-300">Sistem Berjalan Normal</span>
             </div>
 
@@ -125,7 +124,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
           </div>
         </header>
 
-        <main className="p-4 sm:p-6 lg:p-8 w-full max-w-7xl mx-auto min-w-0">
+        <main className="p-4 sm:p-6 lg:p-8 w-full min-w-0">
           {children}
         </main>
       </div>

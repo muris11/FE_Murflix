@@ -9,12 +9,23 @@ export const ScrollToTop = () => {
   const { pathname, search } = useLocation();
 
   useEffect(() => {
-    // Instantly reset window scroll position on route/search changes
+    // Instantly reset window and body scroll position on route/search changes
     window.scrollTo({
       top: 0,
       left: 0,
       behavior: 'instant',
     });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
+    // Guard against delayed layout shifts or image render delays
+    const timer = setTimeout(() => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 20);
+
+    return () => clearTimeout(timer);
   }, [pathname, search]);
 
   return null;
