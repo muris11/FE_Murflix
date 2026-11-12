@@ -22,6 +22,7 @@ import {
   HelpCircle,
   Globe,
   Radio,
+  Server,
 } from 'lucide-react';
 import { MurflixLogo } from '@/components/layout/MurflixLogo';
 import { publicApi } from '@/api/public';
@@ -29,6 +30,8 @@ import { MediaItem } from '@/types/tmdb';
 import { SubscriptionPlan } from '@/types/auth';
 import { getTMDBImageUrl, getDirectTMDBUrl } from '@/utils/image';
 import { getMovieUrl, getTVUrl } from '@/utils/slug';
+import { DEFAULT_STREAMING_SERVERS } from '@/constants/streamingServers';
+import { triggerPWAInstallPrompt } from '@/components/pwa/InstallAppPrompt';
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -130,9 +133,9 @@ export const LandingPage: React.FC = () => {
   const featuredOverview = featuredItem?.overview || 'Koleksi ribuan film box office dunia dan serial TV eksklusif dengan kualitas gambar tajam dan audio sinematik tanpa jeda iklan.';
   const featuredBackdrop = featuredItem?.backdrop_path
     ? imageError
-      ? getDirectTMDBUrl(featuredItem.backdrop_path, 'original')
-      : getTMDBImageUrl(featuredItem.backdrop_path, 'original')
-    : 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1920&q=80';
+      ? getDirectTMDBUrl(featuredItem.backdrop_path, 'w1280')
+      : getTMDBImageUrl(featuredItem.backdrop_path, 'w1280')
+    : 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1280&q=80';
 
   const faqs = [
     {
@@ -183,6 +186,7 @@ export const LandingPage: React.FC = () => {
             {/* Desktop Navigation Links (Apple Style Clean Typography) */}
             <nav className="hidden md:flex items-center space-x-8 text-xs font-semibold tracking-wider text-gray-300 uppercase">
               <a href="#fitur" className="hover:text-white transition-colors">Fitur</a>
+              <a href="#server" className="hover:text-white transition-colors">Server</a>
               <a href="#katalog" className="hover:text-white transition-colors">Katalog</a>
               <a href="#perangkat" className="hover:text-white transition-colors">Perangkat</a>
               <a href="#paket" className="hover:text-white transition-colors">Paket</a>
@@ -211,9 +215,8 @@ export const LandingPage: React.FC = () => {
         {/* Subtle Ambient Red Glow */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[650px] h-[350px] sm:h-[650px] bg-red-600/15 rounded-full blur-[140px] pointer-events-none -z-10" />
 
-        {/* Eyebrow Badge */}
-        <div className="inline-flex items-center space-x-2.5 px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md mb-6 sm:mb-8 text-xs font-semibold tracking-widest uppercase text-gray-300">
-          <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+        {/* Eyebrow Badge (No Dot) */}
+        <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md mb-6 sm:mb-8 text-xs font-semibold tracking-widest uppercase text-gray-300">
           <span>Generasi Baru Hiburan Sinema Digital</span>
         </div>
 
@@ -232,21 +235,29 @@ export const LandingPage: React.FC = () => {
         </p>
 
         {/* Action Buttons */}
-        <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3.5">
           <button
             onClick={() => handleAuthRedirect('/')}
-            className="w-full sm:w-auto inline-flex items-center justify-center space-x-3 bg-[#e50914] hover:bg-red-700 text-white font-bold px-8 py-3.5 rounded-full text-base sm:text-lg transition-all duration-300 hover:scale-105 shadow-2xl shadow-red-600/40"
+            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2.5 bg-[#e50914] hover:bg-red-700 text-white font-bold px-7 py-3.5 rounded-full text-sm sm:text-base transition-all duration-300 hover:scale-105 shadow-xl shadow-red-600/30"
           >
-            <Play className="w-5 h-5 fill-current" />
+            <Play className="w-4 h-4 fill-current" />
             <span>Mulai Nonton Sekarang</span>
           </button>
           <a
             href="#katalog"
-            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-white/[0.06] hover:bg-white/[0.12] border border-white/15 text-white font-semibold px-8 py-3.5 rounded-full text-base sm:text-lg transition-all duration-300 backdrop-blur-md"
+            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-white/[0.06] hover:bg-white/[0.12] border border-white/15 text-white font-semibold px-6 py-3.5 rounded-full text-sm sm:text-base transition-all duration-300 backdrop-blur-md"
           >
             <span>Jelajahi Katalog</span>
-            <ChevronDown className="w-5 h-5" />
+            <ChevronDown className="w-4 h-4" />
           </a>
+          <button
+            onClick={triggerPWAInstallPrompt}
+            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-200 hover:text-white font-semibold px-6 py-3.5 rounded-full text-sm sm:text-base transition-all duration-300 backdrop-blur-md cursor-pointer"
+            title="Pasang aplikasi Murflix langsung di HP atau PC tanpa browser"
+          >
+            <Download className="w-4 h-4 text-red-500" />
+            <span>Pasang Aplikasi (APK)</span>
+          </button>
         </div>
 
         {/* Hardware Frame Cinema Mockup (Apple Style Curved Display) */}
@@ -520,6 +531,72 @@ export const LandingPage: React.FC = () => {
               Bebas dari segala jenis pop-up, iklan video jeda tengah, atau redirect menjengkelkan. Pengalaman streaming Anda murni hiburan.
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* --------------------------------------------------------------------- */}
+      {/* 4.5. Multi-Server Streaming Infrastructure (Zero Ads & 11 Servers)    */}
+      {/* --------------------------------------------------------------------- */}
+      <section id="server" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/5">
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <div className="text-xs font-bold uppercase tracking-widest text-red-500 mb-2">
+            Infrastruktur &amp; Pemutar Video
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
+            11 Pilihan Server Streaming Global
+          </h2>
+          <p className="text-sm sm:text-base text-gray-400 mt-3 leading-relaxed">
+            Didukung jaringan 11 server embed tercepat di dunia. Anda dapat berpindah server secara instan langsung dari video player jika salah satu sumber mengalami hambatan jaringan.
+          </p>
+        </div>
+
+        {/* Server Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {DEFAULT_STREAMING_SERVERS.map((server, idx) => {
+            const isAdFree =
+              server.description?.toLowerCase().includes('zero') ||
+              server.description?.toLowerCase().includes('no ads') ||
+              server.description?.toLowerCase().includes('ad-free');
+
+            return (
+              <div
+                key={server.id}
+                className="p-5 rounded-2xl bg-zinc-950/80 border border-white/10 hover:border-zinc-700 transition-all space-y-2 group"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-mono text-zinc-500">
+                    SERVER {idx + 1 < 10 ? `0${idx + 1}` : idx + 1}
+                  </span>
+                  <span className={`text-[10px] uppercase font-bold tracking-wider ${isAdFree ? 'text-emerald-400' : 'text-zinc-400'}`}>
+                    {isAdFree ? 'Ad-Free' : 'HD Stream'}
+                  </span>
+                </div>
+                <h3 className="text-lg font-bold text-white group-hover:text-red-500 transition-colors">
+                  {server.name}
+                </h3>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  {server.description || 'Fast video stream'}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Server Features Bar */}
+        <div className="mt-8 p-5 sm:p-6 rounded-2xl bg-zinc-950 border border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-center space-x-3 text-xs sm:text-sm text-zinc-300">
+            <Server className="w-5 h-5 text-red-500 flex-shrink-0" />
+            <span>
+              <strong>Fitur Failover Instan:</strong> Pemutar video menyediakan tombol switch server sekali klik untuk menjamin film tetap berputar lancar tanpa buffering.
+            </span>
+          </div>
+          <button
+            onClick={() => handleAuthRedirect('/')}
+            className="inline-flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold transition-colors flex-shrink-0 cursor-pointer"
+          >
+            <span>Coba Pemutar Video</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
         </div>
       </section>
 

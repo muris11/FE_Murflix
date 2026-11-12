@@ -3,6 +3,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { AppRoutes } from '@/routes/AppRoutes';
 import { useVisitorTracking } from '@/hooks/useVisitorTracking';
+import { InstallAppPrompt } from '@/components/pwa/InstallAppPrompt';
 
 const VisitorTracker: React.FC = () => {
   useVisitorTracking();
@@ -15,6 +16,7 @@ export const App: React.FC = () => {
       <VisitorTracker />
       <AuthProvider>
         <AppRoutes />
+        <InstallAppPrompt />
       </AuthProvider>
     </BrowserRouter>
   );

@@ -1,0 +1,63 @@
+{
+  "name": "Murflix - Streaming Film & Serial TV",
+  "short_name": "Murflix",
+  "description": "Nonton ribuan film box office, serial TV, drama Asia, dan anime kualitas 4K tanpa iklan di Murflix.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#0a0a0c",
+  "theme_color": "#0a0a0c",
+  "orientation": "any",
+  "categories": ["entertainment", "movies", "video"],
+  "lang": "id",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Semua Film",
+      "short_name": "Film",
+      "description": "Jelajahi katalog film box office terbaru",
+      "url": "/browse/movies",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Serial TV",
+      "short_name": "Serial",
+      "description": "Nonton serial TV populer & drama",
+      "url": "/browse/tv",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Daftar Saya",
+      "short_name": "Favorit",
+      "description": "Buka daftar tontonan tersimpan",
+      "url": "/my-list",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

@@ -5,8 +5,19 @@
     <link rel="icon" type="image/png" href="/icon.png?v=3" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg?v=3" />
     <link rel="shortcut icon" href="/favicon.ico?v=3" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png" />
+    <link rel="manifest" href="/manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Murflix" />
+    
+    <!-- Preconnect & DNS-Prefetch for Speed -->
+    <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
+    <link rel="dns-prefetch" href="https://image.tmdb.org" />
+    <link rel="preconnect" href="https://api-murflix.based.cc.cd" crossorigin />
+    <link rel="dns-prefetch" href="https://api-murflix.based.cc.cd" />
     
     <!-- Google Search Console Verification -->
     <meta name="google-site-verification" content="xMzKwP2vqlF7_PkG4iHVKoJwFzdQ9EHUAMwELMaFnTw" />
@@ -103,6 +114,15 @@
   </head>
   <body class="bg-[#141414] text-white">
     <div id="root"></div>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js').catch(function(err) {
+            console.warn('[PWA] SW register skipped:', err);
+          });
+        });
+      }
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

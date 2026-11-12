@@ -1,34 +1,42 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { AppShell } from '@/components/layout/AppShell';
 
-import { HomePage } from '@/pages/HomePage';
-import { LandingPage } from '@/pages/LandingPage';
-import { LoginPage } from '@/pages/LoginPage';
-import { SubscriptionExpiredPage } from '@/pages/SubscriptionExpiredPage';
-import { MovieDetailPage } from '@/pages/MovieDetailPage';
-import { TVDetailPage } from '@/pages/TVDetailPage';
-import { WatchPage } from '@/pages/WatchPage';
-import { BrowsePage } from '@/pages/BrowsePage';
-import { SearchPage } from '@/pages/SearchPage';
-import { MyListPage } from '@/pages/MyListPage';
-import { ProfilesPage } from '@/pages/ProfilesPage';
-import { SettingsPage } from '@/pages/SettingsPage';
+// Code-split all page routes with React.lazy
+const HomePage = lazy(() => import('@/pages/HomePage').then((m) => ({ default: m.HomePage })));
+const LandingPage = lazy(() => import('@/pages/LandingPage').then((m) => ({ default: m.LandingPage })));
+const LoginPage = lazy(() => import('@/pages/LoginPage').then((m) => ({ default: m.LoginPage })));
+const SubscriptionExpiredPage = lazy(() => import('@/pages/SubscriptionExpiredPage').then((m) => ({ default: m.SubscriptionExpiredPage })));
+const MovieDetailPage = lazy(() => import('@/pages/MovieDetailPage').then((m) => ({ default: m.MovieDetailPage })));
+const TVDetailPage = lazy(() => import('@/pages/TVDetailPage').then((m) => ({ default: m.TVDetailPage })));
+const WatchPage = lazy(() => import('@/pages/WatchPage').then((m) => ({ default: m.WatchPage })));
+const BrowsePage = lazy(() => import('@/pages/BrowsePage').then((m) => ({ default: m.BrowsePage })));
+const SearchPage = lazy(() => import('@/pages/SearchPage').then((m) => ({ default: m.SearchPage })));
+const MyListPage = lazy(() => import('@/pages/MyListPage').then((m) => ({ default: m.MyListPage })));
+const ProfilesPage = lazy(() => import('@/pages/ProfilesPage').then((m) => ({ default: m.ProfilesPage })));
+const SettingsPage = lazy(() => import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })));
 
-import { AdminLayout } from '@/components/admin/AdminLayout';
-import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage';
-import { AdminUsersPage } from '@/pages/admin/AdminUsersPage';
-import { AdminUserCreatePage } from '@/pages/admin/AdminUserCreatePage';
-import { AdminUserEditPage } from '@/pages/admin/AdminUserEditPage';
-import { AdminPricingPage } from '@/pages/admin/AdminPricingPage';
-import { AdminSettingsPage } from '@/pages/admin/AdminSettingsPage';
-import { AdminAnalyticsPage } from '@/pages/admin/analytics/AdminAnalyticsPage';
-import { AdminVisitorLogsPage } from '@/pages/admin/analytics/AdminVisitorLogsPage';
-import { AdminServersSettingsPage } from '@/pages/admin/settings/AdminServersSettingsPage';
-import { AdminTmdbSettingsPage } from '@/pages/admin/settings/AdminTmdbSettingsPage';
-import { AdminDemoSettingsPage } from '@/pages/admin/settings/AdminDemoSettingsPage';
-import { AdminGeneralSettingsPage } from '@/pages/admin/settings/AdminGeneralSettingsPage';
+// Admin Pages Code-Split
+const AdminLayout = lazy(() => import('@/components/admin/AdminLayout').then((m) => ({ default: m.AdminLayout })));
+const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage').then((m) => ({ default: m.AdminDashboardPage })));
+const AdminUsersPage = lazy(() => import('@/pages/admin/AdminUsersPage').then((m) => ({ default: m.AdminUsersPage })));
+const AdminUserCreatePage = lazy(() => import('@/pages/admin/AdminUserCreatePage').then((m) => ({ default: m.AdminUserCreatePage })));
+const AdminUserEditPage = lazy(() => import('@/pages/admin/AdminUserEditPage').then((m) => ({ default: m.AdminUserEditPage })));
+const AdminPricingPage = lazy(() => import('@/pages/admin/AdminPricingPage').then((m) => ({ default: m.AdminPricingPage })));
+const AdminSettingsPage = lazy(() => import('@/pages/admin/AdminSettingsPage').then((m) => ({ default: m.AdminSettingsPage })));
+const AdminAnalyticsPage = lazy(() => import('@/pages/admin/analytics/AdminAnalyticsPage').then((m) => ({ default: m.AdminAnalyticsPage })));
+const AdminVisitorLogsPage = lazy(() => import('@/pages/admin/analytics/AdminVisitorLogsPage').then((m) => ({ default: m.AdminVisitorLogsPage })));
+const AdminServersSettingsPage = lazy(() => import('@/pages/admin/settings/AdminServersSettingsPage').then((m) => ({ default: m.AdminServersSettingsPage })));
+const AdminTmdbSettingsPage = lazy(() => import('@/pages/admin/settings/AdminTmdbSettingsPage').then((m) => ({ default: m.AdminTmdbSettingsPage })));
+const AdminDemoSettingsPage = lazy(() => import('@/pages/admin/settings/AdminDemoSettingsPage').then((m) => ({ default: m.AdminDemoSettingsPage })));
+const AdminGeneralSettingsPage = lazy(() => import('@/pages/admin/settings/AdminGeneralSettingsPage').then((m) => ({ default: m.AdminGeneralSettingsPage })));
+
+const PageLoadingFallback: React.FC = () => (
+  <div className="min-h-screen bg-[#0a0a0c] flex items-center justify-center">
+    <div className="w-10 h-10 rounded-full border-2 border-zinc-700 border-t-red-600 animate-spin" />
+  </div>
+);
 
 // Route Guards
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -101,7 +109,8 @@ const RootRoute: React.FC = () => {
 export const AppRoutes: React.FC = () => {
   return (
     <AppShell>
-      <Routes>
+      <Suspense fallback={<PageLoadingFallback />}>
+        <Routes>
         {/* Public Routes */}
         <Route path="/" element={<RootRoute />} />
         <Route path="/welcome" element={<LandingPage />} />
@@ -303,7 +312,8 @@ export const AppRoutes: React.FC = () => {
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </AppShell>
+    </Suspense>
+  </AppShell>
   );
 };
 
